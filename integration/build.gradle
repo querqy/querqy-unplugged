@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    luceneSolrVersion = '8.11.1'
+}
+
+dependencies {
+    compileOnly "org.apache.lucene:lucene-core:${luceneSolrVersion}"
+    compileOnly "org.apache.solr:solr-core:${luceneSolrVersion}"
+
+    testImplementation "org.querqy:querqy-solr:5.4.lucene810.0"
+    testImplementation "org.apache.solr:solr-test-framework:${luceneSolrVersion}"
+    testImplementation "org.assertj:assertj-core:3.22.0"
+    testImplementation "junit:junit:4.11"
+
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+}
+
+test {
+    useJUnit()
+    systemProperty 'test.solr.allowed.securerandom', 'NativePRNG'
+}
