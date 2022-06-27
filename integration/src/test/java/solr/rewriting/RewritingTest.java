@@ -1,32 +1,40 @@
 package solr.rewriting;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.solr.SolrTestCaseJ4;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
+import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import querqy.converter.json.BoolQueryJsonNode;
+import querqy.QueryConfig;
+import querqy.QueryGenerator;
+import querqy.QueryRewritingConfig;
+import querqy.adapter.rewriter.builder.CommonRulesRewriterFactoryCreator;
+import querqy.converter.map.MapConverterFactory;
 import solr.SolrTestJsonRequest;
 import solr.SolrTestResult;
 
+import java.io.IOException;
 import java.util.Map;
-
-import static querqy.converter.json.BoolQueryJsonNode.boolJson;
-import static querqy.converter.json.DisMaxQueryJsonNode.dismaxJson;
-import static querqy.converter.json.FieldQueryJsonNode.fieldJson;
 
 public class RewritingTest extends SolrTestCaseJ4 {
 
     private static SolrClient SOLR_CLIENT;
 
+    private final QueryConfig queryConfig = QueryConfig.builder()
+            .field("name", 40.0f)
+            .field("type", 20.0f)
+            .minimumShouldMatch("100%")
+            .tie(0.0f)
+            .build();
+
     @BeforeClass
     public static void setupIndex() throws Exception {
         initCore("solrconfig.xml", "schema-boolean-similarity.xml");
-        assertU(adoc("id", "1", "name", "iphone"));
-        assertU(adoc("id", "2", "name", "apple"));
-        assertU(adoc("id", "3", "name", "apple smartphone"));
+        assertU(adoc("id", "1", "name", "iphone", "type", "smartphone"));
+        assertU(adoc("id", "2", "name", "apple", "type", "smartphone"));
+        assertU(adoc("id", "3", "name", "apple smartphone", "type", "smartphone"));
+        assertU(adoc("id", "4", "name", "apple", "type", "case"));
         assertU(commit());
 
         SOLR_CLIENT = new EmbeddedSolrServer(h.getCoreContainer(), "collection1") {
@@ -36,30 +44,71 @@ public class RewritingTest extends SolrTestCaseJ4 {
     }
 
     @Test
-    public void testThat_scoresAreSummed_forTieIsOne() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
-
-        BoolQueryJsonNode bq = BoolQueryJsonNode.boolJson(
-                dismaxJson(
-                        fieldJson("name", "iphone"),
-                        boolJson(BoolQueryJsonNode.BoolOperator.MUST,
-                                dismaxJson(fieldJson("name", "apple")),
-                                dismaxJson(fieldJson("name", "smartphone"))
-                        )
+    public void testThat_scoringIsFair_forSimpleRepeatedClause() throws Exception {
+        final QueryGenerator<Map<String, Object>> queryGenerator = QueryGenerator.<Map<String, Object>>builder()
+                .queryConfig(queryConfig)
+                .queryRewritingConfig(
+                        singleRewriterConfig("apple smartphone =>\n  SYNONYM: iphone")
                 )
-        );
+                .converterFactory(MapConverterFactory.create())
+                .build();
 
+        final Map<String, Object> query = queryGenerator.generateQuery("apple smartphone");
 
-        SolrTestResult result = SolrTestJsonRequest.builder()
-                .param("qt", "/select")
-                .param("fl", "id,name,score")
-                .query(objectMapper.convertValue(bq, Map.class))
+        final SolrTestResult result = SolrTestJsonRequest.builder()
+                .param("fl", "id,name,type,score")
+                .query(query)
                 .solrClient(SOLR_CLIENT)
                 .build()
                 .applyRequest();
 
+        Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
+                SolrTestResult.builder()
+                        .fields("id", "name", "type", "score")
+                        .doc("1", "iphone", "smartphone", 80.0f)
+                        .doc("3", "apple smartphone", "smartphone", 80.0f)
+                        .doc("2", "apple", "smartphone", 60.0f)
+                        .build()
+        );
+    }
+
+    @Test
+    public void testThat_scoringIsFair_forSimpleNestedClause() throws Exception {
+        final QueryGenerator<Map<String, Object>> queryGenerator = QueryGenerator.<Map<String, Object>>builder()
+                .queryConfig(queryConfig)
+                .queryRewritingConfig(
+                        singleRewriterConfig("iphone =>\n  SYNONYM: apple smartphone")
+                )
+                .converterFactory(MapConverterFactory.create())
+                .build();
+
+        final Map<String, Object> query = queryGenerator.generateQuery("iphone");
+
+        final SolrTestResult result = SolrTestJsonRequest.builder()
+                .param("fl", "id,name,type,score")
+                .query(query)
+                .solrClient(SOLR_CLIENT)
+                .build()
+                .applyRequest();
+
+        Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
+                SolrTestResult.builder()
+                        .fields("id", "name", "type", "score")
+                        .doc("1", "iphone", "smartphone", 40.0f)
+                        .doc("3", "apple smartphone", "smartphone", 40.0f)
+                        .doc("2", "apple", "smartphone", 30.0f)
+                        .build()
+        );
+    }
+
+    private QueryRewritingConfig singleRewriterConfig(final String rules) throws IOException {
+        return QueryRewritingConfig.builder()
+                .rewriterFactory(
+                        CommonRulesRewriterFactoryCreator.creator()
+                                .rewriterId("1")
+                                .rules(rules)
+                                .createFactory()
+                )
+                .build();
     }
 }
