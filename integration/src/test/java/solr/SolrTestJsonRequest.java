@@ -27,7 +27,7 @@ public class SolrTestJsonRequest {
     private final String handler;
     private final Map<String, List<String>> params;
 
-    private final Map query;
+    private final Map<String, Object> query;
     private final SolrClient solrClient;
 
     public SolrTestResult applyRequest() throws Exception {
@@ -38,18 +38,7 @@ public class SolrTestJsonRequest {
         final QueryResponse response = request.process(solrClient, "collection1");
         final SolrDocumentList solrDocuments = response.getResults();
 
-        System.out.println(response);
-
-
-//        final SolrQueryRequest req = req(solrParams);
-//
-//        final SolrQueryResponse resp = testHarness.queryAndResponse(handler, req);
-//        final SolrTestResult docs = extractResults(resp);
-//
-//        req.close();
-//
-//        return docs;
-        return null;
+        return extractResults(solrDocuments);
     }
 
     private SolrParams createSolrParams() {
@@ -58,11 +47,11 @@ public class SolrTestJsonRequest {
         return solrParams;
     }
 
-    private SolrTestResult extractResults(final SolrQueryResponse resp) {
+    private SolrTestResult extractResults(final SolrDocumentList solrDocuments) {
         final SolrTestResult docs = new SolrTestResult();
-        ((BasicResultContext) resp.getResponse())
-                .getProcessedDocuments()
-                .forEachRemaining(doc -> docs.add(convertSolrDocToMap(doc)));
+        solrDocuments.stream()
+                .map(this::convertSolrDocToMap)
+                .forEach(docs::add);
         return docs;
     }
 
