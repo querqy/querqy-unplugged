@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'org.example'
+group 'org.querqy'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -10,7 +10,7 @@ repositories {
 }
 
 ext {
-    luceneSolrVersion = '8.11.1'
+    luceneSolrVersion = '8.11.2'
 }
 
 dependencies {
@@ -21,10 +21,10 @@ dependencies {
     testImplementation "org.apache.solr:solr-test-framework:${luceneSolrVersion}"
     testImplementation "org.assertj:assertj-core:3.22.0"
     testImplementation "junit:junit:4.11"
+    testImplementation project(":library")
 
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-
     testCompileOnly 'org.projectlombok:lombok:1.18.24'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 

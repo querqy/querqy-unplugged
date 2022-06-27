@@ -42,6 +42,11 @@
 
     <luceneMatchVersion>${tests.luceneMatchVersion:LATEST}</luceneMatchVersion>
 
+    <indexConfig>
+        <!-- Needed for RAMDirectoryFactory -->
+        <lockType>single</lockType>
+    </indexConfig>
+
     <updateHandler class="solr.DirectUpdateHandler2">
         <commitWithin>
             <softCommit>${solr.commitwithin.softcommit:true}</softCommit>

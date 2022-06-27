@@ -14,6 +14,8 @@ import java.util.List;
 
 public class NestedDisMaxQParser extends QParser {
 
+    // TODO: tie should be only accepted as local param
+
     private static final String SUB_QUERY_PARAM_KEY = "queries";
     private static final String TIE_PARAM_KEY = "tie";
     private static final float TIE_DEFAULT = 1.0f;

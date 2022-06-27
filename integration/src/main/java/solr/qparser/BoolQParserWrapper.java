@@ -9,6 +9,8 @@ import org.apache.solr.util.SolrPluginUtils;
 
 public class BoolQParserWrapper extends QParser {
 
+    // TODO: mm should be only accepted as local param
+
     private final QParser parser;
     private final SolrParams mergedParams;
 
