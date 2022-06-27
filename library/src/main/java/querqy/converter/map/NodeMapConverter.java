@@ -10,7 +10,6 @@ import querqy.model.DisjunctionMaxClause;
 import querqy.model.DisjunctionMaxQuery;
 import querqy.model.MatchAllQuery;
 import querqy.model.Node;
-import querqy.model.QuerqyQuery;
 import querqy.model.Query;
 import querqy.model.RawQuery;
 import querqy.model.Term;

@@ -9,17 +9,11 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
-import org.apache.solr.request.SolrQueryRequest;
-import org.apache.solr.response.BasicResultContext;
-import org.apache.solr.response.SolrQueryResponse;
-import org.apache.solr.util.TestHarness;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.apache.solr.SolrTestCaseJ4.req;
 
 @Builder
 public class SolrTestJsonRequest {

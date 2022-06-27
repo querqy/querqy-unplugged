@@ -1,6 +1,10 @@
 package solr;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,7 +18,6 @@ public class SolrTestResult extends ArrayList<Map<String, Object>> {
         }
 
         System.out.println("------------------------------------------");
-        System.out.println(this.hashCode());
 
         return this;
     }

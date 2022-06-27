@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Builder;
 import querqy.QueryConfig;
 import querqy.converter.Converter;
-import querqy.model.AbstractNodeVisitor;
 import querqy.model.ExpandedQuery;
 
 import java.util.Map;
