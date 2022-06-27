@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'org.example'
+group 'org.querqy'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -12,10 +12,17 @@ repositories {
 dependencies {
     implementation group: 'org.querqy', name: 'querqy-core', version: '3.14.0'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    testImplementation "org.assertj:assertj-core:3.22.0"
+    testImplementation "junit:junit:4.13.2"
+    testImplementation 'org.mockito:mockito-core:4.6.1'
+
+
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 test {
-    useJUnitPlatform()
+    useJUnit()
 }
