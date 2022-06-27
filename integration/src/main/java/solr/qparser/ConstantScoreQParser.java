@@ -10,6 +10,8 @@ import org.apache.solr.search.SyntaxError;
 
 public class ConstantScoreQParser extends QParser {
 
+    // TODO: all clauses should only be accepted as local params
+
     private static final String SUB_QUERY_PARAM_KEY = "filter";
     private static final String BOOST_PARAM_KEY = "boost";
 

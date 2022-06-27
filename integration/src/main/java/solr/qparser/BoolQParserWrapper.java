@@ -1,6 +1,7 @@
 package solr.qparser;
 
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.request.SolrQueryRequest;
@@ -9,7 +10,8 @@ import org.apache.solr.util.SolrPluginUtils;
 
 public class BoolQParserWrapper extends QParser {
 
-    // TODO: mm should be only accepted as local param
+    // TODO: all clauses should only be accepted as local params
+    private static final String BOOST_PARAM_KEY = "boost";
 
     private final QParser parser;
     private final SolrParams mergedParams;
@@ -27,7 +29,10 @@ public class BoolQParserWrapper extends QParser {
 
         if (query instanceof BooleanQuery) {
             final String minShouldMatch = parseMinShouldMatch();
-            return SolrPluginUtils.setMinShouldMatch((BooleanQuery) query, minShouldMatch);
+            final Query queryWithMinShouldMatch = SolrPluginUtils.setMinShouldMatch(
+                    (BooleanQuery) query, minShouldMatch);
+
+            return potentiallyWrapByBoostQuery(queryWithMinShouldMatch);
 
         } else {
             // TODO: some kind of exception handling? this should never happen
@@ -37,5 +42,16 @@ public class BoolQParserWrapper extends QParser {
 
     private String parseMinShouldMatch() {
         return DisMaxQParser.parseMinShouldMatch(super.req.getSchema(), mergedParams);
+    }
+
+    private Query potentiallyWrapByBoostQuery(final Query query) {
+        final Float boost = mergedParams.getFloat(BOOST_PARAM_KEY);
+
+        if (boost == null) {
+            return query;
+
+        } else {
+            return new BoostQuery(query, boost);
+        }
     }
 }
