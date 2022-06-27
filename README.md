@@ -32,7 +32,7 @@ The easiest way to switch from a pure plugin-based rewriting to a service-based 
 not require refactorings of the Querqy pipeline.
  
 
-### Limitations
+### Limitations (known so far)
 * The current Wordbreak rewriter requires access to a Lucene index.
 * The multi-match-tie feature is currently implemented in querqy-lucene and is needed to be moved into querqy-core.
 However, the current implementation produces too many clauses for the case of largely expanded queries. Therefore,
@@ -40,3 +40,8 @@ the feature might be implemented using a custom Lucene query in the future, whic
 (1) and (2). 
 * Term frequency faking
 * Splitting terms in Lucene analyzer chains applied inside the search engine will lead to odd scoring
+
+
+### Open for discussion
+* Handling negative boosts (e.g. in the context of DOWN-rules in the common rules rewriter)
+* Handling of eDismax-like params (e.g. bq, bf)
