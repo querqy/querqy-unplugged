@@ -20,18 +20,14 @@ public class NestedDisMaxQParser extends QParser {
     private static final String TIE_PARAM_KEY = "tie";
     private static final float TIE_DEFAULT = 1.0f;
 
-    private final SolrParams mergedParams;
-
     public NestedDisMaxQParser(
             final String qstr, final SolrParams localParams, final SolrParams params, final SolrQueryRequest req) {
-
         super(qstr, localParams, params, req);
-        mergedParams = SolrParams.wrapDefaults(localParams, params);
     }
 
     @Override
     public Query parse() throws SyntaxError {
-        final float tie = mergedParams.getFloat(TIE_PARAM_KEY, TIE_DEFAULT);
+        final float tie = getLocalParams().getFloat(TIE_PARAM_KEY, TIE_DEFAULT);
         final List<Query> nestedQueries = extractNestedQueries();
 
         return new DisjunctionMaxQuery(nestedQueries, tie);
@@ -49,7 +45,7 @@ public class NestedDisMaxQParser extends QParser {
     }
 
     private List<String> getNestedQueryDefinitions() {
-        final String[] nestedQueryDefinitions = mergedParams.getParams(SUB_QUERY_PARAM_KEY);
+        final String[] nestedQueryDefinitions = getLocalParams().getParams(SUB_QUERY_PARAM_KEY);
         return nestedQueryDefinitions == null ? Collections.emptyList() : Arrays.asList(nestedQueryDefinitions);
     }
 

@@ -14,13 +14,11 @@ public class BoolQParserWrapper extends QParser {
     private static final String BOOST_PARAM_KEY = "boost";
 
     private final QParser parser;
-    private final SolrParams mergedParams;
 
-    public BoolQParserWrapper(final QParser parser, String qstr, SolrParams localParams, SolrParams params, SolrQueryRequest req) {
+    public BoolQParserWrapper(
+            final QParser parser, String qstr, SolrParams localParams, SolrParams params, SolrQueryRequest req) {
         super(qstr, localParams, params, req);
-
         this.parser = parser;
-        this.mergedParams = SolrParams.wrapDefaults(localParams, params);
     }
 
     @Override
@@ -41,11 +39,11 @@ public class BoolQParserWrapper extends QParser {
     }
 
     private String parseMinShouldMatch() {
-        return DisMaxQParser.parseMinShouldMatch(super.req.getSchema(), mergedParams);
+        return DisMaxQParser.parseMinShouldMatch(super.req.getSchema(), getLocalParams());
     }
 
     private Query potentiallyWrapByBoostQuery(final Query query) {
-        final Float boost = mergedParams.getFloat(BOOST_PARAM_KEY);
+        final Float boost = getLocalParams().getFloat(BOOST_PARAM_KEY);
 
         if (boost == null) {
             return query;

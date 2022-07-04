@@ -24,9 +24,9 @@ public class BoolQParserWrapperPluginTest extends SolrTestCaseJ4 {
         SolrTestResult result = SolrTestRequest.builder()
                 .testHarness(h)
                 .handler("/select")
-                .param("defType", "bool")
                 .param("fl", "id,name")
-                .param("must", "{!term f=name v=apple}")
+                .param("q", "{!bool must=$must1}")
+                .param("must1", "{!term f=name v=apple}")
                 .build()
                 .applyRequest();
 
@@ -44,10 +44,10 @@ public class BoolQParserWrapperPluginTest extends SolrTestCaseJ4 {
         SolrTestResult result = SolrTestRequest.builder()
                 .testHarness(h)
                 .handler("/select")
-                .param("defType", "bool")
                 .param("fl", "id,name")
-                .param("must", "{!field f=name v=apple}")
-                .param("must", "{!field f=name v=smartphone}")
+                .param("q", "{!bool must=$must1 must=$must2}")
+                .param("must1", "{!field f=name v=apple}")
+                .param("must2", "{!field f=name v=smartphone}")
                 .build()
                 .applyRequest();
 
@@ -64,10 +64,10 @@ public class BoolQParserWrapperPluginTest extends SolrTestCaseJ4 {
         SolrTestResult result = SolrTestRequest.builder()
                 .testHarness(h)
                 .handler("/select")
-                .param("defType", "bool")
                 .param("fl", "id,name")
-                .param("should", "{!field f=name v=apple}")
-                .param("should", "{!field f=name v=smartphone}")
+                .param("q", "{!bool should=$should1 should=$should2}")
+                .param("should1", "{!field f=name v=apple}")
+                .param("should2", "{!field f=name v=smartphone}")
                 .build()
                 .applyRequest();
 
@@ -85,11 +85,11 @@ public class BoolQParserWrapperPluginTest extends SolrTestCaseJ4 {
         SolrTestResult result = SolrTestRequest.builder()
                 .testHarness(h)
                 .handler("/select")
-                .param("defType", "bool")
                 .param("fl", "id,name")
-                .param("mm", "2")
-                .param("should", "{!field f=name v=apple}")
-                .param("should", "{!field f=name v=smartphone}")
+                .param("q", "{!bool should=$should1 should=$should2 mm=$mm1}")
+                .param("should1", "{!field f=name v=apple}")
+                .param("should2", "{!field f=name v=smartphone}")
+                .param("mm1", "2")
                 .build()
                 .applyRequest();
 
@@ -97,6 +97,27 @@ public class BoolQParserWrapperPluginTest extends SolrTestCaseJ4 {
                 SolrTestResult.builder()
                         .fields("id", "name")
                         .doc("3", "apple smartphone")
+                        .build()
+        );
+    }
+
+    @Test
+    public void testThat_scoreIsDecreased_forBoostLowerThanOne() throws Exception {
+        SolrTestResult result = SolrTestRequest.builder()
+                .testHarness(h)
+                .handler("/select")
+                .param("fl", "id,score")
+                .param("q", "{!bool should=$should1 should=$should2}")
+                .param("should1", "{!bool should=\"{!field f=name v=iphone}\"}")
+                .param("should2", "{!bool should=\"{!field f=name v=smartphone}\" boost=0.5}")
+                .build()
+                .applyRequest();
+
+        Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
+                SolrTestResult.builder()
+                        .fields("id", "score")
+                        .doc("1", 1.0f)
+                        .doc("3", 0.5f)
                         .build()
         );
     }

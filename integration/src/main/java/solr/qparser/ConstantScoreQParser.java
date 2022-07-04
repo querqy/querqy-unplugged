@@ -15,13 +15,9 @@ public class ConstantScoreQParser extends QParser {
     private static final String SUB_QUERY_PARAM_KEY = "filter";
     private static final String BOOST_PARAM_KEY = "boost";
 
-    private final SolrParams mergedParams;
-
     public ConstantScoreQParser(
             final String qstr, final SolrParams localParams, final SolrParams params, final SolrQueryRequest req) {
-
         super(qstr, localParams, params, req);
-        mergedParams = SolrParams.wrapDefaults(localParams, params);
     }
 
     @Override
@@ -33,13 +29,13 @@ public class ConstantScoreQParser extends QParser {
     }
 
     private Query parseSubQuery() throws SyntaxError {
-        final String subQueryDefinition = mergedParams.get(SUB_QUERY_PARAM_KEY);
+        final String subQueryDefinition = getLocalParams().get(SUB_QUERY_PARAM_KEY);
         final QParser subQueryParser = super.subQuery(subQueryDefinition, null);
         return subQueryParser.parse();
     }
 
     private Query potentiallyWrapByBoostQuery(final Query query) {
-        final Float boost = mergedParams.getFloat(BOOST_PARAM_KEY);
+        final Float boost = getLocalParams().getFloat(BOOST_PARAM_KEY);
 
         if (boost == null) {
             return query;

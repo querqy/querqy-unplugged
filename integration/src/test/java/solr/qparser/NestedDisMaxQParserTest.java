@@ -24,11 +24,10 @@ public class NestedDisMaxQParserTest extends SolrTestCaseJ4 {
         SolrTestResult result = SolrTestRequest.builder()
                 .testHarness(h)
                 .handler("/select")
-                .param("defType", "dis_max")
+                .param("q", "{!dis_max queries=$queries1 queries=$queries2 tie=1.0f}")
                 .param("fl", "id,name,score")
-                .param("tie", "1.0f")
-                .param("queries", "{!field f=name v=apple}")
-                .param("queries", "{!field f=name v=smartphone}")
+                .param("queries1", "{!field f=name v=apple}")
+                .param("queries2", "{!field f=name v=smartphone}")
                 .build()
                 .applyRequest();
 
@@ -46,11 +45,10 @@ public class NestedDisMaxQParserTest extends SolrTestCaseJ4 {
         SolrTestResult result = SolrTestRequest.builder()
                 .testHarness(h)
                 .handler("/select")
-                .param("defType", "dis_max")
+                .param("q", "{!dis_max queries=$queries1 queries=$queries2 tie=0.5f}")
                 .param("fl", "id,name,score")
-                .param("tie", "0.5f")
-                .param("queries", "{!field f=name v=apple}")
-                .param("queries", "{!field f=name v=smartphone}")
+                .param("queries1", "{!field f=name v=apple}")
+                .param("queries2", "{!field f=name v=smartphone}")
                 .build()
                 .applyRequest();
 
@@ -68,11 +66,10 @@ public class NestedDisMaxQParserTest extends SolrTestCaseJ4 {
         SolrTestResult result = SolrTestRequest.builder()
                 .testHarness(h)
                 .handler("/select")
-                .param("defType", "dis_max")
+                .param("q", "{!dis_max queries=$queries1 queries=$queries2 tie=0.0f}")
                 .param("fl", "id,name,score")
-                .param("tie", "0.0f")
-                .param("queries", "{!field f=name v=apple}")
-                .param("queries", "{!field f=name v=smartphone}")
+                .param("queries1", "{!field f=name v=apple}")
+                .param("queries2", "{!field f=name v=smartphone}")
                 .build()
                 .applyRequest();
 

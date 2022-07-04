@@ -24,9 +24,9 @@ public class ConstantScoreQParserTest extends SolrTestCaseJ4 {
         SolrTestResult result = SolrTestRequest.builder()
                 .testHarness(h)
                 .handler("/select")
-                .param("defType", "constant_score")
+                .param("q", "{!constant_score filter=$filter1}")
                 .param("fl", "id,name,score")
-                .param("filter", "{!term f=name v=apple}")
+                .param("filter1", "{!term f=name v=apple}")
                 .build()
                 .applyRequest();
 
@@ -44,10 +44,9 @@ public class ConstantScoreQParserTest extends SolrTestCaseJ4 {
         SolrTestResult result = SolrTestRequest.builder()
                 .testHarness(h)
                 .handler("/select")
-                .param("defType", "constant_score")
+                .param("q", "{!constant_score filter=$filter1 boost=10.0f}")
                 .param("fl", "id,name,score")
-                .param("filter", "{!term f=name v=apple}")
-                .param("boost", "10.0f")
+                .param("filter1", "{!term f=name v=apple}")
                 .build()
                 .applyRequest();
 
