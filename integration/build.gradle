@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'org.querqy'
-version '0.1'
+version '0.1.1'
 
 repositories {
     mavenCentral()
@@ -40,6 +40,7 @@ test {
 java {
     withJavadocJar()
     withSourcesJar()
+    sourceCompatibility = 11
 }
 
 publishing {
@@ -60,7 +61,7 @@ publishing {
                 }
             }
             pom {
-                name = 'Querqy Unplugged SOlr'
+                name = 'Querqy Unplugged Solr'
                 description = 'A lightweight Solr plugin that allows the usage of some lucene queries via Solr JSON DSL'
                 url = 'https://querqy.org'
 

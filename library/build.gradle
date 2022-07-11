@@ -33,6 +33,7 @@ test {
 java {
     withJavadocJar()
     withSourcesJar()
+    sourceCompatibility = 11
 }
 
 publishing {
