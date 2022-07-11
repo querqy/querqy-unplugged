@@ -20,6 +20,25 @@ public class BoolQParserWrapperPluginTest extends SolrTestCaseJ4 {
     }
 
     @Test
+    public void testThat_resultsAreNegated_forSingleMustNotClause() throws Exception {
+        SolrTestResult result = SolrTestRequest.builder()
+                .testHarness(h)
+                .handler("/select")
+                .param("fl", "id,name")
+                .param("q", "{!bool must_not=$must_not1}")
+                .param("must_not1", "{!term f=name v=apple}")
+                .build()
+                .applyRequest();
+
+        Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
+                SolrTestResult.builder()
+                        .fields("id", "name")
+                        .doc("1", "iphone")
+                        .build()
+        );
+    }
+
+    @Test
     public void testThat_twoDocsAreReturned_forBoolQueryWithSingleMustClause() throws Exception {
         SolrTestResult result = SolrTestRequest.builder()
                 .testHarness(h)
