@@ -1,4 +1,4 @@
-rootProject.name = 'querqy-for-service'
+rootProject.name = 'querqy-unplugged'
 include 'integration'
 include 'library'
 
