@@ -16,7 +16,7 @@ import static querqy.model.convert.builder.ExpandedQueryBuilder.expanded;
 import static querqy.model.convert.builder.TermBuilder.term;
 import static querqy.model.convert.model.Occur.MUST;
 
-public class NodeMapConverterTest {
+public class QuerqyQueryMapConverterTest {
 
     private final QueryConfig baseQueryConfig = QueryConfig.builder()
             .boolNodeName("bool")
@@ -27,7 +27,7 @@ public class NodeMapConverterTest {
 
     @Test
     public void testThat_tieIsAddedToDmq_forDmqAndDefinedTie() {
-        final NodeMapConverter converter = NodeMapConverter.builder()
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
                         baseQueryConfig.toBuilder()
                                 .tie(0.5f)
@@ -48,7 +48,7 @@ public class NodeMapConverterTest {
 
     @Test
     public void testThat_termsAreExpanded_forDmqAndTwoFields() {
-        final NodeMapConverter converter = NodeMapConverter.builder()
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
                         baseQueryConfig.toBuilder()
                                 .field("brand", 30.0f)
@@ -70,7 +70,7 @@ public class NodeMapConverterTest {
     @Test
     public void testThat_termsAreExpandedWithinEachDmq_forTwoFieldsAndTwoQueryTerms() {
         final ExpandedQuery expandedQuery = expanded(bq("iphone", "12")).build();
-        final NodeMapConverter converter = NodeMapConverter.builder()
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
                         baseQueryConfig.toBuilder()
                                 .field("brand", 30.0f)
@@ -120,7 +120,7 @@ public class NodeMapConverterTest {
         ).build();
 
 
-        final NodeMapConverter converter = NodeMapConverter.builder()
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
                         baseQueryConfig.toBuilder()
                                 .field("f", 1.0f)

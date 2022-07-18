@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Builder
-public class NodeMapConverter extends AbstractNodeVisitor<Map<String, Object>> {
+public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Map<String, Object>> {
 
     private final QueryConfig queryConfig;
     private final Node node;
