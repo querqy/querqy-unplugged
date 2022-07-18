@@ -5,7 +5,6 @@ plugins {
 }
 
 group 'org.querqy'
-version '0.2'
 
 repositories {
     mavenCentral()
@@ -41,7 +40,7 @@ publishing {
         mavenJava(MavenPublication) {
             groupId = 'org.querqy'
             artifactId = 'querqy-unplugged'
-            version = '0.2'
+            version = '0.3.0-SNAPSHOT'
 
             from components.java
 
@@ -81,8 +80,11 @@ publishing {
     }
     repositories {
         maven {
+            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+
             name = 'sonatype'
-            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials(PasswordCredentials)
         }
     }
