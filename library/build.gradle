@@ -1,17 +1,18 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'maven-publish'
     id 'signing'
 }
 
 group 'org.querqy'
+version '0.3.0'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation group: 'org.querqy', name: 'querqy-core', version: '3.14.0'
+    api group: 'org.querqy', name: 'querqy-core', version: '3.14.0'
 
     testImplementation "org.assertj:assertj-core:3.22.0"
     testImplementation "junit:junit:4.13.2"
@@ -40,7 +41,7 @@ publishing {
         mavenJava(MavenPublication) {
             groupId = 'org.querqy'
             artifactId = 'querqy-unplugged'
-            version = '0.3.0-SNAPSHOT'
+            version = '0.3.0'
 
             from components.java
 
