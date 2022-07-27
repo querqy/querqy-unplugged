@@ -5,7 +5,6 @@ import querqy.QueryConfig;
 import querqy.model.ExpandedQuery;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static querqy.converter.map.ConverterTestUtils.bqMap;
@@ -14,11 +13,12 @@ import static querqy.converter.map.ConverterTestUtils.termMap;
 import static querqy.model.convert.builder.BooleanQueryBuilder.bq;
 import static querqy.model.convert.builder.DisjunctionMaxQueryBuilder.dmq;
 import static querqy.model.convert.builder.ExpandedQueryBuilder.expanded;
+import static querqy.model.convert.builder.MatchAllQueryBuilder.matchall;
 import static querqy.model.convert.builder.StringRawQueryBuilder.raw;
 import static querqy.model.convert.builder.TermBuilder.term;
 import static querqy.model.convert.model.Occur.MUST;
 
-public class QueryTreeMapConverterTest {
+public class QuerqyQueryMapConverterTest {
 
     private final QueryConfig baseQueryConfig = QueryConfig.builder()
             .boolNodeName("bool")
@@ -28,8 +28,23 @@ public class QueryTreeMapConverterTest {
             .build();
 
     @Test
-    public void testThat_queryIsParsedProperly_forIncludedRawQuery() {
-        final QueryTreeMapConverter converter = QueryTreeMapConverter.builder()
+    public void testThat_queryIsParsedProperly_forGivenMatchAllQuery() {
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
+                .queryConfig(
+                        baseQueryConfig.toBuilder()
+                                .field("f", 1.0f)
+                                .build()
+                )
+                .node(matchall().build())
+                .parseAsUserQuery(true)
+                .build();
+
+        assertThat(converter.convert()).isEqualTo("*:*");
+    }
+
+    @Test
+    public void testThat_queryIsParsedProperly_forGivenRawQuery() {
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
                         baseQueryConfig.toBuilder()
                                 .field("f", 1.0f)
@@ -40,16 +55,13 @@ public class QueryTreeMapConverterTest {
                 .build();
 
         assertThat(converter.convert()).isEqualTo(
-                Map.of(
-                        "query",
-                        "type:iphone"
-                )
+                "type:iphone"
         );
     }
 
     @Test
     public void testThat_tieIsAddedToDmq_forDmqAndDefinedTie() {
-        final QueryTreeMapConverter converter = QueryTreeMapConverter.builder()
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
                         baseQueryConfig.toBuilder()
                                 .tie(0.5f)
@@ -70,7 +82,7 @@ public class QueryTreeMapConverterTest {
 
     @Test
     public void testThat_termsAreExpanded_forDmqAndTwoFields() {
-        final QueryTreeMapConverter converter = QueryTreeMapConverter.builder()
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
                         baseQueryConfig.toBuilder()
                                 .field("brand", 30.0f)
@@ -92,7 +104,7 @@ public class QueryTreeMapConverterTest {
     @Test
     public void testThat_termsAreExpandedWithinEachDmq_forTwoFieldsAndTwoQueryTerms() {
         final ExpandedQuery expandedQuery = expanded(bq("iphone", "12")).build();
-        final QueryTreeMapConverter converter = QueryTreeMapConverter.builder()
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
                         baseQueryConfig.toBuilder()
                                 .field("brand", 30.0f)
@@ -142,7 +154,7 @@ public class QueryTreeMapConverterTest {
         ).build();
 
 
-        final QueryTreeMapConverter converter = QueryTreeMapConverter.builder()
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
                         baseQueryConfig.toBuilder()
                                 .field("f", 1.0f)

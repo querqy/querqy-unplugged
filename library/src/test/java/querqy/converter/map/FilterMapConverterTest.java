@@ -99,5 +99,16 @@ public class FilterMapConverterTest {
         );
     }
 
+    @Test
+    public void testThat_filterIsParsedProperly_() {
+        final FilterMapConverter converter = FilterMapConverter.builder()
+                .queryConfig(baseQueryConfig)
+                .filterQueries(null)
+                .build();
 
+        assertThat(converter.hasFilters()).isFalse();
+        assertThat(converter.convertFilterQueries()).isEqualTo(
+                List.of()
+        );
+    }
 }
