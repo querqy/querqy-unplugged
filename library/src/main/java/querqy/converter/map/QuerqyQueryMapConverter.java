@@ -22,18 +22,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Builder
-public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Map<String, Object>> {
+public class QueryTreeMapConverter extends AbstractNodeVisitor<Object> {
 
     private final QueryConfig queryConfig;
     private final Node node;
     private final boolean parseAsUserQuery;
 
-    public Map<String, Object> convert() {
+    public Object convert() {
         return node.accept(this);
     }
 
     @Override
-    public Map<String, Object> visit(final BooleanQuery booleanQuery) {
+    public Object visit(final BooleanQuery booleanQuery) {
         if (booleanQuery instanceof Query) {
             return visit((Query) booleanQuery);
 
@@ -50,7 +50,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Map<String, Obj
     }
 
     @Override
-    public Map<String, Object> visit(final Query query) {
+    public Object visit(final Query query) {
         final Map<String, Object> boolNode = convertBooleanQueryToMap(query);
 
         if (parseAsUserQuery && queryConfig.hasMinimumShouldMatch()) {
@@ -65,7 +65,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Map<String, Obj
         final Map<String, Object> boolNode = new HashMap<>(2);
 
         for (final BooleanClause clause : booleanQuery.getClauses()) {
-            List<Map<String, Object>> clauses = (List<Map<String, Object>>) boolNode.computeIfAbsent(
+            List<Object> clauses = (List<Object>) boolNode.computeIfAbsent(
                     getPropertyNameForOccur(clause.getOccur()),
                     key -> new ArrayList<>());
 
@@ -88,26 +88,20 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Map<String, Obj
     }
 
     @Override
-    public Map<String, Object> visit(final MatchAllQuery query) {
-        // TODO
-        throw new UnsupportedOperationException("Not implemented so far");
-    }
-
-    @Override
     public Map<String, Object> visit(final DisjunctionMaxQuery disMaxQuery) {
-        final List<Map<String, Object>> convertedClauses = convertDisMaxClauses(disMaxQuery);
+        final List<Object> convertedClauses = convertDisMaxClauses(disMaxQuery);
         final Map<String, Object> disMaxNode = createDisMaxNode(convertedClauses);
         return Map.of(queryConfig.getDisMaxNodeName(), disMaxNode);
     }
 
-    private List<Map<String, Object>> convertDisMaxClauses(final DisjunctionMaxQuery disMaxQuery) {
+    private List<Object> convertDisMaxClauses(final DisjunctionMaxQuery disMaxQuery) {
         return disMaxQuery.getClauses().stream()
                 .map(this::convertDisMaxClause)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
 
-    private List<Map<String, Object>> convertDisMaxClause(final DisjunctionMaxClause clause) {
+    private List<Object> convertDisMaxClause(final DisjunctionMaxClause clause) {
         if (clause instanceof Term) {
             return convertTerm((Term) clause);
 
@@ -116,7 +110,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Map<String, Obj
         }
     }
 
-    private List<Map<String, Object>> convertTerm(final Term term) {
+    private List<Object> convertTerm(final Term term) {
         if (term.getField() == null) {
             return TermMapConverter.builder()
                     .queryConfig(queryConfig)
@@ -129,7 +123,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Map<String, Obj
         }
     }
 
-    private Map<String, Object> createDisMaxNode(final List<Map<String, Object>> convertedClauses) {
+    private Map<String, Object> createDisMaxNode(final List<Object> convertedClauses) {
         if (queryConfig.hasTie()) {
             return Map.of("queries", convertedClauses, "tie", queryConfig.getTie());
 
@@ -139,10 +133,16 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Map<String, Obj
     }
 
     @Override
-    public Map<String, Object> visit(final RawQuery rawQuery) {
-        // TODO
-        throw new UnsupportedOperationException("Not supported");
+    public Map<String, Object> visit(final MatchAllQuery query) {
+        throw new UnsupportedOperationException(
+                "Conversion of MatchAllQuery is not supported by " + this.getClass().getName());
+    }
 
+    @Override
+    public Object visit(final RawQuery rawQuery) {
+        return RawQueryConverter.of(rawQuery).convert();
+//        throw new UnsupportedOperationException(
+//                "Conversion of RawQuery is not supported by " + this.getClass().getName());
     }
 
     @Override
