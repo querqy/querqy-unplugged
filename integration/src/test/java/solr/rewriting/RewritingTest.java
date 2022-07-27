@@ -35,12 +35,40 @@ public class RewritingTest extends SolrTestCaseJ4 {
         assertU(adoc("id", "2", "name", "apple", "type", "smartphone"));
         assertU(adoc("id", "3", "name", "apple smartphone", "type", "smartphone"));
         assertU(adoc("id", "4", "name", "apple", "type", "case"));
+        assertU(adoc("id", "5", "name", "samsung", "type", "case"));
         assertU(commit());
 
         SOLR_CLIENT = new EmbeddedSolrServer(h.getCoreContainer(), "collection1") {
             public void close() {
             }
         };
+    }
+
+    @Test
+    public void testThat_filterIsApplied_forBeingIncludedInCommonRules() throws Exception {
+        final QueryGenerator<Map<String, Object>> queryGenerator = QueryGenerator.<Map<String, Object>>builder()
+                .queryConfig(queryConfig)
+                .queryRewritingConfig(
+                        singleRewriterConfig("apple =>\n  FILTER: * type:case")
+                )
+                .converterFactory(MapConverterFactory.create())
+                .build();
+
+        final Map<String, Object> query = queryGenerator.generateQuery("apple");
+
+        final SolrTestResult result = SolrTestJsonRequest.builder()
+                .param("fl", "id")
+                .query(query)
+                .solrClient(SOLR_CLIENT)
+                .build()
+                .applyRequest();
+
+        Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
+                SolrTestResult.builder()
+                        .fields("id")
+                        .doc("4")
+                        .build()
+        );
     }
 
     @Test
