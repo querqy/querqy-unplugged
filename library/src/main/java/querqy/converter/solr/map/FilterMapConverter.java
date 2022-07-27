@@ -34,12 +34,14 @@ public class FilterMapConverter {
 
     private List<Object> convertNonNullFilterQueries() {
         return filterQueries.stream()
-                .map(node -> QuerqyQueryMapConverter.builder()
-                        .queryConfig(queryConfig)
-                        .node(node)
-                        .parseAsUserQuery(false)
-                        .build()
-                        .convert())
+                .map(node ->
+                        QuerqyQueryMapConverter.builder()
+                                .queryConfig(queryConfig)
+                                .node(node)
+                                .parseAsUserQuery(false)
+                                .build()
+                                .convert()
+                )
                 .collect(Collectors.toList());
     }
 }
