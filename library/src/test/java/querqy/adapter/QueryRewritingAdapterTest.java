@@ -3,6 +3,7 @@ package querqy.adapter;
 import org.junit.Test;
 import querqy.QueryRewritingConfig;
 import querqy.adapter.rewriter.builder.CommonRulesRewriterFactoryCreator;
+import querqy.adapter.rewriter.builder.ReplaceRulesRewriterFactoryCreator;
 import querqy.model.convert.builder.ExpandedQueryBuilder;
 
 import java.io.IOException;
@@ -14,6 +15,31 @@ import static querqy.model.convert.builder.ExpandedQueryBuilder.expanded;
 import static querqy.model.convert.builder.TermBuilder.term;
 
 public class QueryRewritingAdapterTest {
+
+    @Test
+    public void testThat_replacementsAreApplied_forGivenReplaceRulesRewriter() throws IOException {
+        final QueryRewritingConfig rewritingConfig = QueryRewritingConfig.builder()
+                .rewriterFactory(
+                        ReplaceRulesRewriterFactoryCreator.creator()
+                                .rewriterId("1")
+                                .rules("aple; applee => apple")
+                                .inputDelimiter(";")
+                                .createFactory()
+                )
+                .build();
+
+        final QueryRewritingAdapter adapter = QueryRewritingAdapter.builder()
+                .queryInput("aple applee")
+                .queryRewritingConfig(rewritingConfig)
+                .build();
+
+        final ExpandedQueryBuilder expanded = expanded(adapter.rewriteQuery().getQuery());
+
+        assertThat(expanded.getUserQuery()).isEqualTo(
+                bq("apple", "apple")
+        );
+    }
+
 
     @Test
     public void testThat_synonymsAreApplied_forGivenCommonRulesRewriter() throws IOException {
