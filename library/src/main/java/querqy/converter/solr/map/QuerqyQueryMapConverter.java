@@ -114,7 +114,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
         if (term.getField() == null) {
             return TermMapConverter.builder()
                     .queryConfig(queryConfig)
-                    .value(term.toString())
+                    .term(term)
                     .build()
                     .createTermQueries();
 

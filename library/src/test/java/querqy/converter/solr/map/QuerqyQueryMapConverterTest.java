@@ -2,6 +2,8 @@ package querqy.converter.solr.map;
 
 import org.junit.Test;
 import querqy.QueryConfig;
+import querqy.model.BoostedTerm;
+import querqy.model.DisjunctionMaxQuery;
 import querqy.model.ExpandedQuery;
 
 import java.util.List;
@@ -56,6 +58,29 @@ public class QuerqyQueryMapConverterTest {
 
         assertThat(converter.convert()).isEqualTo(
                 "type:iphone"
+        );
+    }
+
+    @Test
+    public void testThat_fieldScoreIsAdjusted_forWeightedTerm() {
+        final DisjunctionMaxQuery dmq = dmq(List.of()).build();
+        final BoostedTerm boostedTerm = new BoostedTerm(dmq, "iphone", 0.5f);
+        dmq.getClauses().add(boostedTerm);
+
+        final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
+                .queryConfig(
+                        baseQueryConfig.toBuilder()
+                                .field("f", 20f)
+                                .build()
+                )
+                .node(dmq)
+                .parseAsUserQuery(true)
+                .build();
+
+        assertThat(converter.convert()).isEqualTo(
+                dmqMap(
+                        termMap("f", "iphone", 10f)
+                )
         );
     }
 
