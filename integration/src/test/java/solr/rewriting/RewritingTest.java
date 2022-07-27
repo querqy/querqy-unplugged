@@ -10,7 +10,7 @@ import querqy.QueryConfig;
 import querqy.QueryGenerator;
 import querqy.QueryRewritingConfig;
 import querqy.adapter.rewriter.builder.CommonRulesRewriterFactoryCreator;
-import querqy.converter.map.MapConverterFactory;
+import querqy.converter.solr.map.MapConverterFactory;
 import solr.SolrTestJsonRequest;
 import solr.SolrTestResult;
 

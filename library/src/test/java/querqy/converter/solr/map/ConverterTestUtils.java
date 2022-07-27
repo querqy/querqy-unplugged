@@ -1,4 +1,4 @@
-package querqy.converter.map;
+package querqy.converter.solr.map;
 
 import java.util.Arrays;
 import java.util.Map;

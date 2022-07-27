@@ -1,4 +1,4 @@
-package querqy.converter.map;
+package querqy.converter.solr.map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;

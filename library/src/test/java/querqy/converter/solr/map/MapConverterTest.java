@@ -1,13 +1,13 @@
-package querqy.converter.map;
+package querqy.converter.solr.map;
 
 import org.junit.Test;
 import querqy.QueryConfig;
 import querqy.model.ExpandedQuery;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static querqy.converter.map.ConverterTestUtils.bqMap;
-import static querqy.converter.map.ConverterTestUtils.dmqMap;
-import static querqy.converter.map.ConverterTestUtils.termMap;
+import static querqy.converter.solr.map.ConverterTestUtils.bqMap;
+import static querqy.converter.solr.map.ConverterTestUtils.dmqMap;
+import static querqy.converter.solr.map.ConverterTestUtils.termMap;
 import static querqy.model.convert.builder.BooleanQueryBuilder.bq;
 import static querqy.model.convert.builder.ExpandedQueryBuilder.expanded;
 

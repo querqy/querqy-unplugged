@@ -1,4 +1,4 @@
-package querqy.converter.map;
+package querqy.converter.solr.map;
 
 import lombok.NoArgsConstructor;
 import querqy.QueryConfig;

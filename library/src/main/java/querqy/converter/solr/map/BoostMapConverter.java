@@ -1,4 +1,4 @@
-package querqy.converter.map;
+package querqy.converter.solr.map;
 
 public class BoostMapConverter {
     // TODO: boosts in own converter
