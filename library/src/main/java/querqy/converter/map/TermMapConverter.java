@@ -13,7 +13,7 @@ public class TermMapConverter {
     private final QueryConfig queryConfig;
     private final String value;
 
-    public List<Map<String, Object>> createTermQueries() {
+    public List<Object> createTermQueries() {
         return queryConfig.getFields().entrySet().stream()
                 .map(entry -> createTermQuery(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
@@ -26,7 +26,6 @@ public class TermMapConverter {
                         "filter", createMatchingNode(field),
                         "boost", weight
                 )
-
         );
     }
 
@@ -39,9 +38,4 @@ public class TermMapConverter {
                 )
         );
     }
-
-
-
-
-
 }

@@ -1,7 +1,6 @@
 package querqy.converter.map;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.AccessLevel;
@@ -43,17 +42,29 @@ public class MapConverter implements Converter<Map<String, Object>> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> convertUserQuery() {
-        return QuerqyQueryMapConverter.builder()
+        final Object query =  QuerqyQueryMapConverter.builder()
                 .queryConfig(queryConfig)
                 .node(userQuery)
                 .parseAsUserQuery(true)
                 .build()
                 .convert();
+
+        if (query instanceof Map) {
+            return (Map<String, Object>) query;
+
+        } else if (query instanceof String){
+            return Map.of("bool", Map.of("must", (String) query));
+
+        } else {
+            throw new IllegalArgumentException("Converted user query must be of type Map or String");
+        }
     }
 
-    private Map<String, Object> expandConvertedUserQuery(final Map<String, Object> convertedUserQuery) {
+    private Map<String, Object> expandConvertedUserQuery(final Object convertedUserQuery) {
         final Map<String, Object> expandedQueryNode = new HashMap<>(3);
+        expandedQueryNode.put("must", convertedUserQuery);
 
         if (filterMapConverter.hasFilters()) {
             expandedQueryNode.put("filter", filterMapConverter.convertFilterQueries());
@@ -67,16 +78,16 @@ public class MapConverter implements Converter<Map<String, Object>> {
         return Map.of("bool", expandedQueryNode);
     }
 
-    public String convertToJson() {
-        try {
-            final ObjectMapper objectMapper = createObjectMapper();
-            final Map<String, Object> convertedQuery = convert();
-            return objectMapper.writeValueAsString(convertedQuery);
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public String convertToJson() {
+//        try {
+//            final ObjectMapper objectMapper = createObjectMapper();
+//            final Map<String, Object> convertedQuery = convert();
+//            return objectMapper.writeValueAsString(convertedQuery);
+//
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     private ObjectMapper createObjectMapper() {
         final ObjectMapper objectMapper = new ObjectMapper();
