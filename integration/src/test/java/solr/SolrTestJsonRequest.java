@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Builder
+@Builder(toBuilder = true)
 public class SolrTestJsonRequest {
 
     private final String handler;
@@ -24,15 +24,34 @@ public class SolrTestJsonRequest {
     private final Map<String, Object> query;
     private final SolrClient solrClient;
 
-    public SolrTestResult applyRequest() throws Exception {
-        final SolrParams solrParams = createSolrParams();
-        final JsonQueryRequest request = new JsonQueryRequest(solrParams);
-        request.setQuery(query);
+    @Builder.Default private final String collection = "collection1";
 
-        final QueryResponse response = request.process(solrClient, "collection1");
+    private final String user;
+    private final String password;
+
+    public SolrTestResult applyRequest() throws Exception {
+        final JsonQueryRequest request = createRequest();
+
+        final QueryResponse response = request.process(solrClient, collection);
         final SolrDocumentList solrDocuments = response.getResults();
 
         return extractResults(solrDocuments);
+    }
+
+    private JsonQueryRequest createRequest() {
+        final SolrParams solrParams = createSolrParams();
+
+        final JsonQueryRequest request = new JsonQueryRequest(solrParams);
+        request.setQuery(query);
+        addCredentialsIfProvided(request);
+
+        return request;
+    }
+
+    private void addCredentialsIfProvided(final JsonQueryRequest request) {
+        if (user != null && password != null) {
+            request.setBasicAuthCredentials(user, password);
+        }
     }
 
     private SolrParams createSolrParams() {
@@ -43,6 +62,8 @@ public class SolrTestJsonRequest {
 
     private SolrTestResult extractResults(final SolrDocumentList solrDocuments) {
         final SolrTestResult docs = new SolrTestResult();
+        docs.setNumFound(solrDocuments.getNumFound());
+
         solrDocuments.stream()
                 .map(this::convertSolrDocToMap)
                 .forEach(docs::add);

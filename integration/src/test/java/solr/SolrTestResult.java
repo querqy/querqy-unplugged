@@ -1,5 +1,8 @@
 package solr;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -10,7 +13,24 @@ import java.util.stream.IntStream;
 
 public class SolrTestResult extends ArrayList<Map<String, Object>> {
 
+    @Getter @Setter
+    private long numFound;
+
+    public SolrTestResult printNumFound() {
+        System.out.println("------------------------------------------");
+
+        System.out.println("Results: " + numFound);
+
+        System.out.println("------------------------------------------");
+
+        return this;
+    }
+
     public SolrTestResult print() {
+        System.out.println("------------------------------------------");
+
+        System.out.println("Results: " + numFound);
+
         System.out.println("------------------------------------------");
 
         for (final Map<String, Object> doc : this) {
