@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Builder
-public class QueryTreeMapConverter extends AbstractNodeVisitor<Object> {
+public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
 
     private final QueryConfig queryConfig;
     private final Node node;
@@ -133,20 +133,17 @@ public class QueryTreeMapConverter extends AbstractNodeVisitor<Object> {
     }
 
     @Override
-    public Map<String, Object> visit(final MatchAllQuery query) {
-        throw new UnsupportedOperationException(
-                "Conversion of MatchAllQuery is not supported by " + this.getClass().getName());
+    public Object visit(final MatchAllQuery query) {
+        return "*:*";
     }
 
     @Override
     public Object visit(final RawQuery rawQuery) {
         return RawQueryConverter.of(rawQuery).convert();
-//        throw new UnsupportedOperationException(
-//                "Conversion of RawQuery is not supported by " + this.getClass().getName());
     }
 
     @Override
-    public Map<String, Object> visit(final Term term) {
+    public Object visit(final Term term) {
         throw new UnsupportedOperationException("Not supported");
     }
 
