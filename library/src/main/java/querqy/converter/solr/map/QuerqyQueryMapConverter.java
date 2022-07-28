@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 @Builder
 public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
 
+    // TODO: Implement similarity option
+
     private final QueryConfig queryConfig;
     private final Node node;
     private final boolean parseAsUserQuery;

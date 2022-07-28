@@ -7,7 +7,7 @@ import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
 import querqy.model.ExpandedQuery;
 
-@Builder
+@Builder(toBuilder = true)
 public class QueryGenerator<T> {
 
     private final QueryConfig queryConfig;

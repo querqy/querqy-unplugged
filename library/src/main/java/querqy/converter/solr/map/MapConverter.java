@@ -1,8 +1,5 @@
 package querqy.converter.solr.map;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -14,12 +11,22 @@ import querqy.model.QuerqyQuery;
 import java.util.HashMap;
 import java.util.Map;
 
+import static querqy.converter.solr.map.MapConverter.InstructionQueriesParsingMode.BOOSTS_ONLY;
+import static querqy.converter.solr.map.MapConverter.InstructionQueriesParsingMode.FILTERS_AND_BOOSTS;
+import static querqy.converter.solr.map.MapConverter.InstructionQueriesParsingMode.FILTERS_ONLY;
+import static querqy.converter.solr.map.MapConverter.InstructionQueriesParsingMode.NO_INSTRUCTION_QUERY;
+
 @RequiredArgsConstructor(staticName = "of", access = AccessLevel.PROTECTED)
 public class MapConverter implements Converter<Map<String, Object>> {
+
+    public enum InstructionQueriesParsingMode {
+        NO_INSTRUCTION_QUERY, FILTERS_ONLY, BOOSTS_ONLY, FILTERS_AND_BOOSTS
+    }
 
     private final QueryConfig queryConfig;
     private final QuerqyQuery<?> userQuery;
     private final FilterMapConverter filterMapConverter;
+    private final BoostMapConverter boostMapConverter;
 
     @Builder
     public static MapConverter build(final QueryConfig queryConfig, final ExpandedQuery expandedQuery) {
@@ -27,19 +34,23 @@ public class MapConverter implements Converter<Map<String, Object>> {
                 .queryConfig(queryConfig)
                 .filterQueries(expandedQuery.getFilterQueries())
                 .build();
-        return MapConverter.of(queryConfig, expandedQuery.getUserQuery(), filterMapConverter);
+
+        final BoostMapConverter boostMapConverter = BoostMapConverter.builder()
+                .queryConfig(queryConfig)
+                .boostUpQueries(expandedQuery.getBoostUpQueries())
+                .boostDownQueries(expandedQuery.getBoostDownQueries())
+                .build();
+
+        return MapConverter.of(queryConfig, expandedQuery.getUserQuery(), filterMapConverter, boostMapConverter);
     }
 
     @Override
     public Map<String, Object> convert() {
         final Map<String, Object> convertedUserQuery = convertUserQuery();
 
-        if (filterMapConverter.hasFilters() /* || hasBoosts() */ ) {
-            return expandConvertedUserQuery(convertedUserQuery);
+        final InstructionQueriesParsingMode parsingMode = getParsingMode();
 
-        } else {
-            return convertedUserQuery;
-        }
+        return expandUserQuery(convertedUserQuery, parsingMode);
     }
 
     @SuppressWarnings("unchecked")
@@ -51,6 +62,7 @@ public class MapConverter implements Converter<Map<String, Object>> {
                 .build()
                 .convert();
 
+        // TODO: Why is this needed?
         if (query instanceof Map) {
             return (Map<String, Object>) query;
 
@@ -62,40 +74,71 @@ public class MapConverter implements Converter<Map<String, Object>> {
         }
     }
 
-    private Map<String, Object> expandConvertedUserQuery(final Object convertedUserQuery) {
-        final Map<String, Object> expandedQueryNode = new HashMap<>(3);
-        expandedQueryNode.put("must", convertedUserQuery);
-
+    private InstructionQueriesParsingMode getParsingMode() {
         if (filterMapConverter.hasFilters()) {
-            expandedQueryNode.put("filter", filterMapConverter.convertFilterQueries());
+            return boostMapConverter.hasBoosts() ? FILTERS_AND_BOOSTS : FILTERS_ONLY;
+
+        } else {
+            return boostMapConverter.hasBoosts() ? BOOSTS_ONLY : NO_INSTRUCTION_QUERY;
         }
-
-        // TODO: Include boosts
-//        if (filterAndBoostMapConverter.hasBoosts()) {
-//            // expandedQueryNode.put("should", filterAndBoostMapConverter.convertBoostQueries());
-//        }
-
-        return Map.of("bool", expandedQueryNode);
     }
 
-//    public String convertToJson() {
-//        try {
-//            final ObjectMapper objectMapper = createObjectMapper();
-//            final Map<String, Object> convertedQuery = convert();
-//            return objectMapper.writeValueAsString(convertedQuery);
-//
-//        } catch (JsonProcessingException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
 
-    private ObjectMapper createObjectMapper() {
-        final ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-        return objectMapper;
+    private Map<String, Object> expandUserQuery(final Object convertedUserQuery,
+                                                final InstructionQueriesParsingMode parsingMode) {
+        switch (parsingMode) {
+            case NO_INSTRUCTION_QUERY:
+                return Map.of("query", convertedUserQuery);
+
+            case FILTERS_ONLY:
+                return expandByFiltersOnly(convertedUserQuery);
+
+            case BOOSTS_ONLY:
+                return expandByBoostsOnly(convertedUserQuery);
+
+            default:
+                return expandByFiltersAndBoosts(convertedUserQuery);
+        }
     }
 
+    private Map<String, Object> expandByFiltersOnly(final Object convertedUserQuery) {
+        return Map.of(
+                "query", Map.of(
+                        "bool", Map.of(
+                                "must", convertedUserQuery,
+                                "filter", filterMapConverter.convertFilterQueries()
+                        )
+                )
+        );
+    }
+
+    private Map<String, Object> expandByBoostsOnly(final Object convertedUserQuery) {
+        final BoostMaps boostMaps = boostMapConverter.convertBoostQueries();
+
+        return Map.of(
+                "query", Map.of(
+                        "bool", Map.of(
+                                "must", convertedUserQuery,
+                                "should", boostMaps.getBoostFunctionQueries()
+                        )
+                ),
+                "queries", boostMaps.getReferencedConvertedQueries()
+        );
+    }
+
+    private Map<String, Object> expandByFiltersAndBoosts(final Object convertedUserQuery) {
+        final BoostMaps boostMaps = boostMapConverter.convertBoostQueries();
+
+        return Map.of(
+                "query", Map.of(
+                        "bool", Map.of(
+                                "must", convertedUserQuery,
+                                "filter", filterMapConverter.convertFilterQueries(),
+                                "should", boostMaps.getBoostFunctionQueries()
+                        )
+                ),
+                "queries", boostMaps.getReferencedConvertedQueries()
+        );
+    }
 }

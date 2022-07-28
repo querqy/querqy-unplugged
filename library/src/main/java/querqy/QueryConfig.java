@@ -21,6 +21,8 @@ public class QueryConfig {
     private final Float tie;
     private final String minimumShouldMatch;
 
+    // TODO: @Builder.Default private final boolean qboostFieldBoost = false;
+
     public boolean hasMinimumShouldMatch() {
         return minimumShouldMatch != null;
     }
