@@ -1,52 +1,73 @@
 package solr;
 
 import lombok.Builder;
+import lombok.Singular;
 import org.apache.lucene.document.StoredField;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.request.QueryRequest;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.params.SolrParams;
-import org.apache.solr.request.SolrQueryRequest;
-import org.apache.solr.response.BasicResultContext;
-import org.apache.solr.response.SolrQueryResponse;
-import org.apache.solr.util.TestHarness;
+import solr.request.JsonMapQueryRequest;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static org.apache.solr.SolrTestCaseJ4.req;
-
-@Builder
+@Builder(toBuilder = true)
 public class SolrTestRequest {
 
-    private final TestHarness testHarness;
-    private final String handler;
-    private final Map<String, List<String>> params;
+    private final SolrClient solrClient;
+
+    private final Map<String, Object> query;
+    @Singular private final Map<String, String> params;
+
+    @Builder.Default private final String collection = "collection1";
+    @Builder.Default private final String handler = "/select";
+    private final String user;
+    private final String password;
 
     public SolrTestResult applyRequest() throws Exception {
-        final SolrParams solrParams = createSolrParams();
-        final SolrQueryRequest req = req(solrParams);
+        final QueryRequest request = createRequest();
+        addCredentialsIfProvided(request);
 
-        final SolrQueryResponse resp = testHarness.queryAndResponse(handler, req);
-        final SolrTestResult docs = extractResults(resp);
+        final QueryResponse response = request.process(solrClient, collection);
+        final SolrDocumentList solrDocuments = response.getResults();
 
-        req.close();
-
-        return docs;
+        return extractResults(solrDocuments);
     }
 
-    private SolrParams createSolrParams() {
+    private QueryRequest createRequest() {
+        final SolrParams solrParams = createSolrParams();
+
+        if (query == null || query.isEmpty()) {
+            return new QueryRequest(solrParams);
+
+        } else {
+            return new JsonMapQueryRequest(query, solrParams);
+        }
+    }
+
+    private ModifiableSolrParams createSolrParams() {
         final ModifiableSolrParams solrParams = new ModifiableSolrParams();
-        params.forEach((key, values) -> solrParams.add(key, values.toArray(new String[]{})));
+        params.forEach(solrParams::add);
         return solrParams;
     }
 
-    private SolrTestResult extractResults(final SolrQueryResponse resp) {
+    private void addCredentialsIfProvided(final QueryRequest request) {
+        if (user != null && password != null) {
+            request.setBasicAuthCredentials(user, password);
+        }
+    }
+
+    private SolrTestResult extractResults(final SolrDocumentList solrDocuments) {
         final SolrTestResult docs = new SolrTestResult();
-        ((BasicResultContext) resp.getResponse())
-                .getProcessedDocuments()
-                .forEachRemaining(doc -> docs.add(convertSolrDocToMap(doc)));
+        docs.setNumFound(solrDocuments.getNumFound());
+
+        solrDocuments.stream()
+                .map(this::convertSolrDocToMap)
+                .forEach(docs::add);
         return docs;
     }
 
@@ -73,15 +94,15 @@ public class SolrTestRequest {
 
     }
 
-    @SuppressWarnings({"unused", "MismatchedQueryAndUpdateOfCollection", "FieldMayBeFinal"})
-    public static class SolrTestRequestBuilder {
-        private Map<String, List<String>> params = new HashMap<>();
-
-        public SolrTestRequest.SolrTestRequestBuilder param(String paramKey, String paramValue) {
-            params.computeIfAbsent(paramKey, key -> new ArrayList<>())
-                    .add(paramValue);
-
-            return this;
-        }
-    }
+//    @SuppressWarnings({"unused", "FieldMayBeFinal"})
+//    public static class SolrTestJsonRequestBuilder {
+//        private Map<String, List<String>> params = new HashMap<>();
+//
+//        public SolrTestJsonRequest.SolrTestJsonRequestBuilder param(String paramKey, String paramValue) {
+//            params.computeIfAbsent(paramKey, key -> new ArrayList<>())
+//                    .add(paramValue);
+//
+//            return this;
+//        }
+//    }
 }

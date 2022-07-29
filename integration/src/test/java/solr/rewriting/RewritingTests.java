@@ -11,13 +11,13 @@ import querqy.QueryGenerator;
 import querqy.QueryRewritingConfig;
 import querqy.adapter.rewriter.builder.CommonRulesRewriterFactoryCreator;
 import querqy.converter.solr.map.MapConverterFactory;
-import solr.SolrTestJsonRequest;
+import solr.SolrTestRequest;
 import solr.SolrTestResult;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class RewritingTest extends SolrTestCaseJ4 {
+public class RewritingTests extends SolrTestCaseJ4 {
 
     private static SolrClient SOLR_CLIENT;
 
@@ -56,7 +56,7 @@ public class RewritingTest extends SolrTestCaseJ4 {
 
         final Map<String, Object> query = queryGenerator.generateQuery("apple");
 
-        final SolrTestResult result = SolrTestJsonRequest.builder()
+        final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id")
                 .query(query)
                 .solrClient(SOLR_CLIENT)
@@ -83,7 +83,7 @@ public class RewritingTest extends SolrTestCaseJ4 {
 
         final Map<String, Object> query = queryGenerator.generateQuery("apple smartphone");
 
-        final SolrTestResult result = SolrTestJsonRequest.builder()
+        final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id,name,type,score")
                 .query(query)
                 .solrClient(SOLR_CLIENT)
@@ -112,7 +112,7 @@ public class RewritingTest extends SolrTestCaseJ4 {
 
         final Map<String, Object> query = queryGenerator.generateQuery("iphone");
 
-        final SolrTestResult result = SolrTestJsonRequest.builder()
+        final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id,name,type,score")
                 .query(query)
                 .solrClient(SOLR_CLIENT)
