@@ -2,8 +2,7 @@ package querqy.adapter;
 
 import org.junit.Test;
 import querqy.QueryRewritingConfig;
-import querqy.adapter.rewriter.builder.CommonRulesRewriterFactoryCreator;
-import querqy.adapter.rewriter.builder.ReplaceRulesRewriterFactoryCreator;
+import querqy.adapter.rewriter.builder.RewriterSupport;
 import querqy.model.convert.builder.ExpandedQueryBuilder;
 
 import java.io.IOException;
@@ -20,11 +19,17 @@ public class QueryRewritingAdapterTest {
     public void testThat_replacementsAreApplied_forGivenReplaceRulesRewriter() throws IOException {
         final QueryRewritingConfig rewritingConfig = QueryRewritingConfig.builder()
                 .rewriterFactory(
-                        ReplaceRulesRewriterFactoryCreator.creator()
-                                .rewriterId("1")
-                                .rules("aple; applee => apple")
-                                .inputDelimiter(";")
-                                .createFactory()
+                        RewriterSupport.createRewriterFactory(
+                                "replace",
+                                "id", "1",
+                                "rules", "aple; applee => apple",
+                                "inputDelimiter", ";"
+                        )
+//                        ReplaceRulesRewriterFactoryCreator.creator()
+//                                .rewriterId("1")
+//                                .rules("aple; applee => apple")
+//                                .inputDelimiter(";")
+//                                .createFactory()
                 )
                 .build();
 
@@ -45,10 +50,11 @@ public class QueryRewritingAdapterTest {
     public void testThat_synonymsAreApplied_forGivenCommonRulesRewriter() throws IOException {
         final QueryRewritingConfig rewritingConfig = QueryRewritingConfig.builder()
                 .rewriterFactory(
-                        CommonRulesRewriterFactoryCreator.creator()
-                                .rewriterId("1")
-                                .rules("apple smartphone =>\n  SYNONYM: iphone")
-                                .createFactory()
+                        RewriterSupport.createRewriterFactory(
+                                "common",
+                                "id", "1",
+                                "rules", "apple smartphone =>\n  SYNONYM: iphone"
+                        )
                 )
                 .build();
 

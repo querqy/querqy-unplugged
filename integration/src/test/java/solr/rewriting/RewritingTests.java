@@ -9,13 +9,13 @@ import org.junit.Test;
 import querqy.QueryConfig;
 import querqy.QueryGenerator;
 import querqy.QueryRewritingConfig;
-import querqy.adapter.rewriter.builder.CommonRulesRewriterFactoryCreator;
 import querqy.converter.solr.map.MapConverterFactory;
 import solr.SolrTestRequest;
 import solr.SolrTestResult;
 
-import java.io.IOException;
 import java.util.Map;
+
+import static querqy.adapter.rewriter.builder.RewriterSupport.createRewriterFactory;
 
 public class RewritingTests extends SolrTestCaseJ4 {
 
@@ -129,13 +129,14 @@ public class RewritingTests extends SolrTestCaseJ4 {
         );
     }
 
-    private QueryRewritingConfig singleRewriterConfig(final String rules) throws IOException {
+    private QueryRewritingConfig singleRewriterConfig(final String rules) {
         return QueryRewritingConfig.builder()
                 .rewriterFactory(
-                        CommonRulesRewriterFactoryCreator.creator()
-                                .rewriterId("1")
-                                .rules(rules)
-                                .createFactory()
+                        createRewriterFactory(
+                                "common",
+                                "id", "1",
+                                "rules", rules
+                        )
                 )
                 .build();
     }
