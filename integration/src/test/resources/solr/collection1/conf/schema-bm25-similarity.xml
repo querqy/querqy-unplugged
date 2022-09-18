@@ -24,7 +24,6 @@
     <similarity class="org.apache.lucene.search.similarities.BM25Similarity"/>
 
     <fieldType name="string" class="solr.StrField"/>
-    <dynamicField name="*" type="string" indexed="true" stored="true"/>
 
     <!-- A general text field that has reasonable, generic
          cross-language defaults: it tokenizes with StandardTokenizer, and down cases.
