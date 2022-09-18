@@ -63,6 +63,7 @@
     <queryParser name="bool" class="solr.qparser.BoolQParserWrapperPlugin"/>
     <queryParser name="dis_max" class="solr.qparser.NestedDisMaxQParserPlugin"/>
     <queryParser name="constant_score" class="solr.qparser.ConstantScoreQParserPlugin"/>
+    <queryParser name="field" class="solr.qparser.FieldQParserPluginPatch"/>
 
 
 </config>
