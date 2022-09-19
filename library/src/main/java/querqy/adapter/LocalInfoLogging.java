@@ -6,7 +6,6 @@ import querqy.infologging.InfoLogging;
 import querqy.rewrite.SearchEngineRequestAdapter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -19,7 +18,7 @@ public class LocalInfoLogging implements InfoLogging {
     private static final String APPLIED_RULES_KEY = "APPLIED_RULES";
 
     @Getter
-    private final Map<String, List<Object>> rewritingActions = new LinkedHashMap<>();
+    private final Map<String, List<Object>> infoLogging = new LinkedHashMap<>();
 
     @Override
     public void log(final Object message, final String rewriterId,
@@ -27,7 +26,7 @@ public class LocalInfoLogging implements InfoLogging {
 
         if (message instanceof IdentityHashMap) {
             final Object messageValue = ((IdentityHashMap<?, ?>) message).get(APPLIED_RULES_KEY);
-            final List<Object> rewriterValues = rewritingActions.computeIfAbsent(rewriterId, k -> new ArrayList<>());
+            final List<Object> rewriterValues = infoLogging.computeIfAbsent(rewriterId, k -> new ArrayList<>());
 
             if (messageValue instanceof Collection) {
                 rewriterValues.addAll((Collection<?>) messageValue);

@@ -2,7 +2,7 @@ package querqy;
 
 import lombok.Builder;
 import querqy.adapter.QueryRewritingAdapter;
-import querqy.adapter.RewrittenQuery;
+import querqy.domain.RewrittenQuery;
 import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
 import querqy.model.ExpandedQuery;

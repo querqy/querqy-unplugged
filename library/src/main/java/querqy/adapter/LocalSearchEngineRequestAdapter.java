@@ -1,28 +1,76 @@
 package querqy.adapter;
 
 import lombok.Builder;
-import lombok.Setter;
-import lombok.Singular;
 import querqy.infologging.InfoLoggingContext;
 import querqy.rewrite.RewriteChain;
 import querqy.rewrite.SearchEngineRequestAdapter;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@Builder
+import static querqy.rewrite.AbstractLoggingRewriter.CONTEXT_KEY_DEBUG_DATA;
+import static querqy.rewrite.AbstractLoggingRewriter.CONTEXT_KEY_DEBUG_ENABLED;
+
 public class LocalSearchEngineRequestAdapter implements SearchEngineRequestAdapter {
+
+    public static final String INFO_LOGGING = "info_logging";
+    public static final String REWRITING_ACTIONS = "rewriting_actions";
+
+    private static final String NUMBER_FORMAT_EXCEPTION_TEMPLATE = "Parameter %s must be of type %s";
 
     private final RewriteChain rewriteChain;
     private final Map<String, String[]> params;
 
-    @Setter
-    private InfoLoggingContext infoLoggingContext;
+    private final LocalInfoLogging infoLogging;
+    private final InfoLoggingContext infoLoggingContext;
+
+    private final boolean isDebugQuery;
 
     private final Map<String, Object> context = new HashMap<>();
 
-    private static final String NUMBER_FORMAT_EXCEPTION_TEMPLATE = "Parameter %s must be of type %s";
+    @Builder
+    public LocalSearchEngineRequestAdapter(
+            final RewriteChain rewriteChain,
+            final Map<String, String[]> params,
+            final boolean hasActiveInfoLogging,
+            final boolean hasActiveActionTracking
+    ) {
+        this.rewriteChain = rewriteChain;
+        this.params = params;
+
+        if (hasActiveInfoLogging) {
+            infoLogging = LocalInfoLogging.create();
+            infoLoggingContext = new InfoLoggingContext(infoLogging, this);
+
+        } else {
+            infoLogging = null;
+            infoLoggingContext = null;
+        }
+
+        if (hasActiveActionTracking) {
+            isDebugQuery = true;
+            context.put(CONTEXT_KEY_DEBUG_ENABLED, true);
+
+        } else {
+            isDebugQuery = false;
+        }
+    }
+
+    public Map<String, Object> getRewritingTracking() {
+        final Map<String, Object> rewritingTracking = new LinkedHashMap<>();
+
+        if (infoLogging != null) {
+            rewritingTracking.put(INFO_LOGGING, infoLogging.getInfoLogging());
+        }
+
+        if (isDebugQuery) {
+            rewritingTracking.put(REWRITING_ACTIONS, context.get(CONTEXT_KEY_DEBUG_DATA));
+        }
+
+        return rewritingTracking;
+    }
 
     @Override
     public RewriteChain getRewriteChain() {
@@ -110,6 +158,6 @@ public class LocalSearchEngineRequestAdapter implements SearchEngineRequestAdapt
 
     @Override
     public boolean isDebugQuery() {
-        return false;
+        return isDebugQuery;
     }
 }

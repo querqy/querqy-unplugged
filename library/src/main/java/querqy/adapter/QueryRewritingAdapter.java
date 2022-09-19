@@ -2,7 +2,7 @@ package querqy.adapter;
 
 import lombok.Builder;
 import querqy.QueryRewritingConfig;
-import querqy.infologging.InfoLoggingContext;
+import querqy.domain.RewrittenQuery;
 import querqy.model.ExpandedQuery;
 import querqy.model.Query;
 import querqy.parser.QuerqyParser;
@@ -20,7 +20,8 @@ public class QueryRewritingAdapter {
 
     @Builder.Default private final Map<String, String[]> params = new HashMap<>();
 
-    private final LocalInfoLogging localInfoLogging = LocalInfoLogging.create();
+    // TODO: make configurable whether logging is used
+
 
     public RewrittenQuery rewriteQuery() {
         final ExpandedQuery parsedQuery = parseQuery();
@@ -29,10 +30,10 @@ public class QueryRewritingAdapter {
         final RewriteChain rewriteChain = queryRewritingConfig.getRewriteChain();
         final ExpandedQuery rewrittenQuery = rewriteChain.rewrite(parsedQuery, requestAdapter);
 
-        return RewrittenQuery.of(
-                rewrittenQuery,
-                localInfoLogging.getRewritingActions()
-        );
+        return RewrittenQuery.builder()
+                .query(rewrittenQuery)
+                .rewritingTracking(requestAdapter.getRewritingTracking())
+                .build();
     }
 
     private ExpandedQuery parseQuery() {
@@ -44,15 +45,12 @@ public class QueryRewritingAdapter {
     }
 
     private LocalSearchEngineRequestAdapter createLocalSearchEngineRequestAdapter() {
-        final LocalSearchEngineRequestAdapter requestAdapter = LocalSearchEngineRequestAdapter.builder()
+        return LocalSearchEngineRequestAdapter.builder()
                 .rewriteChain(queryRewritingConfig.getRewriteChain())
                 .params(params)
+                .hasActiveInfoLogging(true)
+                .hasActiveActionTracking(true)
                 .build();
-
-        final InfoLoggingContext infoLoggingContext = new InfoLoggingContext(localInfoLogging, requestAdapter);
-        requestAdapter.setInfoLoggingContext(infoLoggingContext);
-
-        return requestAdapter;
     }
 
 }
