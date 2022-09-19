@@ -15,7 +15,7 @@ public class QueryRewritingHandler<T> {
     private final QueryRewritingConfig queryRewritingConfig;
     private final ConverterFactory<T> converterFactory;
 
-    public RewrittenQuery<T> generateQuery(final String queryInput) {
+    public RewrittenQuery<T> rewriteQuery(final String queryInput) {
         final QueryRewritingAdapter adapter = createAdapter(queryInput);
         final RewrittenQuerqyQuery rewrittenQuerqyQuery = adapter.rewriteQuery();
         final Converter<T> converter = createConverter(rewrittenQuerqyQuery.getQuery());

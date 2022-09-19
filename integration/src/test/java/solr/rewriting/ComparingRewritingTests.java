@@ -150,7 +150,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryRewritingHandler.generateQuery(USER_QUERY).getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.rewriteQuery(USER_QUERY).getConvertedQuery();
 
         return SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)
