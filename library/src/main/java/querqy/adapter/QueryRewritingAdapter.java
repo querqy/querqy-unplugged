@@ -2,7 +2,7 @@ package querqy.adapter;
 
 import lombok.Builder;
 import querqy.QueryRewritingConfig;
-import querqy.domain.RewrittenQuery;
+import querqy.domain.RewrittenQuerqyQuery;
 import querqy.model.ExpandedQuery;
 import querqy.model.Query;
 import querqy.parser.QuerqyParser;
@@ -23,14 +23,14 @@ public class QueryRewritingAdapter {
     // TODO: make configurable whether logging is used
 
 
-    public RewrittenQuery rewriteQuery() {
+    public RewrittenQuerqyQuery rewriteQuery() {
         final ExpandedQuery parsedQuery = parseQuery();
         final LocalSearchEngineRequestAdapter requestAdapter = createLocalSearchEngineRequestAdapter();
 
         final RewriteChain rewriteChain = queryRewritingConfig.getRewriteChain();
         final ExpandedQuery rewrittenQuery = rewriteChain.rewrite(parsedQuery, requestAdapter);
 
-        return RewrittenQuery.builder()
+        return RewrittenQuerqyQuery.builder()
                 .query(rewrittenQuery)
                 .rewritingTracking(requestAdapter.getRewritingTracking())
                 .build();

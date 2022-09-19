@@ -3,7 +3,7 @@ package querqy.adapter;
 import org.junit.Test;
 import querqy.QueryRewritingConfig;
 import querqy.adapter.rewriter.builder.RewriterSupport;
-import querqy.domain.RewrittenQuery;
+import querqy.domain.RewrittenQuerqyQuery;
 import querqy.model.convert.builder.ExpandedQueryBuilder;
 
 import java.util.AbstractMap;
@@ -33,7 +33,7 @@ public class QueryRewritingAdapterTest {
                 )
                 .build();
 
-        final RewrittenQuery rewrittenQuery = QueryRewritingAdapter.builder()
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingAdapter.builder()
                 .queryInput("aple applee")
                 .queryRewritingConfig(rewritingConfig)
                 .build()
@@ -59,7 +59,7 @@ public class QueryRewritingAdapterTest {
                 )
                 .build();
 
-        final RewrittenQuery rewrittenQuery = QueryRewritingAdapter.builder()
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingAdapter.builder()
                 .queryInput("apple smartphone")
                 .queryRewritingConfig(rewritingConfig)
                 .build()
@@ -100,7 +100,7 @@ public class QueryRewritingAdapterTest {
                 )
                 .build();
 
-        final RewrittenQuery rewrittenQuery = QueryRewritingAdapter.builder()
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingAdapter.builder()
                 .queryInput("apple smartphone")
                 .queryRewritingConfig(rewritingConfig)
                 .build()
@@ -145,7 +145,7 @@ public class QueryRewritingAdapterTest {
                 )
                 .build();
 
-        final RewrittenQuery rewrittenQuery = QueryRewritingAdapter.builder()
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingAdapter.builder()
                 .queryInput("apple smartphone")
                 .queryRewritingConfig(rewritingConfig)
                 .build()
@@ -178,7 +178,7 @@ public class QueryRewritingAdapterTest {
                 )
                 .build();
 
-        final RewrittenQuery rewrittenQuery = QueryRewritingAdapter.builder()
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingAdapter.builder()
                 .queryInput("apple smartphone")
                 .queryRewritingConfig(rewritingConfig)
                 .build()
