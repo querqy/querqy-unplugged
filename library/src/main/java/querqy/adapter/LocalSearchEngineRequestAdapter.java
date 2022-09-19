@@ -1,6 +1,8 @@
 package querqy.adapter;
 
 import lombok.Builder;
+import lombok.Setter;
+import lombok.Singular;
 import querqy.infologging.InfoLoggingContext;
 import querqy.rewrite.RewriteChain;
 import querqy.rewrite.SearchEngineRequestAdapter;
@@ -14,6 +16,9 @@ public class LocalSearchEngineRequestAdapter implements SearchEngineRequestAdapt
 
     private final RewriteChain rewriteChain;
     private final Map<String, String[]> params;
+
+    @Setter
+    private InfoLoggingContext infoLoggingContext;
 
     private final Map<String, Object> context = new HashMap<>();
 
@@ -98,10 +103,9 @@ public class LocalSearchEngineRequestAdapter implements SearchEngineRequestAdapt
         return Optional.empty();
     }
 
-    // TODO: needs to be implemented in general
     @Override
     public Optional<InfoLoggingContext> getInfoLoggingContext() {
-        return Optional.empty();
+        return Optional.ofNullable(infoLoggingContext);
     }
 
     @Override

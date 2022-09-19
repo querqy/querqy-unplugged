@@ -4,11 +4,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import querqy.model.ExpandedQuery;
 
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor(staticName = "of")
 @Getter
 public class RewrittenQuery {
     private final ExpandedQuery query;
-    private final Map<String, Object> context;
+    private final Map<String, List<Object>> rewritingActions;
 }

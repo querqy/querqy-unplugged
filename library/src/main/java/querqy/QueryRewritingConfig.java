@@ -18,15 +18,21 @@ import java.util.Objects;
 public class QueryRewritingConfig {
 
     private final QuerqyParserFactory querqyParserFactory;
+
+    private final List<RewriterFactory> rewriterFactories;
     private final RewriteChain rewriteChain;
 
     @Builder
     public static QueryRewritingConfig build(
-            final QuerqyParserFactory querqyParserFactory, @Singular final List<RewriterFactory> rewriterFactories) {
+            final QuerqyParserFactory querqyParserFactory,
+            @Singular final List<RewriterFactory> rewriterFactories
+    ) {
 
         return QueryRewritingConfig.of(
                 Objects.requireNonNullElseGet(querqyParserFactory, WhiteSpaceQuerqyParserFactory::new),
-                new RewriteChain(rewriterFactories));
+                rewriterFactories,
+                new RewriteChain(rewriterFactories)
+        );
 
     }
 }

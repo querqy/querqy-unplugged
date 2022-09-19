@@ -2,6 +2,7 @@ package querqy.adapter;
 
 import lombok.Builder;
 import querqy.QueryRewritingConfig;
+import querqy.infologging.InfoLoggingContext;
 import querqy.model.ExpandedQuery;
 import querqy.model.Query;
 import querqy.parser.QuerqyParser;
@@ -19,6 +20,8 @@ public class QueryRewritingAdapter {
 
     @Builder.Default private final Map<String, String[]> params = new HashMap<>();
 
+    private final LocalInfoLogging localInfoLogging = LocalInfoLogging.create();
+
     public RewrittenQuery rewriteQuery() {
         final ExpandedQuery parsedQuery = parseQuery();
         final LocalSearchEngineRequestAdapter requestAdapter = createLocalSearchEngineRequestAdapter();
@@ -26,8 +29,10 @@ public class QueryRewritingAdapter {
         final RewriteChain rewriteChain = queryRewritingConfig.getRewriteChain();
         final ExpandedQuery rewrittenQuery = rewriteChain.rewrite(parsedQuery, requestAdapter);
 
-        final Map<String, Object> context = requestAdapter.getContext();
-        return RewrittenQuery.of(rewrittenQuery, context);
+        return RewrittenQuery.of(
+                rewrittenQuery,
+                localInfoLogging.getRewritingActions()
+        );
     }
 
     private ExpandedQuery parseQuery() {
@@ -39,9 +44,15 @@ public class QueryRewritingAdapter {
     }
 
     private LocalSearchEngineRequestAdapter createLocalSearchEngineRequestAdapter() {
-        return LocalSearchEngineRequestAdapter.builder()
+        final LocalSearchEngineRequestAdapter requestAdapter = LocalSearchEngineRequestAdapter.builder()
                 .rewriteChain(queryRewritingConfig.getRewriteChain())
                 .params(params)
                 .build();
+
+        final InfoLoggingContext infoLoggingContext = new InfoLoggingContext(localInfoLogging, requestAdapter);
+        requestAdapter.setInfoLoggingContext(infoLoggingContext);
+
+        return requestAdapter;
     }
+
 }
