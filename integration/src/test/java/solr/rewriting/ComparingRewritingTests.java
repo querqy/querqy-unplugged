@@ -6,7 +6,7 @@ import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import querqy.QueryConfig;
-import querqy.QueryGenerator;
+import querqy.QueryRewritingHandler;
 import querqy.QueryRewritingConfig;
 import querqy.converter.solr.map.MapConverterFactory;
 import querqy.solr.rewriter.commonrules.CommonRulesConfigRequestBuilder;
@@ -144,13 +144,13 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
     }
 
     private SolrTestResult applyJsonRequest(final String rules) throws Exception {
-        final QueryGenerator<Map<String, Object>> queryGenerator = QueryGenerator.<Map<String, Object>>builder()
+        final QueryRewritingHandler<Map<String, Object>> queryRewritingHandler = QueryRewritingHandler.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .queryRewritingConfig(singleRewriterConfig(rules))
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryGenerator.generateQuery(USER_QUERY);
+        final Map<String, Object> query = queryRewritingHandler.generateQuery(USER_QUERY).getConvertedQuery();
 
         return SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)

@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import querqy.QueryConfig;
-import querqy.QueryGenerator;
+import querqy.QueryRewritingHandler;
 import querqy.QueryRewritingConfig;
 import querqy.converter.solr.map.MapConverterFactory;
 import solr.SolrTestRequest;
@@ -46,7 +46,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
 
     @Test
     public void testThat_filterIsApplied_forBeingIncludedInCommonRules() throws Exception {
-        final QueryGenerator<Map<String, Object>> queryGenerator = QueryGenerator.<Map<String, Object>>builder()
+        final QueryRewritingHandler<Map<String, Object>> queryRewritingHandler = QueryRewritingHandler.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .queryRewritingConfig(
                         singleRewriterConfig("apple =>\n  FILTER: * type:case")
@@ -54,7 +54,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryGenerator.generateQuery("apple").getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.generateQuery("apple").getConvertedQuery();
 
         final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id")
@@ -73,7 +73,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
 
     @Test
     public void testThat_scoringIsFair_forSimpleRepeatedClause() throws Exception {
-        final QueryGenerator<Map<String, Object>> queryGenerator = QueryGenerator.<Map<String, Object>>builder()
+        final QueryRewritingHandler<Map<String, Object>> queryRewritingHandler = QueryRewritingHandler.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .queryRewritingConfig(
                         singleRewriterConfig("apple smartphone =>\n  SYNONYM: iphone")
@@ -81,7 +81,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryGenerator.generateQuery("apple smartphone").getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.generateQuery("apple smartphone").getConvertedQuery();
 
         final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id,name,type,score")
@@ -102,7 +102,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
 
     @Test
     public void testThat_scoringIsFair_forSimpleNestedClause() throws Exception {
-        final QueryGenerator<Map<String, Object>> queryGenerator = QueryGenerator.<Map<String, Object>>builder()
+        final QueryRewritingHandler<Map<String, Object>> queryRewritingHandler = QueryRewritingHandler.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .queryRewritingConfig(
                         singleRewriterConfig("iphone =>\n  SYNONYM: apple smartphone")
@@ -110,7 +110,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryGenerator.generateQuery("iphone").getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.generateQuery("iphone").getConvertedQuery();
 
         final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id,name,type,score")

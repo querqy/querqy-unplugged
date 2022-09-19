@@ -9,7 +9,7 @@ import querqy.domain.RewrittenQuery;
 import querqy.model.ExpandedQuery;
 
 @Builder(toBuilder = true)
-public class QueryGenerator<T> {
+public class QueryRewritingHandler<T> {
 
     private final QueryConfig queryConfig;
     private final QueryRewritingConfig queryRewritingConfig;
