@@ -2,17 +2,12 @@ package querqy.rewriter;
 
 import org.junit.Test;
 import querqy.QueryRewritingConfig;
+import querqy.rewrite.RewriteLoggingConfig;
 import querqy.rewriter.builder.RewriterSupport;
 import querqy.domain.RewrittenQuerqyQuery;
 import querqy.model.convert.builder.ExpandedQueryBuilder;
 
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static querqy.rewriter.LocalSearchEngineRequestAdapter.INFO_LOGGING;
-import static querqy.rewriter.LocalSearchEngineRequestAdapter.REWRITING_ACTIONS;
 import static querqy.model.convert.builder.BooleanQueryBuilder.bq;
 import static querqy.model.convert.builder.DisjunctionMaxQueryBuilder.dmq;
 import static querqy.model.convert.builder.ExpandedQueryBuilder.expanded;
@@ -124,23 +119,14 @@ public class QueryRewritingExecutorTest {
 
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void testThat_infoLoggingIsAddedInCorrectOrder_forMultipleRewriters() {
+    public void testThat_rewriteLoggingIsNotEmpty_forActiveRewriteLoggingConfig() {
         final QueryRewritingConfig rewritingConfig = QueryRewritingConfig.builder()
                 .rewriterFactory(
                         RewriterSupport.createRewriterFactory(
                                 "common",
                                 "id", "1",
-                                "rules", "apple smartphone =>\n  SYNONYM: iphone\n" +
-                                        "smartphone =>\n SYNONYM: handy"
-                        )
-                )
-                .rewriterFactory(
-                        RewriterSupport.createRewriterFactory(
-                                "common",
-                                "id", "2",
-                                "rules", "smartphone =>\n  SYNONYM: mobile"
+                                "rules", "apple smartphone =>\n  SYNONYM: iphone\n"
                         )
                 )
                 .build();
@@ -148,42 +134,9 @@ public class QueryRewritingExecutorTest {
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
                 .queryInput("apple smartphone")
                 .queryRewritingConfig(rewritingConfig)
+                .rewriteLoggingConfig(RewriteLoggingConfig.details())
                 .build()
                 .rewriteQuery();
 
-        assertThat((Map) rewrittenQuery.getRewritingTracking().get(INFO_LOGGING)).containsExactly(
-                new AbstractMap.SimpleEntry<>("1", List.of("apple smartphone#0", "smartphone#1")),
-                new AbstractMap.SimpleEntry<>("2", List.of("smartphone#0"))
-        );
-    }
-
-    @SuppressWarnings({"rawtypes"})
-    @Test
-    public void testThat_rewritingActionsAreAllAdded_forMultipleRewriters() {
-        final QueryRewritingConfig rewritingConfig = QueryRewritingConfig.builder()
-                .rewriterFactory(
-                        RewriterSupport.createRewriterFactory(
-                                "common",
-                                "id", "1",
-                                "rules", "apple smartphone =>\n  SYNONYM: iphone\n" +
-                                        "smartphone =>\n SYNONYM: handy"
-                        )
-                )
-                .rewriterFactory(
-                        RewriterSupport.createRewriterFactory(
-                                "common",
-                                "id", "2",
-                                "rules", "smartphone =>\n  SYNONYM: mobile"
-                        )
-                )
-                .build();
-
-        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
-                .queryInput("apple smartphone")
-                .queryRewritingConfig(rewritingConfig)
-                .build()
-                .rewriteQuery();
-
-        assertThat((List) rewrittenQuery.getRewritingTracking().get(REWRITING_ACTIONS)).hasSize(3);
     }
 }

@@ -10,5 +10,5 @@ import java.util.Map;
 @Getter
 public class RewrittenQuerqyQuery {
     private final ExpandedQuery query;
-    private final Map<String, Object> rewritingTracking;
+    private final Map<String, Object> rewriteLogging;
 }

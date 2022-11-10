@@ -1,16 +1,24 @@
 package querqy.rewriter;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
+import lombok.Singular;
 import querqy.QueryRewritingConfig;
 import querqy.domain.RewrittenQuerqyQuery;
 import querqy.model.ExpandedQuery;
 import querqy.model.Query;
 import querqy.parser.QuerqyParser;
 import querqy.rewrite.RewriteChain;
+import querqy.rewrite.RewriteChainOutput;
+import querqy.rewrite.RewriteLoggingConfig;
 import querqy.rewrite.commonrules.QuerqyParserFactory;
+import querqy.rewrite.logging.RewriteChainLog;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Builder
 public class QueryRewritingExecutor {
@@ -18,21 +26,19 @@ public class QueryRewritingExecutor {
     private final String queryInput;
     private final QueryRewritingConfig queryRewritingConfig;
 
-    @Builder.Default private final Map<String, String[]> params = new HashMap<>();
-
-    // TODO: make configurable whether logging is used
-
+    @Singular private final Map<String, String[]> params;
+    @Builder.Default final RewriteLoggingConfig rewriteLoggingConfig = RewriteLoggingConfig.off();
 
     public RewrittenQuerqyQuery rewriteQuery() {
         final ExpandedQuery parsedQuery = parseQuery();
         final LocalSearchEngineRequestAdapter requestAdapter = createLocalSearchEngineRequestAdapter();
 
         final RewriteChain rewriteChain = queryRewritingConfig.getRewriteChain();
-        final ExpandedQuery rewrittenQuery = rewriteChain.rewrite(parsedQuery, requestAdapter);
+        final RewriteChainOutput rewriteChainOutput = rewriteChain.rewrite(parsedQuery, requestAdapter);
 
         return RewrittenQuerqyQuery.builder()
-                .query(rewrittenQuery)
-                .rewritingTracking(requestAdapter.getRewritingTracking())
+                .query(rewriteChainOutput.getExpandedQuery())
+                .rewriteLogging(extractRewriteLog(rewriteChainOutput))
                 .build();
     }
 
@@ -48,9 +54,21 @@ public class QueryRewritingExecutor {
         return LocalSearchEngineRequestAdapter.builder()
                 .rewriteChain(queryRewritingConfig.getRewriteChain())
                 .params(params)
-                .hasActiveInfoLogging(true)
-                .hasActiveActionTracking(true)
+                .rewriteLoggingConfig(rewriteLoggingConfig)
                 .build();
+    }
+
+    private Map<String, Object> extractRewriteLog(final RewriteChainOutput rewriteChainOutput) {
+        final Optional<RewriteChainLog> rewriteLog = rewriteChainOutput.getRewriteLog();
+        return rewriteLog.isPresent() ? convertRewriteLog(rewriteLog.get()) : Collections.emptyMap();
+    }
+
+    private Map<String, Object> convertRewriteLog(final RewriteChainLog rewriteChainLog) {
+        final ObjectMapper objectMapper = new ObjectMapper()
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
+        return objectMapper.convertValue(rewriteChainLog, new TypeReference<>() {});
     }
 
 }
