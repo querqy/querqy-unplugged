@@ -1,4 +1,4 @@
-package querqy.adapter;
+package querqy.rewriter;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

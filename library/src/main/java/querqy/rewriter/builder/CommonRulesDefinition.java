@@ -1,4 +1,4 @@
-package querqy.adapter.rewriter.builder;
+package querqy.rewriter.builder;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;

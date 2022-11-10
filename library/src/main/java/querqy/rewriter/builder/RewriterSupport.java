@@ -1,4 +1,4 @@
-package querqy.adapter.rewriter.builder;
+package querqy.rewriter.builder;
 
 import querqy.rewrite.RewriterFactory;
 

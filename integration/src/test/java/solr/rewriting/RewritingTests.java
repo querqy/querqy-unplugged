@@ -7,7 +7,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import querqy.QueryConfig;
-import querqy.QueryRewritingHandler;
+import querqy.QueryRewriting;
 import querqy.QueryRewritingConfig;
 import querqy.converter.solr.map.MapConverterFactory;
 import solr.SolrTestRequest;
@@ -15,7 +15,7 @@ import solr.SolrTestResult;
 
 import java.util.Map;
 
-import static querqy.adapter.rewriter.builder.RewriterSupport.createRewriterFactory;
+import static querqy.rewriter.builder.RewriterSupport.createRewriterFactory;
 
 public class RewritingTests extends SolrTestCaseJ4 {
 
@@ -46,7 +46,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
 
     @Test
     public void testThat_filterIsApplied_forBeingIncludedInCommonRules() throws Exception {
-        final QueryRewritingHandler<Map<String, Object>> queryRewritingHandler = QueryRewritingHandler.<Map<String, Object>>builder()
+        final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .queryRewritingConfig(
                         singleRewriterConfig("apple =>\n  FILTER: * type:case")
@@ -73,7 +73,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
 
     @Test
     public void testThat_scoringIsFair_forSimpleRepeatedClause() throws Exception {
-        final QueryRewritingHandler<Map<String, Object>> queryRewritingHandler = QueryRewritingHandler.<Map<String, Object>>builder()
+        final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .queryRewritingConfig(
                         singleRewriterConfig("apple smartphone =>\n  SYNONYM: iphone")
@@ -102,7 +102,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
 
     @Test
     public void testThat_scoringIsFair_forSimpleNestedClause() throws Exception {
-        final QueryRewritingHandler<Map<String, Object>> queryRewritingHandler = QueryRewritingHandler.<Map<String, Object>>builder()
+        final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .queryRewritingConfig(
                         singleRewriterConfig("iphone =>\n  SYNONYM: apple smartphone")

@@ -1,4 +1,4 @@
-package querqy.adapter.rewriter.builder;
+package querqy.rewriter.builder;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,6 @@ import lombok.NonNull;
 import lombok.ToString;
 import querqy.rewrite.commonrules.QuerqyParserFactory;
 import querqy.rewrite.commonrules.WhiteSpaceQuerqyParserFactory;
-import querqy.rewrite.commonrules.model.BoostInstruction;
 
 @Builder
 @NoArgsConstructor

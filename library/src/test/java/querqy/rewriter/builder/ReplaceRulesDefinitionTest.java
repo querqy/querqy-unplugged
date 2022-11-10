@@ -1,4 +1,4 @@
-package querqy.adapter.rewriter.builder;
+package querqy.rewriter.builder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -7,7 +7,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CommonRulesDefinitionTest {
+public class ReplaceRulesDefinitionTest {
 
     @Test
     public void testThat_jacksonMapperReturnsTheSameObject_likeLombokBuilder() {
@@ -15,10 +15,10 @@ public class CommonRulesDefinitionTest {
         final String rules = "iphone =>\n  SYNONYM: apple";
 
         final ObjectMapper mapper = new ObjectMapper();
-        final CommonRulesDefinition definitionFromMap = mapper.convertValue(
-                Map.of("rewriterId", id, "rules", rules), CommonRulesDefinition.class);
+        final ReplaceRulesDefinition definitionFromMap = mapper.convertValue(
+                Map.of("rewriterId", id, "rules", rules), ReplaceRulesDefinition.class);
 
-        final CommonRulesDefinition definitionFromBuilder = CommonRulesDefinition.builder()
+        final ReplaceRulesDefinition definitionFromBuilder = ReplaceRulesDefinition.builder()
                 .rewriterId(id)
                 .rules(rules)
                 .build();

@@ -1,4 +1,4 @@
-package querqy.adapter.rewriter.builder;
+package querqy.rewriter.builder;
 
 import lombok.RequiredArgsConstructor;
 import querqy.rewrite.commonrules.SimpleCommonRulesRewriterFactory;

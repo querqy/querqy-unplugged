@@ -1,4 +1,4 @@
-package querqy.adapter;
+package querqy.rewriter;
 
 import lombok.Builder;
 import querqy.infologging.InfoLoggingContext;

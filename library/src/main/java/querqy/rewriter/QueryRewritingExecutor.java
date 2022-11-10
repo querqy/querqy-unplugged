@@ -1,4 +1,4 @@
-package querqy.adapter;
+package querqy.rewriter;
 
 import lombok.Builder;
 import querqy.QueryRewritingConfig;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Builder
-public class QueryRewritingAdapter {
+public class QueryRewritingExecutor {
 
     private final String queryInput;
     private final QueryRewritingConfig queryRewritingConfig;

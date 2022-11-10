@@ -6,7 +6,7 @@ import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import querqy.QueryConfig;
-import querqy.QueryRewritingHandler;
+import querqy.QueryRewriting;
 import querqy.QueryRewritingConfig;
 import querqy.converter.solr.map.MapConverterFactory;
 import querqy.solr.rewriter.commonrules.CommonRulesConfigRequestBuilder;
@@ -15,7 +15,7 @@ import solr.SolrTestResult;
 
 import java.util.Map;
 
-import static querqy.adapter.rewriter.builder.RewriterSupport.createRewriterFactory;
+import static querqy.rewriter.builder.RewriterSupport.createRewriterFactory;
 import static solr.StandaloneSolrTestSupport.withCommonRulesRewriter;
 
 public class ComparingRewritingTests extends SolrTestCaseJ4 {
@@ -144,7 +144,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
     }
 
     private SolrTestResult applyJsonRequest(final String rules) throws Exception {
-        final QueryRewritingHandler<Map<String, Object>> queryRewritingHandler = QueryRewritingHandler.<Map<String, Object>>builder()
+        final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .queryRewritingConfig(singleRewriterConfig(rules))
                 .converterFactory(MapConverterFactory.create())
