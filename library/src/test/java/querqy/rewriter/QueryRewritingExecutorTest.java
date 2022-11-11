@@ -30,7 +30,7 @@ public class QueryRewritingExecutorTest {
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
                 .queryInput("aple applee")
-                .queryRewritingConfig(rewritingConfig)
+                .querqyConfig(rewritingConfig)
                 .build()
                 .rewriteQuery();
 
@@ -56,7 +56,7 @@ public class QueryRewritingExecutorTest {
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
                 .queryInput("apple smartphone")
-                .queryRewritingConfig(rewritingConfig)
+                .querqyConfig(rewritingConfig)
                 .build()
                 .rewriteQuery();
 
@@ -97,7 +97,7 @@ public class QueryRewritingExecutorTest {
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
                 .queryInput("apple smartphone")
-                .queryRewritingConfig(rewritingConfig)
+                .querqyConfig(rewritingConfig)
                 .build()
                 .rewriteQuery();
 
@@ -129,14 +129,15 @@ public class QueryRewritingExecutorTest {
                                 "rules", "apple smartphone =>\n  SYNONYM: iphone\n"
                         )
                 )
+                .rewriteLoggingConfig(RewriteLoggingConfig.details())
                 .build();
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
                 .queryInput("apple smartphone")
-                .queryRewritingConfig(rewritingConfig)
-                .rewriteLoggingConfig(RewriteLoggingConfig.details())
+                .querqyConfig(rewritingConfig)
                 .build()
                 .rewriteQuery();
 
+        assertThat(rewrittenQuery.getRewriteLogging()).isNotEmpty();
     }
 }

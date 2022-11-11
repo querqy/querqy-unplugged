@@ -24,16 +24,15 @@ import java.util.Optional;
 public class QueryRewritingExecutor {
 
     private final String queryInput;
-    private final QuerqyConfig queryRewritingConfig;
+    private final QuerqyConfig querqyConfig;
 
     @Singular private final Map<String, String[]> params;
-    @Builder.Default final RewriteLoggingConfig rewriteLoggingConfig = RewriteLoggingConfig.off();
 
     public RewrittenQuerqyQuery rewriteQuery() {
         final ExpandedQuery parsedQuery = parseQuery();
-        final LocalSearchEngineRequestAdapter requestAdapter = createLocalSearchEngineRequestAdapter();
+        final RewriteChain rewriteChain = querqyConfig.getRewriteChain();
+        final LocalSearchEngineRequestAdapter requestAdapter = createLocalSearchEngineRequestAdapter(rewriteChain);
 
-        final RewriteChain rewriteChain = queryRewritingConfig.getRewriteChain();
         final RewriteChainOutput rewriteChainOutput = rewriteChain.rewrite(parsedQuery, requestAdapter);
 
         return RewrittenQuerqyQuery.builder()
@@ -43,18 +42,18 @@ public class QueryRewritingExecutor {
     }
 
     private ExpandedQuery parseQuery() {
-        final QuerqyParserFactory parserFactory = queryRewritingConfig.getQuerqyParserFactory();
+        final QuerqyParserFactory parserFactory = querqyConfig.getQuerqyParserFactory();
         final QuerqyParser parser = parserFactory.createParser();
 
         final Query parsedQuery = parser.parse(queryInput);
         return new ExpandedQuery(parsedQuery);
     }
 
-    private LocalSearchEngineRequestAdapter createLocalSearchEngineRequestAdapter() {
+    private LocalSearchEngineRequestAdapter createLocalSearchEngineRequestAdapter(final RewriteChain rewriteChain) {
         return LocalSearchEngineRequestAdapter.builder()
-                .rewriteChain(queryRewritingConfig.getRewriteChain())
+                .rewriteChain(rewriteChain)
                 .params(params)
-                .rewriteLoggingConfig(rewriteLoggingConfig)
+                .rewriteLoggingConfig(querqyConfig.getRewriteLoggingConfig())
                 .build();
     }
 

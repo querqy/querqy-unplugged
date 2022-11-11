@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Singular;
 import querqy.rewrite.RewriteChain;
+import querqy.rewrite.RewriteLoggingConfig;
 import querqy.rewrite.RewriterFactory;
 import querqy.rewrite.commonrules.QuerqyParserFactory;
 import querqy.rewrite.commonrules.WhiteSpaceQuerqyParserFactory;
@@ -18,21 +19,20 @@ import java.util.Objects;
 public class QuerqyConfig {
 
     private final QuerqyParserFactory querqyParserFactory;
-
-    private final List<RewriterFactory> rewriterFactories;
     private final RewriteChain rewriteChain;
+
+    private final RewriteLoggingConfig rewriteLoggingConfig;
 
     @Builder
     public static QuerqyConfig build(
             final QuerqyParserFactory querqyParserFactory,
-            @Singular final List<RewriterFactory> rewriterFactories
+            @Singular final List<RewriterFactory> rewriterFactories,
+            final RewriteLoggingConfig rewriteLoggingConfig
     ) {
-
         return QuerqyConfig.of(
                 Objects.requireNonNullElseGet(querqyParserFactory, WhiteSpaceQuerqyParserFactory::new),
-                rewriterFactories,
-                new RewriteChain(rewriterFactories)
+                new RewriteChain(rewriterFactories),
+                Objects.requireNonNullElseGet(rewriteLoggingConfig, RewriteLoggingConfig::off)
         );
-
     }
 }

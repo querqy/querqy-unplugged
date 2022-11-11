@@ -12,7 +12,7 @@ import querqy.model.ExpandedQuery;
 public class QueryRewriting<T> {
 
     private final QueryConfig queryConfig;
-    private final QuerqyConfig queryRewritingConfig;
+    private final QuerqyConfig querqyConfig;
     private final ConverterFactory<T> converterFactory;
 
     public RewrittenQuery<T> rewriteQuery(final String queryInput) {
@@ -30,7 +30,7 @@ public class QueryRewriting<T> {
     private QueryRewritingExecutor createExecutor(final String queryInput) {
         return QueryRewritingExecutor.builder()
                 .queryInput(queryInput)
-                .queryRewritingConfig(queryRewritingConfig)
+                .querqyConfig(querqyConfig)
                 .build();
     }
 
