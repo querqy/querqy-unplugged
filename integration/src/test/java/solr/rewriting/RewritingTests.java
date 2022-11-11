@@ -8,7 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
-import querqy.QueryRewritingConfig;
+import querqy.QuerqyConfig;
 import querqy.converter.solr.map.MapConverterFactory;
 import solr.SolrTestRequest;
 import solr.SolrTestResult;
@@ -129,8 +129,8 @@ public class RewritingTests extends SolrTestCaseJ4 {
         );
     }
 
-    private QueryRewritingConfig singleRewriterConfig(final String rules) {
-        return QueryRewritingConfig.builder()
+    private QuerqyConfig singleRewriterConfig(final String rules) {
+        return QuerqyConfig.builder()
                 .rewriterFactory(
                         createRewriterFactory(
                                 "common",

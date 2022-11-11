@@ -1,7 +1,7 @@
 package querqy.rewriter;
 
 import org.junit.Test;
-import querqy.QueryRewritingConfig;
+import querqy.QuerqyConfig;
 import querqy.rewrite.RewriteLoggingConfig;
 import querqy.rewriter.builder.RewriterSupport;
 import querqy.domain.RewrittenQuerqyQuery;
@@ -17,7 +17,7 @@ public class QueryRewritingExecutorTest {
 
     @Test
     public void testThat_replacementsAreApplied_forGivenReplaceRulesRewriter() {
-        final QueryRewritingConfig rewritingConfig = QueryRewritingConfig.builder()
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
                 .rewriterFactory(
                         RewriterSupport.createRewriterFactory(
                                 "replace",
@@ -44,7 +44,7 @@ public class QueryRewritingExecutorTest {
 
     @Test
     public void testThat_synonymsAreApplied_forGivenCommonRulesRewriter() {
-        final QueryRewritingConfig rewritingConfig = QueryRewritingConfig.builder()
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
                 .rewriterFactory(
                         RewriterSupport.createRewriterFactory(
                                 "common",
@@ -78,7 +78,7 @@ public class QueryRewritingExecutorTest {
 
     @Test
     public void testThat_synonymsAreApplied_forMultipleGivenCommonRulesRewriters() {
-        final QueryRewritingConfig rewritingConfig = QueryRewritingConfig.builder()
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
                 .rewriterFactory(
                         RewriterSupport.createRewriterFactory(
                                 "common",
@@ -121,7 +121,7 @@ public class QueryRewritingExecutorTest {
 
     @Test
     public void testThat_rewriteLoggingIsNotEmpty_forActiveRewriteLoggingConfig() {
-        final QueryRewritingConfig rewritingConfig = QueryRewritingConfig.builder()
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
                 .rewriterFactory(
                         RewriterSupport.createRewriterFactory(
                                 "common",

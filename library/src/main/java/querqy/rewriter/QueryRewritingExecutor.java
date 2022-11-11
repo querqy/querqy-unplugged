@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Singular;
-import querqy.QueryRewritingConfig;
+import querqy.QuerqyConfig;
 import querqy.domain.RewrittenQuerqyQuery;
 import querqy.model.ExpandedQuery;
 import querqy.model.Query;
@@ -24,7 +24,7 @@ import java.util.Optional;
 public class QueryRewritingExecutor {
 
     private final String queryInput;
-    private final QueryRewritingConfig queryRewritingConfig;
+    private final QuerqyConfig queryRewritingConfig;
 
     @Singular private final Map<String, String[]> params;
     @Builder.Default final RewriteLoggingConfig rewriteLoggingConfig = RewriteLoggingConfig.off();

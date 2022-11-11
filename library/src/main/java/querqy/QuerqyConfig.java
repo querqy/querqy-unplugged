@@ -15,7 +15,7 @@ import java.util.Objects;
 
 @RequiredArgsConstructor(staticName = "of", access = AccessLevel.PRIVATE)
 @Getter
-public class QueryRewritingConfig {
+public class QuerqyConfig {
 
     private final QuerqyParserFactory querqyParserFactory;
 
@@ -23,12 +23,12 @@ public class QueryRewritingConfig {
     private final RewriteChain rewriteChain;
 
     @Builder
-    public static QueryRewritingConfig build(
+    public static QuerqyConfig build(
             final QuerqyParserFactory querqyParserFactory,
             @Singular final List<RewriterFactory> rewriterFactories
     ) {
 
-        return QueryRewritingConfig.of(
+        return QuerqyConfig.of(
                 Objects.requireNonNullElseGet(querqyParserFactory, WhiteSpaceQuerqyParserFactory::new),
                 rewriterFactories,
                 new RewriteChain(rewriterFactories)

@@ -12,7 +12,7 @@ import querqy.model.ExpandedQuery;
 public class QueryRewriting<T> {
 
     private final QueryConfig queryConfig;
-    private final QueryRewritingConfig queryRewritingConfig;
+    private final QuerqyConfig queryRewritingConfig;
     private final ConverterFactory<T> converterFactory;
 
     public RewrittenQuery<T> rewriteQuery(final String queryInput) {
