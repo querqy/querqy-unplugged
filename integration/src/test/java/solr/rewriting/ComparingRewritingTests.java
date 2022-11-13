@@ -146,11 +146,11 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
     private SolrTestResult applyJsonRequest(final String rules) throws Exception {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
-                .queryRewritingConfig(singleRewriterConfig(rules))
+                .querqyConfig(singleRewriterConfig(rules))
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryRewritingHandler.rewriteQuery(USER_QUERY).getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.rewriteAndConvert(USER_QUERY).getConvertedQuery();
 
         return SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)

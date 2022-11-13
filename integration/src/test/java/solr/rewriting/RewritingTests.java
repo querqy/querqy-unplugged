@@ -48,13 +48,13 @@ public class RewritingTests extends SolrTestCaseJ4 {
     public void testThat_filterIsApplied_forBeingIncludedInCommonRules() throws Exception {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
-                .queryRewritingConfig(
+                .querqyConfig(
                         singleRewriterConfig("apple =>\n  FILTER: * type:case")
                 )
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryRewritingHandler.rewriteQuery("apple").getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.rewriteAndConvert("apple").getConvertedQuery();
 
         final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id")
@@ -75,13 +75,13 @@ public class RewritingTests extends SolrTestCaseJ4 {
     public void testThat_scoringIsFair_forSimpleRepeatedClause() throws Exception {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
-                .queryRewritingConfig(
+                .querqyConfig(
                         singleRewriterConfig("apple smartphone =>\n  SYNONYM: iphone")
                 )
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryRewritingHandler.rewriteQuery("apple smartphone").getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.rewriteAndConvert("apple smartphone").getConvertedQuery();
 
         final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id,name,type,score")
@@ -104,13 +104,13 @@ public class RewritingTests extends SolrTestCaseJ4 {
     public void testThat_scoringIsFair_forSimpleNestedClause() throws Exception {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
-                .queryRewritingConfig(
+                .querqyConfig(
                         singleRewriterConfig("iphone =>\n  SYNONYM: apple smartphone")
                 )
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryRewritingHandler.rewriteQuery("iphone").getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.rewriteAndConvert("iphone").getConvertedQuery();
 
         final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id,name,type,score")
