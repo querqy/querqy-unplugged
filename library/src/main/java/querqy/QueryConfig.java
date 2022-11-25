@@ -2,6 +2,7 @@ package querqy;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Singular;
 
 import java.util.Map;
@@ -29,6 +30,10 @@ public class QueryConfig {
 
     public boolean hasTie() {
         return tie != null;
+    }
+
+    public static QueryConfig empty() {
+        return QueryConfig.builder().build();
     }
 
 }
