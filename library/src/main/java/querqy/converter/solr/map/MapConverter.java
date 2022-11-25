@@ -8,7 +8,6 @@ import querqy.converter.Converter;
 import querqy.model.ExpandedQuery;
 import querqy.model.QuerqyQuery;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static querqy.converter.solr.map.MapConverter.InstructionQueriesParsingMode.BOOSTS_ONLY;
@@ -106,10 +105,10 @@ public class MapConverter implements Converter<Map<String, Object>> {
         return Map.of(
                 "query", Map.of(
                         "bool", Map.of(
-                                "must", convertedUserQuery,
-                                "filter", filterMapConverter.convertFilterQueries()
+                                "must", convertedUserQuery
                         )
-                )
+                ),
+                "filter", filterMapConverter.convertFilterQueries()
         );
     }
 
@@ -134,10 +133,10 @@ public class MapConverter implements Converter<Map<String, Object>> {
                 "query", Map.of(
                         "bool", Map.of(
                                 "must", convertedUserQuery,
-                                "filter", filterMapConverter.convertFilterQueries(),
                                 "should", boostMaps.getBoostFunctionQueries()
                         )
                 ),
+                "filter", filterMapConverter.convertFilterQueries(),
                 "queries", boostMaps.getReferencedConvertedQueries()
         );
     }
