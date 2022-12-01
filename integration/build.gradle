@@ -21,7 +21,7 @@ dependencies {
     compileOnly "org.apache.lucene:lucene-core:${luceneSolrVersion}"
     compileOnly "org.apache.solr:solr-core:${luceneSolrVersion}"
 
-    testImplementation "org.querqy:querqy-solr:5.4.lucene810.0"
+    testImplementation "org.querqy:querqy-solr:5.5.lucene811.0"
     testImplementation "org.apache.solr:solr-test-framework:${luceneSolrVersion}"
     testImplementation "org.assertj:assertj-core:3.22.0"
     testImplementation "junit:junit:4.11"

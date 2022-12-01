@@ -54,7 +54,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryRewritingHandler.rewriteAndConvert("apple").getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.rewriteQuery("apple").getConvertedQuery();
 
         final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id")
@@ -81,7 +81,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryRewritingHandler.rewriteAndConvert("apple smartphone").getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.rewriteQuery("apple smartphone").getConvertedQuery();
 
         final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id,name,type,score")
@@ -110,7 +110,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryRewritingHandler.rewriteAndConvert("iphone").getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.rewriteQuery("iphone").getConvertedQuery();
 
         final SolrTestResult result = SolrTestRequest.builder()
                 .param("fl", "id,name,type,score")

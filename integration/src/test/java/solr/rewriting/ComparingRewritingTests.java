@@ -45,6 +45,8 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
 
     @BeforeClass
     public static void setupIndex() throws Exception {
+        System.setProperty("solr.install.dir", "resources");
+
         initCore("solrconfig.xml", "schema-bm25-similarity.xml");
         assertU(adoc("id", "1", "name", "apple iphone", "type", "iphone"));
         assertU(adoc("id", "2", "name", "apple iphone", "type", "smartphone"));
@@ -150,7 +152,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
                 .converterFactory(MapConverterFactory.create())
                 .build();
 
-        final Map<String, Object> query = queryRewritingHandler.rewriteAndConvert(USER_QUERY).getConvertedQuery();
+        final Map<String, Object> query = queryRewritingHandler.rewriteQuery(USER_QUERY).getConvertedQuery();
 
         return SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)
