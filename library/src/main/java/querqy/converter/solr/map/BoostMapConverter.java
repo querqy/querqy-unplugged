@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor(staticName = "of", access = AccessLevel.PRIVATE)
 public class BoostMapConverter {
 
-    private static final String BOOST_UP_FUNCTION_QUERY_TEMPLATE = "{!func}mul(%f,sub(1,div(1,sum($%s,1))))";
+    private static final String BOOST_UP_FUNCTION_QUERY_TEMPLATE = "{!func}mul(%f,sub(1,div(1,sum(query($%s),1))))";
 
     private final QueryConfig queryConfig;
 
@@ -96,14 +96,7 @@ public class BoostMapConverter {
     }
 
     private String parseStringRawQueryForBoost(final StringRawQuery rawQuery) {
-        final String rawQueryString = rawQuery.getQueryString();
-
-        if (rawQueryString.startsWith("{!")) {
-            return rawQueryString;
-
-        } else {
-            return "{!lucene}" + rawQueryString;
-        }
+        return rawQuery.getQueryString();
     }
 
     private Object createBoostUpFunctionQuery(final float boost, final String queryReference) {
