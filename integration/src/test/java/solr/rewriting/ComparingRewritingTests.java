@@ -24,8 +24,11 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
 
     private static final String USER_QUERY = "apple";
 
+    // TODO: down boost, negated raw query
     private static final Map<String, String> RULES = Map.of(
             "boost_common_rules", "apple => \n  UP: iphone",
+
+            "negated_boost_common_rules", "apple => \n UP(100): -smartphone",
 
             "multiple_term_boost_common_rules", "apple => \n  UP: apple iphone",
 
@@ -76,6 +79,15 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
     @Test
     public void testThat_resultsAreIdentical_forBoostUpRule() throws Exception {
         final String rewriterName = "boost_common_rules";
+
+        final SolrTestResult paramResult = applyParamRequest(rewriterName).print();
+        final SolrTestResult jsonResult = applyJsonRequest(RULES.get(rewriterName)).print();
+        assertEquals(paramResult, jsonResult);
+    }
+
+    @Test
+    public void testThat_resultsAreIdentical_forNegatedBoostRule() throws Exception {
+        final String rewriterName = "negated_boost_common_rules";
 
         final SolrTestResult paramResult = applyParamRequest(rewriterName).print();
         final SolrTestResult jsonResult = applyJsonRequest(RULES.get(rewriterName)).print();

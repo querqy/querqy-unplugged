@@ -62,12 +62,23 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
         return Map.of(queryConfig.getBoolNodeName(), boolNode);
     }
 
-    @SuppressWarnings("unchecked")
     private Map<String, Object> convertBooleanQueryToMap(final BooleanQuery booleanQuery) {
+        final List<BooleanClause> clauses = booleanQuery.getClauses();
+
+        if (clauses.size() == 1 && Clause.Occur.MUST_NOT.equals(clauses.get(0).getOccur())) {
+            return convertBooleanQueryWithSingleMustNotToMap(booleanQuery);
+
+        } else {
+            return convertRegularBooleanQueryToMap(booleanQuery);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> convertRegularBooleanQueryToMap(final BooleanQuery booleanQuery) {
         final Map<String, Object> boolNode = new HashMap<>(2);
 
         for (final BooleanClause clause : booleanQuery.getClauses()) {
-            List<Object> clauses = (List<Object>) boolNode.computeIfAbsent(
+            final List<Object> clauses = (List<Object>) boolNode.computeIfAbsent(
                     getPropertyNameForOccur(clause.getOccur()),
                     key -> new ArrayList<>());
 
@@ -77,7 +88,13 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
         return boolNode;
     }
 
-    private String getPropertyNameForOccur(Clause.Occur occur) {
+    private Map<String, Object> convertBooleanQueryWithSingleMustNotToMap(final BooleanQuery booleanQuery) {
+        final Map<String, Object> boolNode = convertRegularBooleanQueryToMap(booleanQuery);
+        boolNode.put("should", "*:*");
+        return boolNode;
+    }
+
+    private String getPropertyNameForOccur(final Clause.Occur occur) {
         if (Clause.Occur.SHOULD.equals(occur)) {
             return "should";
 
