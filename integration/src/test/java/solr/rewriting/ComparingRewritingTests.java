@@ -4,6 +4,7 @@ import org.apache.solr.SolrTestCaseJ4;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
@@ -86,6 +87,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
     }
 
     @Test
+    @Ignore
     public void testThat_resultsAreIdentical_forNegatedBoostRule() throws Exception {
         final String rewriterName = "negated_boost_common_rules";
 
