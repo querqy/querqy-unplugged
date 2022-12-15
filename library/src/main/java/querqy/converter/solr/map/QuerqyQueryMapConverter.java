@@ -153,7 +153,11 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
 
     @Override
     public Object visit(final MatchAllQuery query) {
-        return "*:*";
+        return Map.of(
+                "lucene", Map.of(
+                        "v", "*:*"
+                )
+        );
     }
 
     @Override

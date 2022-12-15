@@ -45,6 +45,26 @@ public class RewritingTests extends SolrTestCaseJ4 {
     }
 
     @Test
+    public void testThat_allDocsAreReturned_forGivenMatchAllQuery() throws Exception {
+        final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
+                .queryConfig(queryConfig)
+                .querqyConfig(emptyQuerqyConfig())
+                .converterFactory(MapConverterFactory.create())
+                .build();
+
+        final Map<String, Object> query = queryRewritingHandler.rewriteQuery("*:*").getConvertedQuery();
+
+        final SolrTestResult result = SolrTestRequest.builder()
+                .param("fl", "id")
+                .query(query)
+                .solrClient(SOLR_CLIENT)
+                .build()
+                .applyRequest();
+
+        assertEquals(result.size(), 5);
+    }
+
+    @Test
     public void testThat_filterIsApplied_forBeingIncludedInCommonRules() throws Exception {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
@@ -127,6 +147,10 @@ public class RewritingTests extends SolrTestCaseJ4 {
                         .doc("2", "apple", "smartphone", 30.0f)
                         .build()
         );
+    }
+
+    private QuerqyConfig emptyQuerqyConfig() {
+        return QuerqyConfig.builder().build();
     }
 
     private QuerqyConfig singleRewriterConfig(final String rules) {

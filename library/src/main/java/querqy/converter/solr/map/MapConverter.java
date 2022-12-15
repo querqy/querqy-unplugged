@@ -62,6 +62,8 @@ public class MapConverter implements Converter<Map<String, Object>> {
                 .convert();
 
         // TODO: Why is this needed?
+        //  -> raw query not possible for user query
+        //  -> match all query not identified by querqy core
         if (query instanceof Map) {
             return (Map<String, Object>) query;
 

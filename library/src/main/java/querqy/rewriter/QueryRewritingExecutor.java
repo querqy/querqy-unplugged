@@ -8,11 +8,11 @@ import lombok.Singular;
 import querqy.QuerqyConfig;
 import querqy.domain.RewrittenQuerqyQuery;
 import querqy.model.ExpandedQuery;
+import querqy.model.MatchAllQuery;
 import querqy.model.Query;
 import querqy.parser.QuerqyParser;
 import querqy.rewrite.RewriteChain;
 import querqy.rewrite.RewriteChainOutput;
-import querqy.rewrite.RewriteLoggingConfig;
 import querqy.rewrite.commonrules.QuerqyParserFactory;
 import querqy.rewrite.logging.RewriteChainLog;
 
@@ -22,6 +22,9 @@ import java.util.Optional;
 
 @Builder
 public class QueryRewritingExecutor {
+
+    public static final String MATCH_ALL_FIELD_VALUE_INPUT = "*:*";
+    public static final String MATCH_ALL_WILDCARD_INPUT = "*";
 
     private final String queryInput;
     private final QuerqyConfig querqyConfig;
@@ -42,6 +45,15 @@ public class QueryRewritingExecutor {
     }
 
     private ExpandedQuery parseQuery() {
+        if (MATCH_ALL_WILDCARD_INPUT.equals(queryInput) || MATCH_ALL_FIELD_VALUE_INPUT.equals(queryInput)) {
+            return new ExpandedQuery(new MatchAllQuery());
+
+        } else {
+            return parseRegularQuery();
+        }
+    }
+
+    private ExpandedQuery parseRegularQuery() {
         final QuerqyParserFactory parserFactory = querqyConfig.getQuerqyParserFactory();
         final QuerqyParser parser = parserFactory.createParser();
 
