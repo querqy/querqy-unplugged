@@ -23,14 +23,20 @@ public class MapConverter implements Converter<Map<String, Object>> {
     }
 
     private final QueryConfig queryConfig;
+    private final MapConverterConfig converterConfig;
     private final QuerqyQuery<?> userQuery;
     private final FilterMapConverter filterMapConverter;
     private final BoostMapConverter boostMapConverter;
 
     @Builder
-    public static MapConverter build(final QueryConfig queryConfig, final ExpandedQuery expandedQuery) {
+    public static MapConverter build(
+            final ExpandedQuery expandedQuery,
+            final QueryConfig queryConfig,
+            final MapConverterConfig converterConfig
+    ) {
         final FilterMapConverter filterMapConverter = FilterMapConverter.builder()
                 .queryConfig(queryConfig)
+                .converterConfig(converterConfig)
                 .filterQueries(expandedQuery.getFilterQueries())
                 .build();
 
@@ -40,7 +46,13 @@ public class MapConverter implements Converter<Map<String, Object>> {
                 .boostDownQueries(expandedQuery.getBoostDownQueries())
                 .build();
 
-        return MapConverter.of(queryConfig, expandedQuery.getUserQuery(), filterMapConverter, boostMapConverter);
+        return MapConverter.of(
+                queryConfig,
+                converterConfig,
+                expandedQuery.getUserQuery(),
+                filterMapConverter,
+                boostMapConverter
+        );
     }
 
     @Override
@@ -56,6 +68,7 @@ public class MapConverter implements Converter<Map<String, Object>> {
     private Map<String, Object> convertUserQuery() {
         final Object query =  QuerqyQueryMapConverter.builder()
                 .queryConfig(queryConfig)
+                .converterConfig(converterConfig)
                 .node(userQuery)
                 .parseAsUserQuery(true)
                 .build()

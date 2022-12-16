@@ -1,6 +1,6 @@
 package querqy.converter.solr.map;
 
-import lombok.NoArgsConstructor;
+import lombok.Builder;
 import querqy.QueryConfig;
 import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
@@ -8,14 +8,25 @@ import querqy.model.ExpandedQuery;
 
 import java.util.Map;
 
-@NoArgsConstructor(staticName = "create")
+
+@Builder
 public class MapConverterFactory implements ConverterFactory<Map<String, Object>> {
 
+    private final QueryConfig queryConfig;
+    private final MapConverterConfig converterConfig;
+
     @Override
-    public Converter<Map<String, Object>> createConverter(ExpandedQuery expandedQuery, QueryConfig queryConfig) {
+    public Converter<Map<String, Object>> createConverter(final ExpandedQuery expandedQuery) {
         return MapConverter.builder()
                 .expandedQuery(expandedQuery)
                 .queryConfig(queryConfig)
+                .converterConfig(converterConfig)
+                .build();
+    }
+
+    public static MapConverterFactory create() {
+        return MapConverterFactory.builder()
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .build();
     }
 }

@@ -36,7 +36,7 @@ public class QueryRewriting<T> {
 
     private Converter<T> createConverter(final ExpandedQuery expandedQuery) {
         return converterFactory.createConverter(
-                expandedQuery, queryConfig
+                expandedQuery
         );
     }
 }

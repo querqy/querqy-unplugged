@@ -16,7 +16,7 @@ public class TermListConverterTest {
     public void testThat_converterCollectsTerms_forGivenQuery() {
         final ExpandedQuery expandedQuery = expanded(bq("iphone", "8")).build();
         final List<String> terms =
-                TermListConverterFactory.create().createConverter(expandedQuery, QueryConfig.empty()).convert();
+                TermListConverterFactory.create().createConverter(expandedQuery).convert();
 
         assertThat(terms).isEqualTo(List.of("iphone", "8"));
     }

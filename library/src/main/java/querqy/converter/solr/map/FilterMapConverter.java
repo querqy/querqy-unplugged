@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 public class FilterMapConverter {
 
     private final QueryConfig queryConfig;
+    private final MapConverterConfig converterConfig;
     private final Collection<QuerqyQuery<?>> filterQueries;
 
     public boolean hasFilters() {
@@ -37,6 +38,7 @@ public class FilterMapConverter {
                 .map(node ->
                         QuerqyQueryMapConverter.builder()
                                 .queryConfig(queryConfig)
+                                .converterConfig(converterConfig)
                                 .node(node)
                                 .parseAsUserQuery(false)
                                 .build()

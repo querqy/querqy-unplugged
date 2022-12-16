@@ -7,19 +7,15 @@ import querqy.model.convert.builder.ExpandedQueryBuilder;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static querqy.converter.solr.map.ConverterTestUtils.bqMap;
-import static querqy.converter.solr.map.ConverterTestUtils.dmqMap;
-import static querqy.converter.solr.map.ConverterTestUtils.termMap;
+import static querqy.converter.solr.map.MapConverterTestUtils.bqMap;
+import static querqy.converter.solr.map.MapConverterTestUtils.dmqMap;
+import static querqy.converter.solr.map.MapConverterTestUtils.termMap;
 import static querqy.model.convert.builder.BooleanQueryBuilder.bq;
 import static querqy.model.convert.builder.ExpandedQueryBuilder.expanded;
 
 public class FilterMapConverterTest {
 
     private final QueryConfig baseQueryConfig = QueryConfig.builder()
-            .boolNodeName("bool")
-            .disMaxNodeName("dis_max")
-            .scoringNodeName("constant_score")
-            .matchingNodeName("field")
             .field("f", 1.0f)
             .build();
 
@@ -29,6 +25,7 @@ public class FilterMapConverterTest {
 
         final FilterMapConverter converter = FilterMapConverter.builder()
                 .queryConfig(baseQueryConfig)
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .filterQueries(expanded.build().getFilterQueries())
                 .build();
 
@@ -57,6 +54,7 @@ public class FilterMapConverterTest {
 
         final FilterMapConverter converter = FilterMapConverter.builder()
                 .queryConfig(baseQueryConfig)
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .filterQueries(expanded.build().getFilterQueries())
                 .build();
 

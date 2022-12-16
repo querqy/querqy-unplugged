@@ -3,7 +3,7 @@ package querqy.converter.solr.map;
 import java.util.Arrays;
 import java.util.Map;
 
-public class ConverterTestUtils {
+public class MapConverterTestUtils {
 
     public static Map<String, Object> bqMap(final String occur, final Object... clauses) {
         return Map.of(
@@ -31,7 +31,7 @@ public class ConverterTestUtils {
 
     public static Map<String, Object> dmqMap(final Float tie, final Object... clauses) {
         return Map.of(
-                "dis_max",
+                "nestedDismax",
                 Map.of(
                         "queries", Arrays.asList(clauses),
                         "tie", tie
@@ -41,13 +41,13 @@ public class ConverterTestUtils {
 
     public static Map<String, Object> dmqMap(final Object... clauses) {
         return Map.of(
-                "dis_max",
+                "nestedDismax",
                 Map.of("queries", Arrays.asList(clauses)));
     }
 
     public static Map<String, Object> termMap(final String field, final String value, final Float weight) {
         return Map.of(
-                "constant_score", Map.of(
+                "constantScore", Map.of(
                         "filter", Map.of(
                                 "field", Map.of(
                                         "query", value, "f", field

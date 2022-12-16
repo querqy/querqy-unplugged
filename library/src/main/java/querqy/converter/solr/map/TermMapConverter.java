@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 public class TermMapConverter {
 
     private final QueryConfig queryConfig;
+    private final MapConverterConfig converterConfig;
     private final Term term;
 
     public List<Object> createTermQueries() {
@@ -41,7 +42,7 @@ public class TermMapConverter {
 
     private Map<String, Object> createTermQuery(final String field, final float weight) {
         return Map.of(
-                queryConfig.getScoringNodeName(),
+                converterConfig.getScoringNodeName(),
                 Map.of(
                         "filter", createMatchingNode(field),
                         "boost", weight
@@ -52,7 +53,7 @@ public class TermMapConverter {
 
     private Map<String, Object> createMatchingNode(final String field) {
         return Map.of(
-                queryConfig.getMatchingNodeName(),
+                converterConfig.getMatchingNodeName(),
                 Map.of(
                         "f", field,
                         "query", term.getValue().toString()

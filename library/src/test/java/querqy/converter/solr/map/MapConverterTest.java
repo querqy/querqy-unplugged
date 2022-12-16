@@ -4,23 +4,18 @@ import org.junit.Test;
 import querqy.QueryConfig;
 import querqy.model.ExpandedQuery;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static querqy.converter.solr.map.ConverterTestUtils.bqMap;
-import static querqy.converter.solr.map.ConverterTestUtils.dmqMap;
-import static querqy.converter.solr.map.ConverterTestUtils.termMap;
+import static querqy.converter.solr.map.MapConverterTestUtils.bqMap;
+import static querqy.converter.solr.map.MapConverterTestUtils.dmqMap;
+import static querqy.converter.solr.map.MapConverterTestUtils.termMap;
 import static querqy.model.convert.builder.BooleanQueryBuilder.bq;
 import static querqy.model.convert.builder.ExpandedQueryBuilder.expanded;
 
 public class MapConverterTest {
 
     private final QueryConfig baseQueryConfig = QueryConfig.builder()
-            .boolNodeName("bool")
-            .disMaxNodeName("dis_max")
-            .scoringNodeName("constant_score")
-            .matchingNodeName("field")
             .build();
 
     @Test
@@ -34,6 +29,7 @@ public class MapConverterTest {
                                 .field("f", 1.0f)
                                 .build()
                 )
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .expandedQuery(expandedQuery)
                 .build();
 

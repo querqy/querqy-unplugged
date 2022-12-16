@@ -11,11 +11,6 @@ import java.util.Map;
 @Getter
 public class QueryConfig {
 
-    @Builder.Default private final String boolNodeName = "bool";
-    @Builder.Default private final String disMaxNodeName = "dis_max";
-    @Builder.Default private final String scoringNodeName = "constant_score";
-    @Builder.Default private final String matchingNodeName = "field";
-
     // TODO: must not be empty
     @Singular private final Map<String, Float> fields;
 

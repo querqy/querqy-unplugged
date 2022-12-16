@@ -27,6 +27,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
     // TODO: Implement similarity option
 
     private final QueryConfig queryConfig;
+    private final MapConverterConfig converterConfig;
     private final Node node;
     private final boolean parseAsUserQuery;
 
@@ -47,7 +48,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
                 boolNode.put("boost", (float) 1 / (float) numberOfSubClauses);
             }
 
-            return Map.of(queryConfig.getBoolNodeName(), boolNode);
+            return Map.of(converterConfig.getBoolNodeName(), boolNode);
         }
     }
 
@@ -59,7 +60,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
             boolNode.put("mm", queryConfig.getMinimumShouldMatch());
         }
 
-        return Map.of(queryConfig.getBoolNodeName(), boolNode);
+        return Map.of(converterConfig.getBoolNodeName(), boolNode);
     }
 
     private Map<String, Object> convertBooleanQueryToMap(final BooleanQuery booleanQuery) {
@@ -110,7 +111,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
     public Map<String, Object> visit(final DisjunctionMaxQuery disMaxQuery) {
         final List<Object> convertedClauses = convertDisMaxClauses(disMaxQuery);
         final Map<String, Object> disMaxNode = createDisMaxNode(convertedClauses);
-        return Map.of(queryConfig.getDisMaxNodeName(), disMaxNode);
+        return Map.of(converterConfig.getDisMaxNodeName(), disMaxNode);
     }
 
     private List<Object> convertDisMaxClauses(final DisjunctionMaxQuery disMaxQuery) {
@@ -133,6 +134,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
         if (term.getField() == null) {
             return TermMapConverter.builder()
                     .queryConfig(queryConfig)
+                    .converterConfig(converterConfig)
                     .term(term)
                     .build()
                     .createTermQueries();

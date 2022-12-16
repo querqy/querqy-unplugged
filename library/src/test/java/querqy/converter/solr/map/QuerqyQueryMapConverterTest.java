@@ -7,11 +7,12 @@ import querqy.model.DisjunctionMaxQuery;
 import querqy.model.ExpandedQuery;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static querqy.converter.solr.map.ConverterTestUtils.bqMap;
-import static querqy.converter.solr.map.ConverterTestUtils.dmqMap;
-import static querqy.converter.solr.map.ConverterTestUtils.termMap;
+import static querqy.converter.solr.map.MapConverterTestUtils.bqMap;
+import static querqy.converter.solr.map.MapConverterTestUtils.dmqMap;
+import static querqy.converter.solr.map.MapConverterTestUtils.termMap;
 import static querqy.model.convert.builder.BooleanQueryBuilder.bq;
 import static querqy.model.convert.builder.DisjunctionMaxQueryBuilder.dmq;
 import static querqy.model.convert.builder.ExpandedQueryBuilder.expanded;
@@ -22,36 +23,37 @@ import static querqy.model.convert.model.Occur.MUST;
 
 public class QuerqyQueryMapConverterTest {
 
-    private final QueryConfig baseQueryConfig = QueryConfig.builder()
-            .boolNodeName("bool")
-            .disMaxNodeName("dis_max")
-            .scoringNodeName("constant_score")
-            .matchingNodeName("field")
-            .build();
-
     @Test
     public void testThat_queryIsParsedProperly_forGivenMatchAllQuery() {
         final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
-                        baseQueryConfig.toBuilder()
+                        QueryConfig.builder()
                                 .field("f", 1.0f)
                                 .build()
                 )
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .node(matchall().build())
                 .parseAsUserQuery(true)
                 .build();
 
-        assertThat(converter.convert()).isEqualTo("*:*");
+        assertThat(converter.convert()).isEqualTo(
+                Map.of(
+                        "lucene", Map.of(
+                                "v", "*:*"
+                        )
+                )
+        );
     }
 
     @Test
     public void testThat_queryIsParsedProperly_forGivenRawQuery() {
         final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
-                        baseQueryConfig.toBuilder()
+                        QueryConfig.builder()
                                 .field("f", 1.0f)
                                 .build()
                 )
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .node(raw("type:iphone").build())
                 .parseAsUserQuery(true)
                 .build();
@@ -69,10 +71,11 @@ public class QuerqyQueryMapConverterTest {
 
         final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
-                        baseQueryConfig.toBuilder()
+                        QueryConfig.builder()
                                 .field("f", 20f)
                                 .build()
                 )
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .node(dmq)
                 .parseAsUserQuery(true)
                 .build();
@@ -88,11 +91,12 @@ public class QuerqyQueryMapConverterTest {
     public void testThat_tieIsAddedToDmq_forDmqAndDefinedTie() {
         final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
-                        baseQueryConfig.toBuilder()
+                        QueryConfig.builder()
                                 .tie(0.5f)
                                 .field("f", 1.0f)
                                 .build()
                 )
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .node(dmq("iphone").build())
                 .parseAsUserQuery(true)
                 .build();
@@ -109,11 +113,12 @@ public class QuerqyQueryMapConverterTest {
     public void testThat_termsAreExpanded_forDmqAndTwoFields() {
         final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
-                        baseQueryConfig.toBuilder()
+                        QueryConfig.builder()
                                 .field("brand", 30.0f)
                                 .field("type", 50.0f)
                                 .build()
                 )
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .node(dmq("iphone").build())
                 .parseAsUserQuery(true)
                 .build();
@@ -131,11 +136,12 @@ public class QuerqyQueryMapConverterTest {
         final ExpandedQuery expandedQuery = expanded(bq("iphone", "12")).build();
         final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
-                        baseQueryConfig.toBuilder()
+                        QueryConfig.builder()
                                 .field("brand", 30.0f)
                                 .field("type", 50.0f)
                                 .build()
                 )
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .node(expandedQuery.getUserQuery())
                 .parseAsUserQuery(true)
                 .build();
@@ -181,11 +187,12 @@ public class QuerqyQueryMapConverterTest {
 
         final QuerqyQueryMapConverter converter = QuerqyQueryMapConverter.builder()
                 .queryConfig(
-                        baseQueryConfig.toBuilder()
+                        QueryConfig.builder()
                                 .field("f", 1.0f)
                                 .minimumShouldMatch("100%")
                                 .build()
                 )
+                .converterConfig(MapConverterConfig.defaultConfig())
                 .node(expandedQuery.getUserQuery())
                 .parseAsUserQuery(true)
                 .build();
