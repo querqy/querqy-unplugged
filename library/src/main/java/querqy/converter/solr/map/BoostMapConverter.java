@@ -21,6 +21,7 @@ public class BoostMapConverter {
     private static final String BOOST_UP_FUNCTION_QUERY_TEMPLATE = "{!func}mul(%f,sub(1,div(1,sum(query($%s),1))))";
 
     private final QueryConfig queryConfig;
+    private final MapConverterConfig converterConfig;
 
     private final Collection<BoostQuery> boostUpQueries;
     private final Collection<BoostQuery> boostDownQueries;
@@ -29,10 +30,12 @@ public class BoostMapConverter {
 
     @Builder
     public static BoostMapConverter build(final QueryConfig queryConfig,
+                                          final MapConverterConfig converterConfig,
                                           final Collection<BoostQuery> boostUpQueries,
                                           final Collection<BoostQuery> boostDownQueries) {
         return BoostMapConverter.of(
                 queryConfig,
+                converterConfig,
                 boostUpQueries == null ? List.of() : boostUpQueries,
                 boostDownQueries == null ? List.of() : boostDownQueries
         );
@@ -88,6 +91,7 @@ public class BoostMapConverter {
         } else {
             return QuerqyQueryMapConverter.builder()
                     .queryConfig(queryConfig)
+                    .converterConfig(converterConfig)
                     .node(querqyQuery)
                     .parseAsUserQuery(false)
                     .build()

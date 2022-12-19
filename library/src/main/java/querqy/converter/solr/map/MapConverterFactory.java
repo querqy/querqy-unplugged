@@ -12,11 +12,10 @@ import java.util.Map;
 @Builder
 public class MapConverterFactory implements ConverterFactory<Map<String, Object>> {
 
-    private final QueryConfig queryConfig;
     private final MapConverterConfig converterConfig;
 
     @Override
-    public Converter<Map<String, Object>> createConverter(final ExpandedQuery expandedQuery) {
+    public Converter<Map<String, Object>> createConverter(final ExpandedQuery expandedQuery, final QueryConfig queryConfig) {
         return MapConverter.builder()
                 .expandedQuery(expandedQuery)
                 .queryConfig(queryConfig)

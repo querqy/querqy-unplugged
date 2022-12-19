@@ -42,6 +42,7 @@ public class MapConverter implements Converter<Map<String, Object>> {
 
         final BoostMapConverter boostMapConverter = BoostMapConverter.builder()
                 .queryConfig(queryConfig)
+                .converterConfig(converterConfig)
                 .boostUpQueries(expandedQuery.getBoostUpQueries())
                 .boostDownQueries(expandedQuery.getBoostDownQueries())
                 .build();

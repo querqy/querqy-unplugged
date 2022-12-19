@@ -32,7 +32,7 @@ public class NestedDisMaxQParserTest extends SolrTestCaseJ4 {
     public void testThat_scoresAreSummed_forTieIsOne() throws Exception {
         SolrTestResult result = SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)
-                .param("q", "{!dis_max queries=$queries1 queries=$queries2 tie=1.0f}")
+                .param("q", "{!nestedDismax queries=$queries1 queries=$queries2 tie=1.0f}")
                 .param("fl", "id,name,score")
                 .param("queries1", "{!field f=name v=apple}")
                 .param("queries2", "{!field f=name v=smartphone}")
@@ -52,7 +52,7 @@ public class NestedDisMaxQParserTest extends SolrTestCaseJ4 {
     public void testThat_scoresArePartiallySummed_forTieIsZeroDotFive() throws Exception {
         SolrTestResult result = SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)
-                .param("q", "{!dis_max queries=$queries1 queries=$queries2 tie=0.5f}")
+                .param("q", "{!nestedDismax queries=$queries1 queries=$queries2 tie=0.5f}")
                 .param("fl", "id,name,score")
                 .param("queries1", "{!field f=name v=apple}")
                 .param("queries2", "{!field f=name v=smartphone}")
@@ -72,7 +72,7 @@ public class NestedDisMaxQParserTest extends SolrTestCaseJ4 {
     public void testThat_scoresAreMaxed_forTieIsZero() throws Exception {
         SolrTestResult result = SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)
-                .param("q", "{!dis_max queries=$queries1 queries=$queries2 tie=0.0f}")
+                .param("q", "{!nestedDismax queries=$queries1 queries=$queries2 tie=0.0f}")
                 .param("fl", "id,name,score")
                 .param("queries1", "{!field f=name v=apple}")
                 .param("queries2", "{!field f=name v=smartphone}")

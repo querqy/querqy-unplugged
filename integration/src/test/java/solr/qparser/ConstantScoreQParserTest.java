@@ -32,7 +32,7 @@ public class ConstantScoreQParserTest extends SolrTestCaseJ4 {
     public void testThat_scoreIsOne_forConstantScoreQueryWithoutBoost() throws Exception {
         SolrTestResult result = SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)
-                .param("q", "{!constant_score filter=$filter1}")
+                .param("q", "{!constantScore filter=$filter1}")
                 .param("fl", "id,name,score")
                 .param("filter1", "{!term f=name v=apple}")
                 .build()
@@ -51,7 +51,7 @@ public class ConstantScoreQParserTest extends SolrTestCaseJ4 {
     public void testThat_scoreIsTen_forConstantScoreQueryWithBoostOfTen() throws Exception {
         SolrTestResult result = SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)
-                .param("q", "{!constant_score filter=$filter1 boost=10.0f}")
+                .param("q", "{!constantScore filter=$filter1 boost=10.0f}")
                 .param("fl", "id,name,score")
                 .param("filter1", "{!term f=name v=apple}")
                 .build()
