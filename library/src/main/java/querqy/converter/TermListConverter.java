@@ -10,14 +10,13 @@ import querqy.model.Term;
 import java.util.LinkedList;
 import java.util.List;
 
-@RequiredArgsConstructor(staticName = "of")
+@RequiredArgsConstructor(staticName = "create")
 public class TermListConverter extends AbstractNodeVisitor<Void> implements Converter<List<String>> {
 
-    private final ExpandedQuery expandedQuery;
     private final List<String> terms = new LinkedList<>();
 
     @Override
-    public List<String> convert() {
+    public List<String> convert(final ExpandedQuery expandedQuery) {
         final QuerqyQuery<?> querqyQuery = expandedQuery.getUserQuery();
 
         if (querqyQuery instanceof Query) {

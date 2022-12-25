@@ -20,22 +20,20 @@ import java.util.stream.Stream;
 @Builder(access = AccessLevel.PACKAGE)
 public class MapConverter implements Converter<Map<String, Object>> {
 
-    private final ExpandedQuery expandedQuery;
     @Deprecated private final QueryConfig queryConfig;
     @Deprecated private final MapConverterConfig converterConfig;
 
     private final QuerqyQueryConverter querqyQueryConverter;
 
-
     private final FilterConverter filterConverter;
     private final BoostConverter boostConverter;
 
     @Override
-    public Map<String, Object> convert() {
-        final Map<String, Object> convertedUserQuery = convertUserQuery();
+    public Map<String, Object> convert(final ExpandedQuery expandedQuery) {
+        final Map<String, Object> convertedUserQuery = convertUserQuery(expandedQuery);
 
-        final List<Object> filterQueries = parseFilterQueries();
-        final ConvertedBoostQueries boostMaps = parseBoostQueries();
+        final List<Object> filterQueries = parseFilterQueries(expandedQuery);
+        final ConvertedBoostQueries boostMaps = parseBoostQueries(expandedQuery);
 
         return QueryConverter.builder()
                 .userQuery(convertedUserQuery)
@@ -46,7 +44,7 @@ public class MapConverter implements Converter<Map<String, Object>> {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, Object> convertUserQuery() {
+    private Map<String, Object> convertUserQuery(final ExpandedQuery expandedQuery) {
         final Object query =  querqyQueryConverter.convert(expandedQuery.getUserQuery());
 
         // TODO: Why is this needed?
@@ -63,7 +61,7 @@ public class MapConverter implements Converter<Map<String, Object>> {
         }
     }
 
-    private List<Object> parseFilterQueries() {
+    private List<Object> parseFilterQueries(final ExpandedQuery expandedQuery) {
         final Collection<QuerqyQuery<?>> filterQueries = expandedQuery.getFilterQueries();
 
         if (filterQueries != null && filterQueries.size() > 0) {
@@ -74,9 +72,9 @@ public class MapConverter implements Converter<Map<String, Object>> {
         }
     }
 
-    private ConvertedBoostQueries parseBoostQueries() {
-        final Collection<BoostQuery> boostUpQueries = getBoostUpQueries();
-        final Collection<BoostQuery> boostDownQueries = getBoostDownQueries();
+    private ConvertedBoostQueries parseBoostQueries(final ExpandedQuery expandedQuery) {
+        final Collection<BoostQuery> boostUpQueries = getBoostUpQueries(expandedQuery);
+        final Collection<BoostQuery> boostDownQueries = getBoostDownQueries(expandedQuery);
 
         if (boostUpQueries.isEmpty() && boostDownQueries.isEmpty()) {
             return ConvertedBoostQueries.empty();
@@ -86,12 +84,12 @@ public class MapConverter implements Converter<Map<String, Object>> {
         }
     }
 
-    private Collection<BoostQuery> getBoostUpQueries() {
+    private Collection<BoostQuery> getBoostUpQueries(final ExpandedQuery expandedQuery) {
         final Collection<BoostQuery> boostQueries = expandedQuery.getBoostUpQueries();
         return boostQueries == null ? List.of() : boostQueries;
     }
 
-    private Collection<BoostQuery> getBoostDownQueries() {
+    private Collection<BoostQuery> getBoostDownQueries(final ExpandedQuery expandedQuery) {
         final Collection<BoostQuery> boostQueries = expandedQuery.getBoostDownQueries();
         return boostQueries == null ? List.of() : boostQueries;
     }

@@ -37,21 +37,17 @@ public class MapConverterTest {
     @Before
     public void prepare() {
         when(querqyQueryConverter.convert(any())).thenReturn(queryNode);
-
+        mapConverter = MapConverter.builder()
+                .queryConfig(queryConfig)
+                .querqyQueryConverter(querqyQueryConverter)
+                .filterConverter(filterConverter)
+                .build();
     }
 
     @Test
     public void testThat_userQueryIsOnlyWrapped_forNoBoostAndNoFilterQuery() {
         final ExpandedQuery expandedQuery = expanded(bq("")).build();
-
-        final MapConverter mapConverter = MapConverter.builder()
-                .queryConfig(queryConfig)
-                .querqyQueryConverter(querqyQueryConverter)
-                .expandedQuery(expandedQuery)
-                .build();
-
-
-        final Map<String, Object> convertedQuery = mapConverter.convert();
+        final Map<String, Object> convertedQuery = mapConverter.convert(expandedQuery);
 
         assertThat(convertedQuery).isEqualTo(
                 Map.of("query", queryNode)
@@ -62,17 +58,9 @@ public class MapConverterTest {
     public void testThat_filterQueryIsPutInOuterQueryNode_forGivenFilterQuery() {
         final ExpandedQuery expandedQuery = expanded(bq(""), bq("")).build();
 
-        when(querqyQueryConverter.convert(any())).thenReturn(queryNode);
         when(filterConverter.convertFilterQueries(any())).thenReturn(List.of("filter"));
 
-        final MapConverter mapConverter = MapConverter.builder()
-                .queryConfig(queryConfig)
-                .expandedQuery(expandedQuery)
-                .querqyQueryConverter(querqyQueryConverter)
-                .filterConverter(filterConverter)
-                .build();
-
-        final Map<String, Object> convertedQuery = mapConverter.convert();
+        final Map<String, Object> convertedQuery = mapConverter.convert(expandedQuery);
 
         assertThat(convertedQuery).isEqualTo(
                 Map.of(

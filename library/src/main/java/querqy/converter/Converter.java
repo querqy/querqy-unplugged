@@ -1,7 +1,9 @@
 package querqy.converter;
 
+import querqy.model.ExpandedQuery;
+
 public interface Converter<T> {
 
-    T convert();
+    T convert(final ExpandedQuery expandedQuery);
 
 }

@@ -5,7 +5,7 @@ import querqy.model.ExpandedQuery;
 
 public interface ConverterFactory<T> {
 
-    Converter<T> createConverter(final ExpandedQuery expandedQuery, final QueryConfig queryConfig);
+    Converter<T> createConverter(final QueryConfig queryConfig);
 
 //    default Converter<T> createConverter(final ExpandedQuery expandedQuery) {
 //        return createConverter(expandedQuery, QueryConfig.empty());

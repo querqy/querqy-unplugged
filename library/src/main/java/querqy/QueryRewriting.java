@@ -18,9 +18,9 @@ public class QueryRewriting<T> {
     public RewrittenQuery<T> rewriteQuery(final String queryInput) {
         final QueryRewritingExecutor executor = createExecutor(queryInput);
         final RewrittenQuerqyQuery rewrittenQuerqyQuery = executor.rewriteQuery();
-        final Converter<T> converter = createConverter(rewrittenQuerqyQuery.getQuery());
+        final Converter<T> converter = converterFactory.createConverter(queryConfig);
 
-        final T convertedQuery = converter.convert();
+        final T convertedQuery = converter.convert(rewrittenQuerqyQuery.getQuery());
         return RewrittenQuery.<T>builder()
                 .convertedQuery(convertedQuery)
                 .rewrittenQuerqyQuery(rewrittenQuerqyQuery)
@@ -34,7 +34,4 @@ public class QueryRewriting<T> {
                 .build();
     }
 
-    private Converter<T> createConverter(final ExpandedQuery expandedQuery) {
-        return converterFactory.createConverter(expandedQuery, queryConfig);
-    }
 }
