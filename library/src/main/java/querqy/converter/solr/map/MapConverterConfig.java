@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
+@Deprecated
 public class MapConverterConfig {
 
     @Builder.Default private final String boolNodeName = "bool";

@@ -5,6 +5,12 @@ import java.util.Map;
 
 public class MapConverterTestUtils {
 
+    public static Map<String, Object> bqMapSingleMust(final Object clause) {
+        return Map.of(
+                "bool",
+                Map.of("must", clause));
+    }
+
     public static Map<String, Object> bqMap(final String occur, final Object... clauses) {
         return Map.of(
                 "bool",

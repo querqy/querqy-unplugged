@@ -2,78 +2,52 @@ package querqy.converter.solr.map;
 
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.RequiredArgsConstructor;
 import querqy.QueryConfig;
 import querqy.converter.Converter;
+import querqy.converter.solr.map.boost.BoostConverter;
+import querqy.converter.solr.map.boost.ConvertedBoostQueries;
+import querqy.model.BoostQuery;
 import querqy.model.ExpandedQuery;
 import querqy.model.QuerqyQuery;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static querqy.converter.solr.map.MapConverter.InstructionQueriesParsingMode.BOOSTS_ONLY;
-import static querqy.converter.solr.map.MapConverter.InstructionQueriesParsingMode.FILTERS_AND_BOOSTS;
-import static querqy.converter.solr.map.MapConverter.InstructionQueriesParsingMode.FILTERS_ONLY;
-import static querqy.converter.solr.map.MapConverter.InstructionQueriesParsingMode.NO_INSTRUCTION_QUERY;
 
-@RequiredArgsConstructor(staticName = "of", access = AccessLevel.PROTECTED)
+@Builder(access = AccessLevel.PACKAGE)
 public class MapConverter implements Converter<Map<String, Object>> {
 
-    public enum InstructionQueriesParsingMode {
-        NO_INSTRUCTION_QUERY, FILTERS_ONLY, BOOSTS_ONLY, FILTERS_AND_BOOSTS
-    }
+    private final ExpandedQuery expandedQuery;
+    @Deprecated private final QueryConfig queryConfig;
+    @Deprecated private final MapConverterConfig converterConfig;
 
-    private final QueryConfig queryConfig;
-    private final MapConverterConfig converterConfig;
-    private final QuerqyQuery<?> userQuery;
-    private final FilterMapConverter filterMapConverter;
-    private final BoostMapConverter boostMapConverter;
+    private final QuerqyQueryConverter querqyQueryConverter;
 
-    @Builder
-    public static MapConverter build(
-            final ExpandedQuery expandedQuery,
-            final QueryConfig queryConfig,
-            final MapConverterConfig converterConfig
-    ) {
-        final FilterMapConverter filterMapConverter = FilterMapConverter.builder()
-                .queryConfig(queryConfig)
-                .converterConfig(converterConfig)
-                .filterQueries(expandedQuery.getFilterQueries())
-                .build();
 
-        final BoostMapConverter boostMapConverter = BoostMapConverter.builder()
-                .queryConfig(queryConfig)
-                .converterConfig(converterConfig)
-                .boostUpQueries(expandedQuery.getBoostUpQueries())
-                .boostDownQueries(expandedQuery.getBoostDownQueries())
-                .build();
-
-        return MapConverter.of(
-                queryConfig,
-                converterConfig,
-                expandedQuery.getUserQuery(),
-                filterMapConverter,
-                boostMapConverter
-        );
-    }
+    private final FilterConverter filterConverter;
+    private final BoostConverter boostConverter;
 
     @Override
     public Map<String, Object> convert() {
         final Map<String, Object> convertedUserQuery = convertUserQuery();
 
-        final InstructionQueriesParsingMode parsingMode = getParsingMode();
+        final List<Object> filterQueries = parseFilterQueries();
+        final ConvertedBoostQueries boostMaps = parseBoostQueries();
 
-        return expandUserQuery(convertedUserQuery, parsingMode);
+        return QueryConverter.builder()
+                .userQuery(convertedUserQuery)
+                .filterQueries(filterQueries)
+                .boostQueries(boostMaps)
+                .build()
+                .expand();
     }
 
     @SuppressWarnings("unchecked")
     private Map<String, Object> convertUserQuery() {
-        final Object query =  QuerqyQueryMapConverter.builder()
-                .queryConfig(queryConfig)
-                .converterConfig(converterConfig)
-                .node(userQuery)
-                .parseAsUserQuery(true)
-                .build()
-                .convert();
+        final Object query =  querqyQueryConverter.convert(expandedQuery.getUserQuery());
 
         // TODO: Why is this needed?
         //  -> raw query not possible for user query
@@ -89,71 +63,93 @@ public class MapConverter implements Converter<Map<String, Object>> {
         }
     }
 
-    private InstructionQueriesParsingMode getParsingMode() {
-        if (filterMapConverter.hasFilters()) {
-            return boostMapConverter.hasBoosts() ? FILTERS_AND_BOOSTS : FILTERS_ONLY;
+    private List<Object> parseFilterQueries() {
+        final Collection<QuerqyQuery<?>> filterQueries = expandedQuery.getFilterQueries();
+
+        if (filterQueries != null && filterQueries.size() > 0) {
+            return filterConverter.convertFilterQueries(filterQueries);
 
         } else {
-            return boostMapConverter.hasBoosts() ? BOOSTS_ONLY : NO_INSTRUCTION_QUERY;
+            return List.of();
         }
     }
 
+    private ConvertedBoostQueries parseBoostQueries() {
+        final Collection<BoostQuery> boostUpQueries = getBoostUpQueries();
+        final Collection<BoostQuery> boostDownQueries = getBoostDownQueries();
 
+        if (boostUpQueries.isEmpty() && boostDownQueries.isEmpty()) {
+            return ConvertedBoostQueries.empty();
 
-    private Map<String, Object> expandUserQuery(final Object convertedUserQuery,
-                                                final InstructionQueriesParsingMode parsingMode) {
-        switch (parsingMode) {
-            case NO_INSTRUCTION_QUERY:
-                return Map.of("query", convertedUserQuery);
-
-            case FILTERS_ONLY:
-                return expandByFiltersOnly(convertedUserQuery);
-
-            case BOOSTS_ONLY:
-                return expandByBoostsOnly(convertedUserQuery);
-
-            default:
-                return expandByFiltersAndBoosts(convertedUserQuery);
+        } else {
+            return boostConverter.convertBoostQueries(boostUpQueries, boostDownQueries);
         }
     }
 
-    private Map<String, Object> expandByFiltersOnly(final Object convertedUserQuery) {
-        return Map.of(
-                "query", Map.of(
-                        "bool", Map.of(
-                                "must", convertedUserQuery
-                        )
-                ),
-                "filter", filterMapConverter.convertFilterQueries()
-        );
+    private Collection<BoostQuery> getBoostUpQueries() {
+        final Collection<BoostQuery> boostQueries = expandedQuery.getBoostUpQueries();
+        return boostQueries == null ? List.of() : boostQueries;
     }
 
-    private Map<String, Object> expandByBoostsOnly(final Object convertedUserQuery) {
-        final BoostMaps boostMaps = boostMapConverter.convertBoostQueries();
-
-        return Map.of(
-                "query", Map.of(
-                        "bool", Map.of(
-                                "must", convertedUserQuery,
-                                "should", boostMaps.getBoostFunctionQueries()
-                        )
-                ),
-                "queries", boostMaps.getReferencedConvertedQueries()
-        );
+    private Collection<BoostQuery> getBoostDownQueries() {
+        final Collection<BoostQuery> boostQueries = expandedQuery.getBoostDownQueries();
+        return boostQueries == null ? List.of() : boostQueries;
     }
 
-    private Map<String, Object> expandByFiltersAndBoosts(final Object convertedUserQuery) {
-        final BoostMaps boostMaps = boostMapConverter.convertBoostQueries();
+    @Builder
+    private static class QueryConverter {
+        private final Map<String, Object> userQuery;
+        private final List<Object> filterQueries;
+        private final ConvertedBoostQueries boostQueries;
 
-        return Map.of(
-                "query", Map.of(
-                        "bool", Map.of(
-                                "must", convertedUserQuery,
-                                "should", boostMaps.getBoostFunctionQueries()
-                        )
-                ),
-                "filter", filterMapConverter.convertFilterQueries(),
-                "queries", boostMaps.getReferencedConvertedQueries()
-        );
+        private final Stream.Builder<Map.Entry<String, Object>> queryNodeEntries = Stream.builder();
+        private final Stream.Builder<Map.Entry<String, Object>> nestedQueryNodeEntries = Stream.builder();
+
+        public Map<String, Object> expand() {
+            if (filterQueries.isEmpty() && boostQueries.isEmpty()) {
+                return Map.of("query", userQuery);
+
+            } else {
+                appendUserQuery();
+                appendFilters();
+                appendBoosts();
+
+                queryNodeEntries.accept(Map.entry("query", createNestedQueryNode()));
+                return createQueryNode();
+            }
+        }
+
+        private void appendUserQuery() {
+            nestedQueryNodeEntries.accept(Map.entry("must", userQuery));
+        }
+
+        private void appendFilters() {
+            if (!filterQueries.isEmpty()) {
+                queryNodeEntries.accept(Map.entry("filter", filterQueries));
+            }
+        }
+
+        private void appendBoosts() {
+            if (!boostQueries.isEmpty()) {
+                nestedQueryNodeEntries.accept(Map.entry("should", boostQueries.getBoostFunctionQueries()));
+                queryNodeEntries.accept(Map.entry("queries", boostQueries.getReferencedQueries()));
+
+            }
+        }
+
+        private Map<String, Object> createQueryNode() {
+            return createMap(queryNodeEntries);
+        }
+
+        private Map<String, Object> createNestedQueryNode() {
+            return Map.of("bool", createMap(nestedQueryNodeEntries));
+        }
+
+        private Map<String, Object> createMap(final Stream.Builder<Map.Entry<String, Object>> builder) {
+            return builder.build()
+                    .collect(
+                            Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)
+                    );
+        }
     }
 }

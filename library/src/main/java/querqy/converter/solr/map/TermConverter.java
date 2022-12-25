@@ -11,18 +11,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Builder
-public class TermMapConverter {
+public class TermConverter {
 
     private final QueryConfig queryConfig;
-    private final MapConverterConfig converterConfig;
-    private final Term term;
+    @Deprecated private final MapConverterConfig converterConfig;
 
-    public List<Object> createTermQueries() {
-        final float termBoost = getTermBoost();
+    public List<Object> createTermQueries(final Term term) {
+        final float termBoost = getTermBoost(term);
 
         return getWeightedFieldStream()
                 .map(
-                        field -> createTermQuery(field.getKey(), field.getValue() * termBoost)
+                        field -> createTermQuery(field.getKey(), field.getValue() * termBoost, term)
                 )
                 .collect(Collectors.toList());
     }
@@ -31,7 +30,7 @@ public class TermMapConverter {
         return queryConfig.getFields().entrySet().stream();
     }
 
-    private float getTermBoost() {
+    private float getTermBoost(final Term term) {
         if (term instanceof BoostedTerm) {
             return ((BoostedTerm) term).getBoost();
 
@@ -40,18 +39,19 @@ public class TermMapConverter {
         }
     }
 
-    private Map<String, Object> createTermQuery(final String field, final float weight) {
+    // TODO: reduce parameters
+    private Map<String, Object> createTermQuery(final String field, final float weight, final Term term) {
         return Map.of(
                 converterConfig.getScoringNodeName(),
                 Map.of(
-                        "filter", createMatchingNode(field),
+                        "filter", createMatchingNode(field, term),
                         "boost", weight
                 )
         );
     }
 
 
-    private Map<String, Object> createMatchingNode(final String field) {
+    private Map<String, Object> createMatchingNode(final String field, final Term term) {
         return Map.of(
                 converterConfig.getMatchingNodeName(),
                 Map.of(

@@ -22,16 +22,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Builder
-public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
+public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
 
     // TODO: Implement similarity option
 
     private final QueryConfig queryConfig;
-    private final MapConverterConfig converterConfig;
-    private final Node node;
+    @Deprecated private final MapConverterConfig converterConfig;
+    private final TermConverter termConverter;
     private final boolean parseAsUserQuery;
 
-    public Object convert() {
+    public Object convert(final Node node) {
         return node.accept(this);
     }
 
@@ -132,12 +132,7 @@ public class QuerqyQueryMapConverter extends AbstractNodeVisitor<Object> {
 
     private List<Object> convertTerm(final Term term) {
         if (term.getField() == null) {
-            return TermMapConverter.builder()
-                    .queryConfig(queryConfig)
-                    .converterConfig(converterConfig)
-                    .term(term)
-                    .build()
-                    .createTermQueries();
+            return termConverter.createTermQueries(term);
 
         } else {
             throw new IllegalArgumentException("Not implemented so far");
