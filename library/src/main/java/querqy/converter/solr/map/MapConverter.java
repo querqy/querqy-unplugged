@@ -2,7 +2,6 @@ package querqy.converter.solr.map;
 
 import lombok.AccessLevel;
 import lombok.Builder;
-import querqy.QueryConfig;
 import querqy.converter.Converter;
 import querqy.converter.solr.map.boost.BoostConverter;
 import querqy.converter.solr.map.boost.ConvertedBoostQueries;
@@ -20,11 +19,7 @@ import java.util.stream.Stream;
 @Builder(access = AccessLevel.PACKAGE)
 public class MapConverter implements Converter<Map<String, Object>> {
 
-    @Deprecated private final QueryConfig queryConfig;
-    @Deprecated private final MapConverterConfig converterConfig;
-
     private final QuerqyQueryConverter querqyQueryConverter;
-
     private final FilterConverter filterConverter;
     private final BoostConverter boostConverter;
 

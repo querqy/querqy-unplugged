@@ -16,7 +16,6 @@ public class MapConverterFactory implements ConverterFactory<Map<String, Object>
 
     private final MapConverterConfig converterConfig;
 
-
     // TODO: Pass expandedQuery to method convert(); keep only QueryConfig here
     // TODO: Fully remove MapConverterConfig
 
@@ -38,8 +37,6 @@ public class MapConverterFactory implements ConverterFactory<Map<String, Object>
 
         public MapConverter create() {
             return MapConverter.builder()
-                    .queryConfig(queryConfig)
-                    .converterConfig(converterConfig)
                     .querqyQueryConverter(createQuerqyQueryMapConverter(true))
                     .filterConverter(createFilterMapConverter())
                     .boostConverter(createBoostConverter())

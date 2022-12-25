@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import querqy.QueryConfig;
 import querqy.model.ExpandedQuery;
 
 import java.util.List;
@@ -24,7 +23,6 @@ public class MapConverterTest {
 
     @Mock private QuerqyQueryConverter querqyQueryConverter;
     @Mock private FilterConverter filterConverter;
-    @Mock private QueryConfig queryConfig;
 
     private final Map<String, Object> queryNode = Map.of("queryParser", "query");
 
@@ -38,7 +36,6 @@ public class MapConverterTest {
     public void prepare() {
         when(querqyQueryConverter.convert(any())).thenReturn(queryNode);
         mapConverter = MapConverter.builder()
-                .queryConfig(queryConfig)
                 .querqyQueryConverter(querqyQueryConverter)
                 .filterConverter(filterConverter)
                 .build();
