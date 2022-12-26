@@ -27,7 +27,7 @@ public class TermConverter {
     }
 
     private Stream<Map.Entry<String, Float>> getWeightedFieldStream() {
-        return queryConfig.getFields().entrySet().stream();
+        return queryConfig.getFields().stream().map(fieldConfig -> Map.entry(fieldConfig.getFieldName(), fieldConfig.getWeight()));
     }
 
     private float getTermBoost(final Term term) {

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Builder(toBuilder = true)
@@ -15,8 +17,8 @@ public class QueryConfig {
     @Builder.Default private final String dismaxNodeName = "nestedDismax";
     @Builder.Default private final String constantScoreNodeName = "constantScore";
 
-    // TODO: must not be empty
-    @Singular private final Map<String, Float> fields;
+//    @Singular private final Map<String, Float> fields;
+    private final List<FieldConfig> fields;
 
     private final Float tie;
     private final String minimumShouldMatch;
@@ -33,6 +35,27 @@ public class QueryConfig {
 
     public static QueryConfig empty() {
         return QueryConfig.builder().build();
+    }
+
+    public static class QueryConfigBuilder {
+        public QueryConfig.QueryConfigBuilder field(final String fieldName, final float weight) {
+            return field(
+                    FieldConfig.builder()
+                            .fieldName(fieldName)
+                            .weight(weight)
+                            .build()
+            );
+        }
+
+        public QueryConfig.QueryConfigBuilder field(final FieldConfig field) {
+            if (this.fields == null) {
+                this.fields = new ArrayList<>();
+            }
+
+            this.fields.add(field);
+            return this;
+        }
+
     }
 
 }
