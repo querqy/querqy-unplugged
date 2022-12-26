@@ -1,49 +1,53 @@
 package querqy.converter.solr.map;
 
+import org.junit.Before;
 import org.junit.Test;
 import querqy.QueryConfig;
+import querqy.model.BoostedTerm;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static querqy.converter.solr.map.MapConverterTestUtils.termMap;
+import static querqy.converter.solr.map.MapConverterTestUtils.constantScoreTermMap;
 import static querqy.model.convert.builder.TermBuilder.term;
 
 public class TermConverterTest {
 
-    @Test
-    public void testThat_converterCreatesTermQueries_forAllGivenFields() {
-        final QueryConfig queryConfig = QueryConfig.builder()
-                .field("a", 1.0f)
-                .field("b", 2.0f)
+    private QueryConfig defaultQueryConfig;
+    private TermConverter defaultConverter;
+
+    @Before
+    public void prepare() {
+        defaultQueryConfig = QueryConfig.builder()
+                .field("f", 10.0f)
                 .build();
 
-        final TermConverter converter = TermConverter.builder()
-                .queryConfig(queryConfig)
+        defaultConverter = TermConverter.builder()
+                .queryConfig(defaultQueryConfig)
                 .converterConfig(MapConverterConfig.defaultConfig())
                 .build();
-
-        assertThat(converter.createTermQueries(term("t").build())).hasSize(2);
     }
 
     @Test
     public void testThat_converterCreatesConstantScoreTermQuery_forGivenField() {
-        final QueryConfig queryConfig = QueryConfig.builder()
-                .field("f", 1.0f)
-                .build();
-
-        final TermConverter converter = TermConverter.builder()
-                .queryConfig(queryConfig)
-                .converterConfig(MapConverterConfig.defaultConfig())
-                .build();
-
-        assertThat(converter.createTermQueries(term("term").build()))
+        assertThat(defaultConverter.createTermQueries(term("term").build()))
                 .isEqualTo(
                         List.of(
-                                termMap("f", "term", 1.0f)
+                                constantScoreTermMap("f", "term", 10.0f)
                         )
                 );
     }
+
+    @Test
+    public void testThat_fieldScoreIsAdjusted_forWeightedTerm() {
+        final BoostedTerm boostedTerm = new BoostedTerm(null, "term", 0.5f);
+
+        assertThat(defaultConverter.createTermQueries(boostedTerm))
+                .isEqualTo(
+                        List.of(constantScoreTermMap("f", "term", 5.0f))
+                );
+    }
+
 
     @Test
     public void testThat_converterCreatesConstantScoreTermQuery_forTwoGivenFields() {
@@ -52,17 +56,18 @@ public class TermConverterTest {
                 .field("f2", 2.0f)
                 .build();
 
-        final TermConverter converter = TermConverter.builder()
+        final TermConverter converter = defaultConverter.toBuilder()
                 .queryConfig(queryConfig)
-                .converterConfig(MapConverterConfig.defaultConfig())
                 .build();
 
         assertThat(converter.createTermQueries(term("term").build()))
                 .isEqualTo(
                         List.of(
-                                termMap("f1", "term", 1.0f),
-                                termMap("f2", "term", 2.0f)
+                                constantScoreTermMap("f1", "term", 1.0f),
+                                constantScoreTermMap("f2", "term", 2.0f)
                         )
                 );
     }
+
+
 }

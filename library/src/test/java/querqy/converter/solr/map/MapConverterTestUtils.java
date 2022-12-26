@@ -51,7 +51,7 @@ public class MapConverterTestUtils {
                 Map.of("queries", Arrays.asList(clauses)));
     }
 
-    public static Map<String, Object> termMap(final String field, final String value, final Float weight) {
+    public static Map<String, Object> constantScoreTermMap(final String field, final String value, final Float weight) {
         return Map.of(
                 "constantScore", Map.of(
                         "filter", Map.of(

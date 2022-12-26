@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Builder
+@Builder(toBuilder = true)
 public class TermConverter {
 
     private final QueryConfig queryConfig;
