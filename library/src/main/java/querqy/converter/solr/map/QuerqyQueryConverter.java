@@ -21,15 +21,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Builder
+@Builder(toBuilder = true)
 public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
 
     // TODO: Implement similarity option
 
     private final QueryConfig queryConfig;
-    @Deprecated private final MapConverterConfig converterConfig;
     private final TermConverter termConverter;
-    private final boolean parseAsUserQuery;
 
     public Object convert(final Node node) {
         return node.accept(this);
@@ -48,7 +46,7 @@ public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
                 boolNode.put("boost", (float) 1 / (float) numberOfSubClauses);
             }
 
-            return Map.of(converterConfig.getBoolNodeName(), boolNode);
+            return Map.of(queryConfig.getBoolNodeName(), boolNode);
         }
     }
 
@@ -56,11 +54,11 @@ public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
     public Object visit(final Query query) {
         final Map<String, Object> boolNode = convertBooleanQueryToMap(query);
 
-        if (parseAsUserQuery && queryConfig.hasMinimumShouldMatch()) {
+        if (queryConfig.hasMinimumShouldMatch()) {
             boolNode.put("mm", queryConfig.getMinimumShouldMatch());
         }
 
-        return Map.of(converterConfig.getBoolNodeName(), boolNode);
+        return Map.of(queryConfig.getBoolNodeName(), boolNode);
     }
 
     private Map<String, Object> convertBooleanQueryToMap(final BooleanQuery booleanQuery) {
@@ -111,7 +109,7 @@ public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
     public Map<String, Object> visit(final DisjunctionMaxQuery disMaxQuery) {
         final List<Object> convertedClauses = convertDisMaxClauses(disMaxQuery);
         final Map<String, Object> disMaxNode = createDisMaxNode(convertedClauses);
-        return Map.of(converterConfig.getDisMaxNodeName(), disMaxNode);
+        return Map.of(queryConfig.getDismaxNodeName(), disMaxNode);
     }
 
     private List<Object> convertDisMaxClauses(final DisjunctionMaxQuery disMaxQuery) {

@@ -8,10 +8,7 @@ import lombok.Getter;
 @Deprecated
 public class MapConverterConfig {
 
-    @Builder.Default private final String boolNodeName = "bool";
-    @Builder.Default private final String disMaxNodeName = "nestedDismax";
-    @Builder.Default private final String scoringNodeName = "constantScore";
-    @Builder.Default private final String matchingNodeName = "field";
+    @Builder.Default private final String fieldNodeName = "field";
 
     public static MapConverterConfig defaultConfig() {
         return MapConverterConfig.builder().build();

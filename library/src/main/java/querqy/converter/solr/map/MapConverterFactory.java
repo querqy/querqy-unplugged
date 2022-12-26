@@ -37,17 +37,15 @@ public class MapConverterFactory implements ConverterFactory<Map<String, Object>
 
         public MapConverter create() {
             return MapConverter.builder()
-                    .querqyQueryConverter(createQuerqyQueryMapConverter(true))
+                    .querqyQueryConverter(createQuerqyQueryMapConverter())
                     .filterConverter(createFilterMapConverter())
                     .boostConverter(createBoostConverter())
                     .build();
         }
 
-        public QuerqyQueryConverter createQuerqyQueryMapConverter(final boolean parseAsUserQuery) {
+        public QuerqyQueryConverter createQuerqyQueryMapConverter() {
             return QuerqyQueryConverter.builder()
                     .queryConfig(queryConfig)
-                    .converterConfig(converterConfig)
-                    .parseAsUserQuery(parseAsUserQuery)
                     .termConverter(createTermMapConverter())
                     .build();
         }
@@ -61,13 +59,13 @@ public class MapConverterFactory implements ConverterFactory<Map<String, Object>
 
         public FilterConverter createFilterMapConverter() {
             return FilterConverter.builder()
-                    .querqyQueryConverter(createQuerqyQueryMapConverter(false))
+                    .querqyQueryConverter(createQuerqyQueryMapConverter())
                     .build();
         }
 
         public BoostConverter createBoostConverter() {
             return BoostConverter.builder()
-                    .querqyQueryConverter(createQuerqyQueryMapConverter(false))
+                    .querqyQueryConverter(createQuerqyQueryMapConverter())
                     .build();
         }
 

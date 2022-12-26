@@ -42,7 +42,7 @@ public class TermConverter {
     // TODO: reduce parameters
     private Map<String, Object> createTermQuery(final String field, final float weight, final Term term) {
         return Map.of(
-                converterConfig.getScoringNodeName(),
+                queryConfig.getConstantScoreNodeName(),
                 Map.of(
                         "filter", createMatchingNode(field, term),
                         "boost", weight
@@ -53,7 +53,7 @@ public class TermConverter {
 
     private Map<String, Object> createMatchingNode(final String field, final Term term) {
         return Map.of(
-                converterConfig.getMatchingNodeName(),
+                converterConfig.getFieldNodeName(),
                 Map.of(
                         "f", field,
                         "query", term.getValue().toString()
