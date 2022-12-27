@@ -4,7 +4,6 @@ import org.apache.solr.SolrTestCaseJ4;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
@@ -25,7 +24,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
 
     private static final String USER_QUERY = "apple";
 
-    // TODO: down boost, negated raw query
+    // TODO: down boost
     private static final Map<String, String> RULES = Map.of(
             "boost_common_rules", "apple => \n  UP: iphone",
 
@@ -87,12 +86,11 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
     }
 
     @Test
-    @Ignore
-    public void testThat_resultsAreIdentical_forNegatedBoostRule() throws Exception {
+    public void testThat_rankingsAreIdentical_forNegatedBoostRule() throws Exception {
         final String rewriterName = "negated_boost_common_rules";
 
-        final SolrTestResult paramResult = applyParamRequest(rewriterName).print();
-        final SolrTestResult jsonResult = applyJsonRequest(RULES.get(rewriterName)).print();
+        final SolrTestResult paramResult = applyParamRequest(rewriterName, "id,name,type").print();
+        final SolrTestResult jsonResult = applyJsonRequest(RULES.get(rewriterName), "id,name,type").print();
         assertEquals(paramResult, jsonResult);
     }
 
@@ -160,6 +158,10 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
     }
 
     private SolrTestResult applyJsonRequest(final String rules) throws Exception {
+        return applyJsonRequest(rules, "id,name,type,score");
+    }
+
+    private SolrTestResult applyJsonRequest(final String rules, final String fieldList) throws Exception {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .querqyConfig(singleRewriterConfig(rules))
@@ -171,12 +173,16 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
         return SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)
                 .query(query)
-                .param("fl", "id,name,type,score")
+                .param("fl", fieldList)
                 .build()
                 .applyRequest();
     }
 
     private SolrTestResult applyParamRequest(final String rewriterName) throws Exception {
+        return applyParamRequest(rewriterName, "id,name,type,score");
+    }
+
+    private SolrTestResult applyParamRequest(final String rewriterName, final String fieldList) throws Exception {
         return SolrTestRequest.builder()
                 .solrClient(SOLR_CLIENT)
                 .param("q", USER_QUERY)
@@ -188,7 +194,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
                 .param("qboost.similarityScore", "off")
                 .param("qboost.fieldBoost", "on")
                 .param("querqy.rewriters", rewriterName)
-                .param("fl", "id,name,type,score")
+                .param("fl", fieldList)
                 .build()
                 .applyRequest();
     }
