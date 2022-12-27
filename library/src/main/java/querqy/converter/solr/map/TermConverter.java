@@ -60,19 +60,24 @@ public class TermConverter {
             );
         }
 
-
         private Map<String, Object> createTermNode(final FieldConfig fieldConfig) {
             final QueryTypeConfig queryTypeConfig = fieldConfig.getQueryTypeConfig()
                     .orElse(SolrQueryTypeConfig.defaultConfig());
 
-            final Map<String, Object> constantParams = queryTypeConfig.getConstantParams();
-
-            final Map<String, Object> queryParams = new HashMap<>(2 + constantParams.size());
-            queryParams.put(queryTypeConfig.getQueryParamName(), term.getValue().toString());
-            queryParams.put(queryTypeConfig.getFieldParamName(), fieldConfig.getFieldName());
-            queryParams.putAll(constantParams);
+            final Map<String, Object> queryParams = createQueryParams(queryTypeConfig, fieldConfig.getFieldName());
 
             return Map.of(queryTypeConfig.getTypeName(), queryParams);
+        }
+
+        private Map<String, Object> createQueryParams(final QueryTypeConfig queryTypeConfig, final String fieldName) {
+            final Map<String, Object> queryParams = new HashMap<>(2 + queryTypeConfig.getConstantParams().size());
+
+            queryParams.put(queryTypeConfig.getQueryParamName(), term.getValue().toString());
+            queryParams.put(queryTypeConfig.getFieldParamName(), fieldName);
+            queryParams.putAll(queryTypeConfig.getConstantParams());
+
+            return queryParams;
+
         }
     }
 
