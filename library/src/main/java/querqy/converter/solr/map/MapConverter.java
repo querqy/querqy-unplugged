@@ -48,11 +48,10 @@ public class MapConverter implements Converter<Map<String, Object>> {
         if (query instanceof Map) {
             return (Map<String, Object>) query;
 
-        } else if (query instanceof String){
-            return Map.of("bool", Map.of("must", (String) query));
-
         } else {
-            throw new IllegalArgumentException("Converted user query must be of type Map or String");
+            throw new IllegalArgumentException(
+                    "Something unexpected happened, the converted user query must be of type Map or String"
+            );
         }
     }
 
