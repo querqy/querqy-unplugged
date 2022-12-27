@@ -1,7 +1,6 @@
 package querqy.converter.solr.map;
 
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import querqy.QueryConfig;

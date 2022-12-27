@@ -2,7 +2,6 @@ package querqy.converter;
 
 import lombok.NoArgsConstructor;
 import querqy.QueryConfig;
-import querqy.model.ExpandedQuery;
 
 import java.util.List;
 

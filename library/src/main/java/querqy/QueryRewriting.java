@@ -6,7 +6,6 @@ import querqy.domain.RewrittenQuerqyQuery;
 import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
 import querqy.domain.RewrittenQuery;
-import querqy.model.ExpandedQuery;
 
 @Builder(toBuilder = true)
 public class QueryRewriting<T> {

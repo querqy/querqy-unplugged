@@ -11,46 +11,6 @@ public class MapConverterTestUtils {
                 Map.of("must", clause));
     }
 
-    public static Map<String, Object> bqMap(final String occur, final Object... clauses) {
-        return Map.of(
-                "bool",
-                Map.of(occur, Arrays.asList(clauses)));
-    }
-
-    public static Map<String, Object> bqMap(final String occur, final String mm, final Object... clauses) {
-        return Map.of(
-                "bool",
-                Map.of(
-                        occur, Arrays.asList(clauses),
-                        "mm", mm
-                ));
-    }
-
-    public static Map<String, Object> bqMap(final float boost, final String occur, final Object... clauses) {
-        return Map.of(
-                "bool",
-                Map.of(
-                        occur, Arrays.asList(clauses),
-                        "boost", boost
-                ));
-    }
-
-    public static Map<String, Object> dmqMap(final Float tie, final Object... clauses) {
-        return Map.of(
-                "nestedDismax",
-                Map.of(
-                        "queries", Arrays.asList(clauses),
-                        "tie", tie
-                )
-        );
-    }
-
-    public static Map<String, Object> dmqMap(final Object... clauses) {
-        return Map.of(
-                "nestedDismax",
-                Map.of("queries", Arrays.asList(clauses)));
-    }
-
     public static Map<String, Object> constantScoreTermMap(final Map<String, Object> termMap, final Float weight) {
         return Map.of(
                 "constantScore", Map.of(

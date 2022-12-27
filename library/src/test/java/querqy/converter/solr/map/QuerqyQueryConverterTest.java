@@ -1,14 +1,11 @@
 package querqy.converter.solr.map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import querqy.QueryConfig;
-import querqy.model.BoostedTerm;
-import querqy.model.DisjunctionMaxQuery;
 import querqy.model.Query;
 
 import java.util.List;
@@ -17,7 +14,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static querqy.converter.solr.map.MapConverterTestUtils.dmqMap;
 import static querqy.model.convert.builder.BooleanQueryBuilder.bq;
 import static querqy.model.convert.builder.DisjunctionMaxQueryBuilder.dmq;
 import static querqy.model.convert.builder.ExpandedQueryBuilder.expanded;
@@ -104,34 +100,4 @@ public class QuerqyQueryConverterTest {
         assertThat(convertedQuery.get(queryConfig.getBoolNodeName())).isInstanceOf(Map.class);
         assertThat((Map<String, Object>) convertedQuery.get(queryConfig.getBoolNodeName())).doesNotContainKey("mm");
     }
-
-    @Test
-    @Ignore // TODO: test for TermConverter
-    public void testThat_fieldScoreIsAdjusted_forWeightedTerm() {
-        final DisjunctionMaxQuery dmq = dmq(List.of()).build();
-        final BoostedTerm boostedTerm = new BoostedTerm(dmq, "iphone", 0.5f);
-        dmq.getClauses().add(boostedTerm);
-
-        when(termConverter.createTermQueries(any())).thenReturn(List.of("term"));
-
-        assertThat(defaultConverter.convert(dmq)).isEqualTo(
-                dmqMap("term")
-        );
-    }
-
-    @Test // TODO: test for TermConverter
-    @Ignore
-    public void testThat_allTermsAreAdded_forDmqAndTwoFields() {
-        when(termConverter.createTermQueries(any())).thenReturn(List.of("term1", "term2"));
-
-        final QuerqyQueryConverter converter = QuerqyQueryConverter.builder()
-                .queryConfig(QueryConfig.empty())
-                .termConverter(termConverter)
-                .build();
-
-        assertThat(converter.convert(dmq("iphone").build())).isEqualTo(
-                dmqMap("term1", "term2")
-        );
-    }
-
 }
