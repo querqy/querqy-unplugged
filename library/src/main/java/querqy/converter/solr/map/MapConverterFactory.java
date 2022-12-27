@@ -6,7 +6,6 @@ import querqy.QueryConfig;
 import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
 import querqy.converter.solr.map.boost.BoostConverter;
-import querqy.model.ExpandedQuery;
 
 import java.util.Map;
 
@@ -14,14 +13,14 @@ import java.util.Map;
 @Builder
 public class MapConverterFactory implements ConverterFactory<Map<String, Object>> {
 
-    private final MapConverterConfig converterConfig;
+    @Deprecated private final MapConverterConfig converterConfig;
 
     // TODO: Pass expandedQuery to method convert(); keep only QueryConfig here
     // TODO: Fully remove MapConverterConfig
 
     @Override
     public Converter<Map<String, Object>> createConverter(final QueryConfig queryConfig) {
-        return MapConverterCreator.of(queryConfig, converterConfig).create();
+        return MapConverterCreator.of(queryConfig).create();
     }
 
     public static MapConverterFactory create() {
@@ -33,7 +32,6 @@ public class MapConverterFactory implements ConverterFactory<Map<String, Object>
     @RequiredArgsConstructor(staticName = "of")
     private static class MapConverterCreator {
         private final QueryConfig queryConfig;
-        private final MapConverterConfig converterConfig;
 
         public MapConverter create() {
             return MapConverter.builder()
@@ -53,7 +51,6 @@ public class MapConverterFactory implements ConverterFactory<Map<String, Object>
         public TermConverter createTermMapConverter() {
             return TermConverter.builder()
                     .queryConfig(queryConfig)
-                    .converterConfig(converterConfig)
                     .build();
         }
 

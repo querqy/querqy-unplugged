@@ -5,7 +5,8 @@ import java.util.Map;
 public interface QueryTypeConfig {
 
     String getTypeName();
-    String getQueryParameterName();
-    Map<String, Object> getConstantParameters();
+    String getQueryParamName();
+    String getFieldParamName();
+    Map<String, Object> getConstantParams();
 
 }

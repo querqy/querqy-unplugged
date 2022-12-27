@@ -2,10 +2,12 @@ package querqy.converter.solr.map;
 
 import org.junit.Before;
 import org.junit.Test;
+import querqy.FieldConfig;
 import querqy.QueryConfig;
 import querqy.model.BoostedTerm;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static querqy.converter.solr.map.MapConverterTestUtils.constantScoreTermMap;
@@ -13,18 +15,16 @@ import static querqy.model.convert.builder.TermBuilder.term;
 
 public class TermConverterTest {
 
-    private QueryConfig defaultQueryConfig;
     private TermConverter defaultConverter;
 
     @Before
     public void prepare() {
-        defaultQueryConfig = QueryConfig.builder()
+        final QueryConfig defaultQueryConfig = QueryConfig.builder()
                 .field("f", 10.0f)
                 .build();
 
         defaultConverter = TermConverter.builder()
                 .queryConfig(defaultQueryConfig)
-                .converterConfig(MapConverterConfig.defaultConfig())
                 .build();
     }
 
@@ -69,5 +69,41 @@ public class TermConverterTest {
                 );
     }
 
+    @Test
+    public void testThat_converterUsesQueryType_dependingOnGivenFieldConfig() {
+        final QueryConfig queryConfig = QueryConfig.builder()
+                .field(FieldConfig.builder()
+                        .fieldName("f")
+                        .weight(2.0f)
+                        .queryTypeConfig(
+                                SolrQueryTypeConfig.builder()
+                                        .typeName("lucene")
+                                        .queryParamName("query")
+                                        .fieldParamName("df")
+                                        .constantParams(Map.of("q.op", "OR"))
+                                        .build()
+                        )
+                        .build())
+                .build();
 
+        final TermConverter converter = defaultConverter.toBuilder()
+                .queryConfig(queryConfig)
+                .build();
+
+        assertThat(converter.createTermQueries(term("term").build()))
+                .isEqualTo(
+                        List.of(
+                                constantScoreTermMap(
+                                        Map.of(
+                                                "lucene", Map.of(
+                                                        "query", "term",
+                                                        "df", "f",
+                                                        "q.op", "OR"
+                                                )
+                                        ),
+                                        2.0f
+                                )
+                        )
+                );
+    }
 }

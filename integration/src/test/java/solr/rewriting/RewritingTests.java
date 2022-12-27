@@ -6,14 +6,18 @@ import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.assertj.core.api.Assertions;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import querqy.FieldConfig;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
 import querqy.QuerqyConfig;
 import querqy.converter.solr.map.MapConverterFactory;
+import querqy.converter.solr.map.SolrQueryTypeConfig;
 import solr.SolrTestRequest;
 import solr.SolrTestResult;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static querqy.rewriter.builder.RewriterSupport.createRewriterFactory;
 
@@ -86,6 +90,48 @@ public class RewritingTests extends SolrTestCaseJ4 {
         Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
                 SolrTestResult.builder()
                         .fields("id")
+                        .doc("4")
+                        .build()
+        );
+    }
+
+    @Test
+    public void testThat_disjunctionIsCreated_forTermThatIsSplitInLucenePipelineAndLuceneQueryParser() throws Exception {
+
+        final List<FieldConfig> fieldConfigs = queryConfig.getFields().stream()
+                .map(
+                        fieldConfig -> fieldConfig.toBuilder().queryTypeConfig(
+                                SolrQueryTypeConfig.builder()
+                                        .typeName("lucene")
+                                        .queryParamName("query")
+                                        .fieldParamName("df")
+                                        .build()
+                        )
+                )
+                .map(FieldConfig.FieldConfigBuilder::build)
+                .collect(Collectors.toList());
+
+        final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
+                .queryConfig(queryConfig.toBuilder().fields(fieldConfigs).build())
+                .querqyConfig(emptyQuerqyConfig())
+                .converterFactory(MapConverterFactory.create())
+                .build();
+
+        final Map<String, Object> query = queryRewritingHandler.rewriteQuery("apple&&&smartphone").getConvertedQuery();
+
+        final SolrTestResult result = SolrTestRequest.builder()
+                .param("fl", "id")
+                .query(query)
+                .solrClient(SOLR_CLIENT)
+                .build()
+                .applyRequest();
+
+        Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
+                SolrTestResult.builder()
+                        .fields("id")
+                        .doc("1")
+                        .doc("2")
+                        .doc("3")
                         .doc("4")
                         .build()
         );

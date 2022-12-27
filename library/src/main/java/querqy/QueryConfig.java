@@ -6,8 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Singular;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Builder(toBuilder = true)
 @Getter
@@ -38,6 +40,8 @@ public class QueryConfig {
     }
 
     public static class QueryConfigBuilder {
+        private final Set<String> fieldNames = new HashSet<>();
+
         public QueryConfig.QueryConfigBuilder field(final String fieldName, final float weight) {
             return field(
                     FieldConfig.builder()
@@ -51,6 +55,12 @@ public class QueryConfig {
             if (this.fields == null) {
                 this.fields = new ArrayList<>();
             }
+
+            final String fieldName = field.getFieldName();
+            if (fieldNames.contains(fieldName)) {
+                throw new IllegalArgumentException("Duplicate field " + fieldName);
+            }
+            fieldNames.add(fieldName);
 
             this.fields.add(field);
             return this;

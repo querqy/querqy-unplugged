@@ -5,7 +5,7 @@ import lombok.Getter;
 
 import java.util.Optional;
 
-@Builder
+@Builder(toBuilder = true)
 public class FieldConfig {
 
     @Getter private final String fieldName;
@@ -14,6 +14,6 @@ public class FieldConfig {
     private final QueryTypeConfig queryTypeConfig;
 
     public Optional<QueryTypeConfig> getQueryTypeConfig() {
-        return Optional.of(queryTypeConfig);
+        return Optional.ofNullable(queryTypeConfig);
     }
 }
