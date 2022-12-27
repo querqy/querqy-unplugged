@@ -1,6 +1,8 @@
 package querqy.converter.solr.map;
 
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import querqy.QueryConfig;
 import querqy.converter.Converter;
@@ -10,13 +12,8 @@ import querqy.converter.solr.map.boost.BoostConverter;
 import java.util.Map;
 
 
-@Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MapConverterFactory implements ConverterFactory<Map<String, Object>> {
-
-    @Deprecated private final MapConverterConfig converterConfig;
-
-    // TODO: Pass expandedQuery to method convert(); keep only QueryConfig here
-    // TODO: Fully remove MapConverterConfig
 
     @Override
     public Converter<Map<String, Object>> createConverter(final QueryConfig queryConfig) {
@@ -24,9 +21,7 @@ public class MapConverterFactory implements ConverterFactory<Map<String, Object>
     }
 
     public static MapConverterFactory create() {
-        return MapConverterFactory.builder()
-                .converterConfig(MapConverterConfig.defaultConfig())
-                .build();
+        return new MapConverterFactory();
     }
 
     @RequiredArgsConstructor(staticName = "of")
