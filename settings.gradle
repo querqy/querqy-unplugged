@@ -1,4 +1,4 @@
 rootProject.name = 'querqy-unplugged'
-include 'integration'
+include 'integration-solr'
 include 'library'
 
