@@ -2,6 +2,7 @@ package querqy.converter.solr.map;
 
 import lombok.Builder;
 import querqy.QueryConfig;
+import querqy.QueryTypeConfig;
 import querqy.model.AbstractNodeVisitor;
 import querqy.model.BooleanClause;
 import querqy.model.BooleanQuery;
@@ -26,6 +27,14 @@ public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
 
     // TODO: Implement similarity option
 
+    public static final QueryTypeConfig DEFAULT_BOOL_QUERY_TYPE_CONFIG = QueryTypeConfig.builder()
+            .typeName("bool")
+            .build();
+
+    public static final QueryTypeConfig DEFAULT_DISMAX_TYPE_CONFIG = QueryTypeConfig.builder()
+            .typeName("nestedDismax")
+            .build();
+
     private final QueryConfig queryConfig;
     private final TermConverter termConverter;
 
@@ -35,30 +44,24 @@ public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
 
     @Override
     public Object visit(final BooleanQuery booleanQuery) {
+        final QueryTypeConfig boolQueryTypeConfig = getBoolQueryTypeConfig();
+        final Map<String, Object> boolNode = convertBooleanQueryToMap(booleanQuery);
+
+        // TODO: This part is poorly tested
+        final int numberOfSubClauses = booleanQuery.getClauses().size();
         if (booleanQuery instanceof Query) {
-            return visit((Query) booleanQuery);
+            boolNode.put("mm", queryConfig.getMinimumShouldMatch());
 
-        } else {
-            final Map<String, Object> boolNode = convertBooleanQueryToMap(booleanQuery);
-
-            final int numberOfSubClauses = booleanQuery.getClauses().size();
-            if (numberOfSubClauses > 1) {
-                boolNode.put("boost", (float) 1 / (float) numberOfSubClauses);
-            }
-
-            return Map.of(queryConfig.getBoolNodeName(), boolNode);
+        } else if (numberOfSubClauses > 1) {
+            boolNode.put("boost", (float) 1 / (float) numberOfSubClauses);
         }
+
+        return Map.of(boolQueryTypeConfig.getTypeName(), boolNode);
     }
 
-    @Override
-    public Object visit(final Query query) {
-        final Map<String, Object> boolNode = convertBooleanQueryToMap(query);
-
-        if (queryConfig.hasMinimumShouldMatch()) {
-            boolNode.put("mm", queryConfig.getMinimumShouldMatch());
-        }
-
-        return Map.of(queryConfig.getBoolNodeName(), boolNode);
+    private QueryTypeConfig getBoolQueryTypeConfig() {
+        return queryConfig.getQueryNodesConfig().getBoolNodeConfig()
+                .orElse(DEFAULT_BOOL_QUERY_TYPE_CONFIG);
     }
 
     private Map<String, Object> convertBooleanQueryToMap(final BooleanQuery booleanQuery) {
@@ -107,9 +110,12 @@ public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
 
     @Override
     public Map<String, Object> visit(final DisjunctionMaxQuery disMaxQuery) {
+        final QueryTypeConfig dismaxQueryTypeConfig = queryConfig.getQueryNodesConfig().getDismaxNodeConfig()
+                .orElse(DEFAULT_DISMAX_TYPE_CONFIG);
+
         final List<Object> convertedClauses = convertDisMaxClauses(disMaxQuery);
         final Map<String, Object> disMaxNode = createDisMaxNode(convertedClauses);
-        return Map.of(queryConfig.getDismaxNodeName(), disMaxNode);
+        return Map.of(dismaxQueryTypeConfig.getTypeName(), disMaxNode);
     }
 
     private List<Object> convertDisMaxClauses(final DisjunctionMaxQuery disMaxQuery) {

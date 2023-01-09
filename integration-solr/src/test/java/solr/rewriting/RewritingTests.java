@@ -10,8 +10,8 @@ import querqy.FieldConfig;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
 import querqy.QuerqyConfig;
+import querqy.QueryTypeConfig;
 import querqy.converter.solr.map.MapConverterFactory;
-import querqy.converter.solr.map.SolrQueryTypeConfig;
 import solr.SolrTestRequest;
 import solr.SolrTestResult;
 
@@ -101,7 +101,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
         final List<FieldConfig> fieldConfigs = queryConfig.getFields().stream()
                 .map(
                         fieldConfig -> fieldConfig.toBuilder().queryTypeConfig(
-                                SolrQueryTypeConfig.builder()
+                                QueryTypeConfig.builder()
                                         .typeName("lucene")
                                         .queryParamName("query")
                                         .fieldParamName("df")

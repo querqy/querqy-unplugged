@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import querqy.FieldConfig;
 import querqy.QueryConfig;
+import querqy.QueryTypeConfig;
 import querqy.model.BoostedTerm;
 
 import java.util.List;
@@ -76,7 +77,7 @@ public class TermConverterTest {
                         .fieldName("f")
                         .weight(2.0f)
                         .queryTypeConfig(
-                                SolrQueryTypeConfig.builder()
+                                QueryTypeConfig.builder()
                                         .typeName("lucene")
                                         .queryParamName("query")
                                         .fieldParamName("df")
