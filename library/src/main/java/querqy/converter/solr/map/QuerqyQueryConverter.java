@@ -49,7 +49,7 @@ public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
 
         // TODO: This part is poorly tested
         final int numberOfSubClauses = booleanQuery.getClauses().size();
-        if (booleanQuery instanceof Query) {
+        if (booleanQuery instanceof Query && queryConfig.hasMinimumShouldMatch()) {
             boolNode.put("mm", queryConfig.getMinimumShouldMatch());
 
         } else if (numberOfSubClauses > 1) {
