@@ -1,6 +1,8 @@
 package querqy;
 
 import lombok.Builder;
+import querqy.model.ExpandedQuery;
+import querqy.model.Query;
 import querqy.rewriter.QueryRewritingExecutor;
 import querqy.domain.RewrittenQuerqyQuery;
 import querqy.converter.Converter;
@@ -15,8 +17,24 @@ public class QueryRewriting<T> {
     private final ConverterFactory<T> converterFactory;
 
     public RewrittenQuery<T> rewriteQuery(final String queryInput) {
-        final QueryRewritingExecutor executor = createExecutor(queryInput);
-        final RewrittenQuerqyQuery rewrittenQuerqyQuery = executor.rewriteQuery();
+        final QueryRewritingExecutor executor = createExecutor();
+        final RewrittenQuerqyQuery rewrittenQuerqyQuery = executor.rewriteQuery(queryInput);
+        return convertQuery(rewrittenQuerqyQuery);
+    }
+
+    public RewrittenQuery<T> rewriteQuery(final Query query) {
+        final QueryRewritingExecutor executor = createExecutor();
+        final RewrittenQuerqyQuery rewrittenQuerqyQuery = executor.rewriteQuery(query);
+        return convertQuery(rewrittenQuerqyQuery);
+    }
+
+    public RewrittenQuery<T> rewriteQuery(final ExpandedQuery query) {
+        final QueryRewritingExecutor executor = createExecutor();
+        final RewrittenQuerqyQuery rewrittenQuerqyQuery = executor.rewriteQuery(query);
+        return convertQuery(rewrittenQuerqyQuery);
+    }
+
+    private RewrittenQuery<T> convertQuery(RewrittenQuerqyQuery rewrittenQuerqyQuery) {
         final Converter<T> converter = converterFactory.createConverter(queryConfig);
 
         final T convertedQuery = converter.convert(rewrittenQuerqyQuery.getQuery());
@@ -26,9 +44,8 @@ public class QueryRewriting<T> {
                 .build();
     }
 
-    private QueryRewritingExecutor createExecutor(final String queryInput) {
+    private QueryRewritingExecutor createExecutor() {
         return QueryRewritingExecutor.builder()
-                .queryInput(queryInput)
                 .querqyConfig(querqyConfig)
                 .build();
     }
