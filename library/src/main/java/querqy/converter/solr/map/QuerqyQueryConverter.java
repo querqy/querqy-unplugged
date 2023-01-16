@@ -49,8 +49,8 @@ public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
 
         // TODO: This part is poorly tested
         final int numberOfSubClauses = booleanQuery.getClauses().size();
-        if (booleanQuery instanceof Query && queryConfig.hasMinimumShouldMatch()) {
-            boolNode.put("mm", queryConfig.getMinimumShouldMatch());
+        if (booleanQuery instanceof Query) {
+            queryConfig.getMinimumShouldMatch().ifPresent(mm -> boolNode.put("mm", mm));
 
         } else if (numberOfSubClauses > 1) {
             boolNode.put("boost", (float) 1 / (float) numberOfSubClauses);
@@ -144,8 +144,8 @@ public class QuerqyQueryConverter extends AbstractNodeVisitor<Object> {
     }
 
     private Map<String, Object> createDisMaxNode(final List<Object> convertedClauses) {
-        if (queryConfig.hasTie()) {
-            return Map.of("queries", convertedClauses, "tie", queryConfig.getTie());
+        if (queryConfig.getTie().isPresent()) {
+            return Map.of("queries", convertedClauses, "tie", queryConfig.getTie().get());
 
         } else {
             return Map.of("queries", convertedClauses);

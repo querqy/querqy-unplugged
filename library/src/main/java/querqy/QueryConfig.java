@@ -20,12 +20,12 @@ public class QueryConfig {
 
     @Builder.Default private final QueryNodesConfig queryNodesConfig = QueryNodesConfig.empty();
 
-    public boolean hasMinimumShouldMatch() {
-        return minimumShouldMatch != null;
+    public Optional<String> getMinimumShouldMatch() {
+        return Optional.ofNullable(minimumShouldMatch);
     }
 
-    public boolean hasTie() {
-        return tie != null;
+    public Optional<Float> getTie() {
+        return Optional.ofNullable(tie);
     }
 
     public static QueryConfig empty() {
