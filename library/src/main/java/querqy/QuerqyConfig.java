@@ -10,6 +10,11 @@ import querqy.rewrite.RewriteLoggingConfig;
 import querqy.rewrite.RewriterFactory;
 import querqy.rewrite.commonrules.QuerqyParserFactory;
 import querqy.rewrite.commonrules.WhiteSpaceQuerqyParserFactory;
+import querqy.rewriter.builder.CommonRulesDefinition;
+import querqy.rewriter.builder.CommonRulesFactoryBuilder;
+import querqy.rewriter.builder.ReplaceRulesDefinition;
+import querqy.rewriter.builder.ReplaceRulesFactoryBuilder;
+import querqy.rewriter.builder.RewriterSupport;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,5 +39,17 @@ public class QuerqyConfig {
                 new RewriteChain(rewriterFactories),
                 Objects.requireNonNullElseGet(rewriteLoggingConfig, RewriteLoggingConfig::off)
         );
+    }
+
+    public static class QuerqyConfigBuilder {
+        public QuerqyConfig.QuerqyConfigBuilder commonRules(final CommonRulesDefinition commonRulesDefinition) {
+            final RewriterFactory rewriterFactory = CommonRulesFactoryBuilder.of(commonRulesDefinition).build();
+            return this.rewriterFactory(rewriterFactory);
+        }
+
+        public QuerqyConfig.QuerqyConfigBuilder replaceRules(final ReplaceRulesDefinition replaceRulesDefinition) {
+            final RewriterFactory rewriterFactory = ReplaceRulesFactoryBuilder.of(replaceRulesDefinition).build();
+            return this.rewriterFactory(rewriterFactory);
+        }
     }
 }
