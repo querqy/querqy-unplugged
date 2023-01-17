@@ -49,9 +49,6 @@ public class GenericQuerqyQueryConverterTest {
 
     @Before
     public void setup() {
-        when(query.getOccur()).thenReturn(Clause.Occur.SHOULD);
-        when(booleanQuery.getOccur()).thenReturn(Clause.Occur.SHOULD);
-
         genericQuerqyQueryConverter = GenericQuerqyQueryConverter.<String>builder()
                 .booleanQueryBuilder(booleanQueryBuilder)
                 .dismaxQueryBuilder(dismaxQueryBuilder)
@@ -78,9 +75,10 @@ public class GenericQuerqyQueryConverterTest {
     }
 
     @Test
-    public void testThat_booleanQueryDividesBoostByNumberOfDismaxClauses_forTwoGivenClauses() {
+    public void testThat_booleanQueryDividesBoostByNumberOfMustClauses_forTwoGivenClauses() {
         when(dismaxQuery.accept(any())).thenReturn("dismax");
         when(booleanQuery.getClauses()).thenReturn(List.of(dismaxQuery, dismaxQuery));
+        when(dismaxQuery.getOccur()).thenReturn(Clause.Occur.MUST);
 
         genericQuerqyQueryConverter.visit(booleanQuery);
         verify(booleanQueryBuilder).build(booleanDefinitionCaptor.capture());
@@ -89,14 +87,51 @@ public class GenericQuerqyQueryConverterTest {
     }
 
     @Test
-    public void testThat_booleanQueryBoostIsOne_forSingleDismaxClause() {
+    public void testThat_booleanQueryBoostIsOne_forSingleShouldClause() {
         when(dismaxQuery.accept(any())).thenReturn("dismax");
         when(booleanQuery.getClauses()).thenReturn(List.of(dismaxQuery));
+        when(dismaxQuery.getOccur()).thenReturn(Clause.Occur.SHOULD);
 
         genericQuerqyQueryConverter.visit(booleanQuery);
         verify(booleanQueryBuilder).build(booleanDefinitionCaptor.capture());
 
         assertThat(booleanDefinitionCaptor.getValue().getBoost()).isEqualTo(1.0f);
+    }
+
+    @Test
+    public void testThat_booleanQueryIncludesShouldClause_forOccurShould() {
+        when(dismaxQuery.accept(any())).thenReturn("dismax");
+        when(booleanQuery.getClauses()).thenReturn(List.of(dismaxQuery));
+        when(dismaxQuery.getOccur()).thenReturn(Clause.Occur.SHOULD);
+
+        genericQuerqyQueryConverter.visit(booleanQuery);
+        verify(booleanQueryBuilder).build(booleanDefinitionCaptor.capture());
+
+        assertThat(booleanDefinitionCaptor.getValue().getShouldClauses()).hasSize(1);
+    }
+
+    @Test
+    public void testThat_booleanQueryIncludesMustClause_forOccurShould() {
+        when(dismaxQuery.accept(any())).thenReturn("dismax");
+        when(booleanQuery.getClauses()).thenReturn(List.of(dismaxQuery));
+        when(dismaxQuery.getOccur()).thenReturn(Clause.Occur.MUST);
+
+        genericQuerqyQueryConverter.visit(booleanQuery);
+        verify(booleanQueryBuilder).build(booleanDefinitionCaptor.capture());
+
+        assertThat(booleanDefinitionCaptor.getValue().getMustClauses()).hasSize(1);
+    }
+
+    @Test
+    public void testThat_booleanQueryIncludesMustNotClause_forOccurShould() {
+        when(dismaxQuery.accept(any())).thenReturn("dismax");
+        when(booleanQuery.getClauses()).thenReturn(List.of(dismaxQuery));
+        when(dismaxQuery.getOccur()).thenReturn(Clause.Occur.MUST_NOT);
+
+        genericQuerqyQueryConverter.visit(booleanQuery);
+        verify(booleanQueryBuilder).build(booleanDefinitionCaptor.capture());
+
+        assertThat(booleanDefinitionCaptor.getValue().getMustNotClauses()).hasSize(1);
     }
 
     @Test

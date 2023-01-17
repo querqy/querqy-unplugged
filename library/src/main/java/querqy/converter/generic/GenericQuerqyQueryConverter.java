@@ -7,8 +7,8 @@ import querqy.converter.generic.builder.DismaxQueryBuilder;
 import querqy.converter.generic.model.BooleanQueryDefinition;
 import querqy.converter.generic.model.DismaxQueryDefinition;
 import querqy.model.AbstractNodeVisitor;
+import querqy.model.BooleanClause;
 import querqy.model.BooleanQuery;
-import querqy.model.Clause;
 import querqy.model.DisjunctionMaxClause;
 import querqy.model.DisjunctionMaxQuery;
 import querqy.model.Query;
@@ -35,39 +35,37 @@ public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
 
     @Override
     public T visit(final BooleanQuery booleanQuery) {
-        final List<T> dismaxQueries = buildDismaxQueries(booleanQuery);
+        final BooleanQueryDefinition.BooleanQueryDefinitionBuilder<T> builder = BooleanQueryDefinition.<T>builder();
 
-        final BooleanQueryDefinition.BooleanQueryDefinitionBuilder<T> builder = BooleanQueryDefinition.<T>builder()
-                .dismaxQueries(dismaxQueries)
-                .occur(mapOccur(booleanQuery.getOccur()))
-                .boost(dismaxQueries.size() > 0 ? (float) 1 / (float) dismaxQueries.size() : 0.0f);
+        for (final BooleanClause clause : booleanQuery.getClauses()) {
+            switch (clause.getOccur()) {
+                case SHOULD:
+                    builder.shouldClause(clause.accept(this)); break;
+
+                case MUST:
+                    builder.mustClause(clause.accept(this)); break;
+
+                case MUST_NOT:
+                    builder.mustNotClause(clause.accept(this)); break;
+
+                default:
+                    throw new IllegalArgumentException("GenericQuerqyQueryConverter does not support Occur type " + clause.getOccur());
+            }
+        }
+
+        if (builder.numberOfShouldClauses() == 0) {
+            builder.boost(builder.numberOfMustClauses() > 0 ? (float) 1 / (float) builder.numberOfMustClauses() : 0.0f);
+
+        } else {
+            builder.boost(1.0f);
+        }
+
 
         if (booleanQuery instanceof Query) {
             queryConfig.getMinimumShouldMatch().ifPresent(builder::minimumShouldMatch);
         }
 
         return booleanQueryBuilder.build(builder.build());
-    }
-
-    private BooleanQueryDefinition.Occur mapOccur(final Clause.Occur occur) {
-        if (Clause.Occur.SHOULD.equals(occur)) {
-            return BooleanQueryDefinition.Occur.SHOULD;
-
-        } else if (Clause.Occur.MUST.equals(occur)) {
-            return BooleanQueryDefinition.Occur.MUST;
-
-        } else if (Clause.Occur.MUST_NOT.equals(occur)){
-            return BooleanQueryDefinition.Occur.MUST_NOT;
-
-        } else {
-            throw new IllegalArgumentException("GenericQuerqyQueryConverter does not support Occur type " + occur);
-        }
-    }
-
-    private List<T> buildDismaxQueries(final BooleanQuery booleanQuery) {
-        return booleanQuery.getClauses().stream()
-                .map(clause -> clause.accept(this))
-                .collect(Collectors.toList());
     }
 
     @Override

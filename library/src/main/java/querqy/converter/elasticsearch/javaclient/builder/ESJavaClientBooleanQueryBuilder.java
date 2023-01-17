@@ -35,31 +35,38 @@ public class ESJavaClientBooleanQueryBuilder implements BooleanQueryBuilder<Quer
         }
 
         private void addClauses() {
-            if (BooleanQueryDefinition.Occur.SHOULD.equals(definition.getOccur())) {
-                builder.should(definition.getDismaxQueries());
-
-            } else if (BooleanQueryDefinition.Occur.MUST.equals(definition.getOccur())) {
-                builder.must(definition.getDismaxQueries());
-
-            } else if (BooleanQueryDefinition.Occur.MUST_NOT.equals(definition.getOccur())) {
-                addClausesAsMustNot();
+            if (definition.getMustNotClauses().size() == 1
+                    && definition.getMustClauses().isEmpty() && definition.getShouldClauses().isEmpty()) {
+                addStandaloneMustNotClause();
 
             } else {
-                throw new IllegalArgumentException();
+                addShouldClauses();
+                addMustClauses();
+                addMustNotClauses();
             }
         }
 
-        private void addClausesAsMustNot() {
-            final List<Query> dismaxQueries = definition.getDismaxQueries();
+        private void addStandaloneMustNotClause() {
+            builder.should(MATCH_ALL_QUERY);
+            addMustNotClauses();
+        }
 
-            builder.mustNot(dismaxQueries);
-
-            if (dismaxQueries.size() == 1) {
-                builder.should(MATCH_ALL_QUERY);
+        private void addShouldClauses() {
+            for (final Query query : definition.getShouldClauses()) {
+                builder.should(query);
             }
+        }
 
+        private void addMustClauses() {
+            for (final Query query : definition.getMustClauses()) {
+                builder.must(query);
+            }
+        }
+
+        private void addMustNotClauses() {
+            for (final Query query : definition.getMustNotClauses()) {
+                builder.mustNot(query);
+            }
         }
     }
-
-
 }

@@ -14,18 +14,25 @@ import java.util.Optional;
 @ToString
 public class BooleanQueryDefinition<T> {
 
-    public enum Occur {
-        MUST, SHOULD, MUST_NOT
-    }
+    @Singular private final List<T> shouldClauses;
+    @Singular private final List<T> mustClauses;
+    @Singular private final List<T> mustNotClauses;
 
-    @Singular private final List<T> dismaxQueries;
-    private final Occur occur;
     private final float boost;
-
     private final String minimumShouldMatch;
 
     public Optional<String> getMinimumShouldMatch() {
         return Optional.ofNullable(minimumShouldMatch);
+    }
+
+    public static class BooleanQueryDefinitionBuilder<T> {
+        public int numberOfMustClauses() {
+            return this.mustClauses == null ? 0 : this.mustClauses.size();
+        }
+
+        public int numberOfShouldClauses() {
+            return this.shouldClauses == null ? 0 : this.shouldClauses.size();
+        }
     }
 
 
