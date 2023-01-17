@@ -11,23 +11,22 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 import java.io.IOException;
 import java.util.List;
 
-public abstract class AbstractElasticsearch7Test {
-
-    @Rule public ElasticsearchContainer elasticsearchContainer = new Elasticsearch7Container();
+public abstract class AbstractElasticsearchTest {
 
     protected ElasticsearchClient client;
 
+    protected abstract ElasticsearchContainer getElasticsearchContainer();
     protected abstract List<Product> getProducts();
+    protected abstract String getIndexName();
 
     @Before
     public void setup() {
-        elasticsearchContainer.start();
+        getElasticsearchContainer().start();
 
         createClient();
         indexProducts(getProducts());
@@ -35,7 +34,7 @@ public abstract class AbstractElasticsearch7Test {
 
     private void createClient() {
         RestClient restClient = RestClient.builder(
-                new HttpHost(elasticsearchContainer.getHost(), elasticsearchContainer.getFirstMappedPort())).build();
+                new HttpHost(getElasticsearchContainer().getHost(), getElasticsearchContainer().getFirstMappedPort())).build();
 
         ElasticsearchTransport transport = new RestClientTransport(
                 restClient, new JacksonJsonpMapper());
@@ -45,7 +44,7 @@ public abstract class AbstractElasticsearch7Test {
 
     @After
     public void shutDown() {
-        elasticsearchContainer.stop();
+        getElasticsearchContainer().stop();
     }
 
 
@@ -56,7 +55,7 @@ public abstract class AbstractElasticsearch7Test {
     private void indexProduct(final Product product) {
         try {
             client.index(i -> i
-                    .index("products")
+                    .index(getIndexName())
                     .id(product.getId())
                     .document(product)
                     .refresh(Refresh.True)
@@ -66,7 +65,7 @@ public abstract class AbstractElasticsearch7Test {
         }
     }
 
-    private Product product(final String id, final String name, final String type) {
+    protected Product product(final String id, final String name, final String type) {
         Product product = new Product();
         product.setId(id);
         product.setName(name);
@@ -77,12 +76,11 @@ public abstract class AbstractElasticsearch7Test {
 
     @Data
     @NoArgsConstructor
-    private static class Product {
+    public static class Product {
         private String id;
         private String name;
         private String type;
+
+        private Double _score;
     }
-
-
-
 }
