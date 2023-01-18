@@ -34,7 +34,7 @@ public class QueryRewriting<T> {
         return convertQuery(rewrittenQuerqyQuery);
     }
 
-    private RewrittenQuery<T> convertQuery(RewrittenQuerqyQuery rewrittenQuerqyQuery) {
+    private RewrittenQuery<T> convertQuery(final RewrittenQuerqyQuery rewrittenQuerqyQuery) {
         final Converter<T> converter = converterFactory.createConverter(queryConfig);
 
         final T convertedQuery = converter.convert(rewrittenQuerqyQuery.getQuery());

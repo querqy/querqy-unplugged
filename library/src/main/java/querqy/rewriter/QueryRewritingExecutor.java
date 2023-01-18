@@ -27,18 +27,18 @@ public class QueryRewritingExecutor {
     private final QuerqyConfig querqyConfig;
     @Singular private final Map<String, String[]> params;
 
-    public RewrittenQuerqyQuery rewriteQuery(String queryInput) {
+    public RewrittenQuerqyQuery rewriteQuery(final String queryInput) {
         final ExpandedQuery parsedQuery =
                 ExpandedQueryParser.create().parseQuery(querqyConfig.getQuerqyParserFactory(), queryInput);
         return rewriteQuery(parsedQuery);
     }
 
-    public RewrittenQuerqyQuery rewriteQuery(Query query) {
+    public RewrittenQuerqyQuery rewriteQuery(final Query query) {
         final ExpandedQuery parsedQuery = new ExpandedQuery(query);
         return rewriteQuery(parsedQuery);
     }
 
-    public RewrittenQuerqyQuery rewriteQuery(ExpandedQuery parsedQuery) {
+    public RewrittenQuerqyQuery rewriteQuery(final ExpandedQuery parsedQuery) {
         final RewriteChain rewriteChain = querqyConfig.getRewriteChain();
         final LocalSearchEngineRequestAdapter requestAdapter = createLocalSearchEngineRequestAdapter(rewriteChain);
 

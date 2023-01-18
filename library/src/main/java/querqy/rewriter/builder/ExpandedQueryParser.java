@@ -17,26 +17,21 @@ public class ExpandedQueryParser {
     public static final String MATCH_ALL_FIELD_VALUE_INPUT = "*:*";
     public static final String MATCH_ALL_WILDCARD_INPUT = "*";
 
-    public ExpandedQuery parseQuery(final List<String> normalizedQueryTokenList, final String queryInput) {
-        if (MATCH_ALL_WILDCARD_INPUT.equals(queryInput)
-                || MATCH_ALL_FIELD_VALUE_INPUT.equals(queryInput)) {
+    public ExpandedQuery parseQuery(final List<String> normalizedQueryTokenList) {
+        if (normalizedQueryTokenList.size() == 1
+                && (MATCH_ALL_WILDCARD_INPUT.equals(normalizedQueryTokenList.get(0))
+                    || MATCH_ALL_FIELD_VALUE_INPUT.equals(normalizedQueryTokenList.get(0)))) {
             return new ExpandedQuery(new MatchAllQuery());
         }
 
-        Query query = new Query();
+        final Query query = new Query();
 
         for (String normalizedToken : normalizedQueryTokenList) {
-            DisjunctionMaxQuery dmq = new DisjunctionMaxQuery(query, Clause.Occur.SHOULD, false);
+            final DisjunctionMaxQuery dmq = new DisjunctionMaxQuery(query, Clause.Occur.SHOULD, false);
             dmq.addClause(new Term(dmq, normalizedToken));
             query.addClause(dmq);
         }
 
-        // if the stopwords eliminates all terms, we add the input to the query
-        if (query.getClauses().isEmpty()) {
-            DisjunctionMaxQuery dmq = new DisjunctionMaxQuery(query, Clause.Occur.SHOULD, false);
-            dmq.addClause(new Term(dmq, queryInput));
-            query.addClause(dmq);
-        }
         return new ExpandedQuery(query);
     }
 
