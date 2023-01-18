@@ -12,6 +12,8 @@ import querqy.QueryRewriting;
 import querqy.QuerqyConfig;
 import querqy.QueryTypeConfig;
 import querqy.converter.solr.map.MapConverterFactory;
+import querqy.model.Query;
+import querqy.parser.QuerqyParser;
 import solr.SolrTestRequest;
 import solr.SolrTestResult;
 
@@ -138,6 +140,52 @@ public class RewritingTests extends SolrTestCaseJ4 {
     }
 
     @Test
+    public void testThat_disjunctionIsCreated_forTermThatIsSplitInLucenePipelineAndLuceneQueryParser_withQuerqyQuery() throws Exception {
+
+        final List<FieldConfig> fieldConfigs = queryConfig.getFields().stream()
+                .map(
+                        fieldConfig -> fieldConfig.toBuilder().queryTypeConfig(
+                                QueryTypeConfig.builder()
+                                        .typeName("lucene")
+                                        .queryParamName("query")
+                                        .fieldParamName("df")
+                                        .build()
+                        )
+                )
+                .map(FieldConfig.FieldConfigBuilder::build)
+                .collect(Collectors.toList());
+
+        final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
+                .queryConfig(queryConfig.toBuilder().fields(fieldConfigs).build())
+                .querqyConfig(emptyQuerqyConfig())
+                .converterFactory(MapConverterFactory.create())
+                .build();
+
+        QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
+        QuerqyParser querqyParser = rewritingConfig.getQuerqyParserFactory().createParser();
+        Query querqyQuery = querqyParser.parse("apple&&&smartphone");
+
+        final Map<String, Object> query = queryRewritingHandler.rewriteQuery(querqyQuery).getConvertedQuery();
+
+        final SolrTestResult result = SolrTestRequest.builder()
+                .param("fl", "id")
+                .query(query)
+                .solrClient(SOLR_CLIENT)
+                .build()
+                .applyRequest();
+
+        Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
+                SolrTestResult.builder()
+                        .fields("id")
+                        .doc("1")
+                        .doc("2")
+                        .doc("3")
+                        .doc("4")
+                        .build()
+        );
+    }
+
+    @Test
     public void testThat_scoringIsFair_forSimpleRepeatedClause() throws Exception {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
@@ -167,7 +215,71 @@ public class RewritingTests extends SolrTestCaseJ4 {
     }
 
     @Test
+    public void testThat_scoringIsFair_forSimpleRepeatedClause_withQuerqyQuery() throws Exception {
+        final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
+                .queryConfig(queryConfig)
+                .querqyConfig(
+                        singleRewriterConfig("apple smartphone =>\n  SYNONYM: iphone")
+                )
+                .converterFactory(MapConverterFactory.create())
+                .build();
+
+        QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
+        QuerqyParser querqyParser = rewritingConfig.getQuerqyParserFactory().createParser();
+        Query querqyQuery = querqyParser.parse("apple smartphone");
+
+        final Map<String, Object> query = queryRewritingHandler.rewriteQuery(querqyQuery).getConvertedQuery();
+
+        final SolrTestResult result = SolrTestRequest.builder()
+                .param("fl", "id,name,type,score")
+                .query(query)
+                .solrClient(SOLR_CLIENT)
+                .build()
+                .applyRequest();
+
+        Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
+                SolrTestResult.builder()
+                        .fields("id", "name", "type", "score")
+                        .doc("1", "iphone", "smartphone", 80.0f)
+                        .doc("3", "apple smartphone", "smartphone", 80.0f)
+                        .doc("2", "apple", "smartphone", 60.0f)
+                        .build()
+        );
+    }
+    @Test
     public void testThat_scoringIsFair_forSimpleNestedClause() throws Exception {
+        final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
+                .queryConfig(queryConfig)
+                .querqyConfig(
+                        singleRewriterConfig("iphone =>\n  SYNONYM: apple smartphone")
+                )
+                .converterFactory(MapConverterFactory.create())
+                .build();
+
+        QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
+        QuerqyParser querqyParser = rewritingConfig.getQuerqyParserFactory().createParser();
+        Query querqyQuery = querqyParser.parse("iphone");
+        final Map<String, Object> query = queryRewritingHandler.rewriteQuery(querqyQuery).getConvertedQuery();
+
+        final SolrTestResult result = SolrTestRequest.builder()
+                .param("fl", "id,name,type,score")
+                .query(query)
+                .solrClient(SOLR_CLIENT)
+                .build()
+                .applyRequest();
+
+        Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
+                SolrTestResult.builder()
+                        .fields("id", "name", "type", "score")
+                        .doc("1", "iphone", "smartphone", 40.0f)
+                        .doc("3", "apple smartphone", "smartphone", 40.0f)
+                        .doc("2", "apple", "smartphone", 30.0f)
+                        .build()
+        );
+    }
+
+    @Test
+    public void testThat_scoringIsFair_forSimpleNestedClause_withQuerqyQuery() throws Exception {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .querqyConfig(

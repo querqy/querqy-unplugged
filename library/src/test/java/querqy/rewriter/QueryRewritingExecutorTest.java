@@ -2,8 +2,12 @@ package querqy.rewriter;
 
 import org.junit.Test;
 import querqy.QuerqyConfig;
+import querqy.model.ExpandedQuery;
 import querqy.model.MatchAllQuery;
+import querqy.model.Query;
+import querqy.parser.QuerqyParser;
 import querqy.rewrite.RewriteLoggingConfig;
+import querqy.rewriter.builder.ExpandedQueryParser;
 import querqy.rewriter.builder.RewriterSupport;
 import querqy.domain.RewrittenQuerqyQuery;
 import querqy.model.convert.builder.ExpandedQueryBuilder;
@@ -21,10 +25,9 @@ public class QueryRewritingExecutorTest {
         final QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
-                .queryInput("*:*")
                 .querqyConfig(rewritingConfig)
                 .build()
-                .rewriteQuery();
+                .rewriteQuery("*:*");
 
         assertThat(rewrittenQuery.getQuery().getUserQuery()).isInstanceOf(MatchAllQuery.class);
     }
@@ -34,10 +37,25 @@ public class QueryRewritingExecutorTest {
         final QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
-                .queryInput("*")
                 .querqyConfig(rewritingConfig)
                 .build()
-                .rewriteQuery();
+                .rewriteQuery("*");
+
+        assertThat(rewrittenQuery.getQuery().getUserQuery()).isInstanceOf(MatchAllQuery.class);
+    }
+
+    @Test
+    public void testThat_matchAllQueryIsReturned_forFieldValueMatchAllQuerqyquery() {
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
+        String inputQuery = "*:*";
+
+        ExpandedQuery expandedQuery =
+                ExpandedQueryParser.create().parseQuery(rewritingConfig.getQuerqyParserFactory(), inputQuery);
+
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
+                .querqyConfig(rewritingConfig)
+                .build()
+                .rewriteQuery(expandedQuery);
 
         assertThat(rewrittenQuery.getQuery().getUserQuery()).isInstanceOf(MatchAllQuery.class);
     }
@@ -56,10 +74,9 @@ public class QueryRewritingExecutorTest {
                 .build();
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
-                .queryInput("aple applee")
                 .querqyConfig(rewritingConfig)
                 .build()
-                .rewriteQuery();
+                .rewriteQuery("aple applee");
 
         final ExpandedQueryBuilder expanded = expanded(rewrittenQuery.getQuery());
 
@@ -68,6 +85,32 @@ public class QueryRewritingExecutorTest {
         );
     }
 
+    @Test
+    public void testThat_replacementsAreApplied_forGivenReplaceRulesRewriter_withQuerqyQuery() {
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
+                .rewriterFactory(
+                        RewriterSupport.createRewriterFactory(
+                                "replace",
+                                "id", "1",
+                                "rules", "aple; applee => apple",
+                                "inputDelimiter", ";"
+                        )
+                )
+                .build();
+
+        QuerqyParser querqyParser = rewritingConfig.getQuerqyParserFactory().createParser();
+        Query query = querqyParser.parse("aple applee");
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
+                .querqyConfig(rewritingConfig)
+                .build()
+                .rewriteQuery(query);
+
+        final ExpandedQueryBuilder expanded = expanded(rewrittenQuery.getQuery());
+
+        assertThat(expanded.getUserQuery()).isEqualTo(
+                bq("apple", "apple")
+        );
+    }
 
     @Test
     public void testThat_synonymsAreApplied_forGivenCommonRulesRewriter() {
@@ -82,10 +125,9 @@ public class QueryRewritingExecutorTest {
                 .build();
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
-                .queryInput("apple smartphone")
                 .querqyConfig(rewritingConfig)
                 .build()
-                .rewriteQuery();
+                .rewriteQuery("apple smartphone");
 
         final ExpandedQueryBuilder expanded = expanded(rewrittenQuery.getQuery());
 
@@ -104,7 +146,7 @@ public class QueryRewritingExecutorTest {
     }
 
     @Test
-    public void testThat_synonymsAreApplied_forMultipleGivenCommonRulesRewriters() {
+    public void testThat_synonymsAreApplied_forGivenCommonRulesRewriter_withQuerqyQuery() {
         final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
                 .rewriterFactory(
                         RewriterSupport.createRewriterFactory(
@@ -113,20 +155,14 @@ public class QueryRewritingExecutorTest {
                                 "rules", "apple smartphone =>\n  SYNONYM: iphone"
                         )
                 )
-                .rewriterFactory(
-                        RewriterSupport.createRewriterFactory(
-                                "common",
-                                "id", "2",
-                                "rules", "smartphone =>\n  SYNONYM: mobile"
-                        )
-                )
                 .build();
+        QuerqyParser querqyParser = rewritingConfig.getQuerqyParserFactory().createParser();
+        Query query = querqyParser.parse("apple smartphone");
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
-                .queryInput("apple smartphone")
                 .querqyConfig(rewritingConfig)
                 .build()
-                .rewriteQuery();
+                .rewriteQuery(query);
 
         final ExpandedQueryBuilder expanded = expanded(rewrittenQuery.getQuery());
 
@@ -138,12 +174,10 @@ public class QueryRewritingExecutorTest {
                         ),
                         dmq(
                                 term("smartphone"),
-                                term("iphone", true),
-                                term("mobile", true)
+                                term("iphone", true)
                         )
                 )
         );
-
     }
 
     @Test
@@ -160,10 +194,9 @@ public class QueryRewritingExecutorTest {
                 .build();
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
-                .queryInput("apple smartphone")
                 .querqyConfig(rewritingConfig)
                 .build()
-                .rewriteQuery();
+                .rewriteQuery("apple smartphone");
 
         assertThat(rewrittenQuery.getRewriteLogging()).isNotEmpty();
     }
