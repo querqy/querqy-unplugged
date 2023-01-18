@@ -15,6 +15,17 @@ import java.util.stream.Collectors;
 @Builder(toBuilder = true)
 public class TermConverter {
 
+    public static final QueryTypeConfig DEFAULT_CONSTANT_SCORE_QUERY_TYPE_CONFIG = QueryTypeConfig.builder()
+            .typeName("constantScore")
+            .queryParamName("filter")
+            .build();
+
+    public static final QueryTypeConfig DEFAULT_TERM_QUERY_TYPE_CONFIG = QueryTypeConfig.builder()
+            .typeName("field")
+            .queryParamName("query")
+            .fieldParamName("f")
+            .build();
+
     private final QueryConfig queryConfig;
 
     public List<Object> createTermQueries(final Term term) {
@@ -51,22 +62,26 @@ public class TermConverter {
         }
 
         private Map<String, Object> createConstantScoreQuery(final FieldConfig fieldConfig) {
+            final QueryTypeConfig constantScoreQueryTypeConfig = queryConfig.getQueryNodesConfig()
+                    .getConstantScoreNodeConfig()
+                    .orElse(DEFAULT_CONSTANT_SCORE_QUERY_TYPE_CONFIG);
+
             return Map.of(
-                    queryConfig.getConstantScoreNodeName(),
+                    constantScoreQueryTypeConfig.getTypeName(),
                     Map.of(
-                            "filter", createTermNode(fieldConfig),
+                            constantScoreQueryTypeConfig.getQueryParamName(), createTermNode(fieldConfig),
                             "boost", fieldConfig.getWeight() * boost
                     )
             );
         }
 
         private Map<String, Object> createTermNode(final FieldConfig fieldConfig) {
-            final QueryTypeConfig queryTypeConfig = fieldConfig.getQueryTypeConfig()
-                    .orElse(SolrQueryTypeConfig.defaultConfig());
+            final QueryTypeConfig termQueryTypeConfig = fieldConfig.getQueryTypeConfig()
+                    .orElse(DEFAULT_TERM_QUERY_TYPE_CONFIG);
 
-            final Map<String, Object> queryParams = createQueryParams(queryTypeConfig, fieldConfig.getFieldName());
+            final Map<String, Object> queryParams = createQueryParams(termQueryTypeConfig, fieldConfig.getFieldName());
 
-            return Map.of(queryTypeConfig.getTypeName(), queryParams);
+            return Map.of(termQueryTypeConfig.getTypeName(), queryParams);
         }
 
         private Map<String, Object> createQueryParams(final QueryTypeConfig queryTypeConfig, final String fieldName) {

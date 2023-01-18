@@ -23,6 +23,9 @@ import static querqy.model.convert.builder.StringRawQueryBuilder.raw;
 @RunWith(MockitoJUnitRunner.class)
 public class QuerqyQueryConverterTest {
 
+    private final String boolNodeName = "bool";
+    private final String dismaxNodeName = "nestedDismax";
+
     @Mock private TermConverter termConverter;
 
     QuerqyQueryConverter defaultConverter;
@@ -66,9 +69,9 @@ public class QuerqyQueryConverterTest {
 
         final Map<String, Object> convertedQuery = (Map<String, Object>) converter.convert(dmq("").build());
 
-        assertThat(convertedQuery).containsKey(queryConfig.getDismaxNodeName());
-        assertThat(convertedQuery.get(queryConfig.getDismaxNodeName())).isInstanceOf(Map.class);
-        assertThat((Map<String, Object>) convertedQuery.get(queryConfig.getDismaxNodeName())).containsEntry("tie", 0.5f);
+        assertThat(convertedQuery).containsKey(dismaxNodeName);
+        assertThat(convertedQuery.get(dismaxNodeName)).isInstanceOf(Map.class);
+        assertThat((Map<String, Object>) convertedQuery.get(dismaxNodeName)).containsEntry("tie", 0.5f);
     }
 
     @Test
@@ -83,8 +86,8 @@ public class QuerqyQueryConverterTest {
         final Query userQuery = (Query) expanded(bq("")).build().getUserQuery();
 
         final Map<String, Object> convertedQuery = (Map<String, Object>) converter.convert(userQuery);
-        assertThat(convertedQuery.get(queryConfig.getBoolNodeName())).isInstanceOf(Map.class);
-        assertThat((Map<String, Object>) convertedQuery.get(queryConfig.getBoolNodeName())).containsEntry("mm", "100%");
+        assertThat(convertedQuery.get(boolNodeName)).isInstanceOf(Map.class);
+        assertThat((Map<String, Object>) convertedQuery.get(boolNodeName)).containsEntry("mm", "100%");
     }
 
     @Test
@@ -97,7 +100,7 @@ public class QuerqyQueryConverterTest {
                 .build();
 
         final Map<String, Object> convertedQuery = (Map<String, Object>) converter.convert(bq("").build());
-        assertThat(convertedQuery.get(queryConfig.getBoolNodeName())).isInstanceOf(Map.class);
-        assertThat((Map<String, Object>) convertedQuery.get(queryConfig.getBoolNodeName())).doesNotContainKey("mm");
+        assertThat(convertedQuery.get(boolNodeName)).isInstanceOf(Map.class);
+        assertThat((Map<String, Object>) convertedQuery.get(boolNodeName)).doesNotContainKey("mm");
     }
 }

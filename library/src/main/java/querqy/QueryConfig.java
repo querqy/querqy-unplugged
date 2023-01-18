@@ -6,27 +6,26 @@ import lombok.Getter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Builder(toBuilder = true)
 @Getter
 public class QueryConfig {
 
-    @Builder.Default private final String boolNodeName = "bool";
-    @Builder.Default private final String dismaxNodeName = "nestedDismax";
-    @Builder.Default private final String constantScoreNodeName = "constantScore";
-
     private final List<FieldConfig> fields;
 
     private final Float tie;
     private final String minimumShouldMatch;
 
-    public boolean hasMinimumShouldMatch() {
-        return minimumShouldMatch != null;
+    @Builder.Default private final QueryNodesConfig queryNodesConfig = QueryNodesConfig.empty();
+
+    public Optional<String> getMinimumShouldMatch() {
+        return Optional.ofNullable(minimumShouldMatch);
     }
 
-    public boolean hasTie() {
-        return tie != null;
+    public Optional<Float> getTie() {
+        return Optional.ofNullable(tie);
     }
 
     public static QueryConfig empty() {

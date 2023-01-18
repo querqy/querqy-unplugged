@@ -1,12 +1,18 @@
 package querqy;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Singular;
+
 import java.util.Map;
 
-public interface QueryTypeConfig {
+@Builder
+@Getter
+public class QueryTypeConfig {
 
-    String getTypeName();
-    String getQueryParamName();
-    String getFieldParamName();
-    Map<String, Object> getConstantParams();
+    private final String typeName;
+    private final String queryParamName;
+    private final String fieldParamName;
+    @Singular private final Map<String, Object> constantParams;
 
 }

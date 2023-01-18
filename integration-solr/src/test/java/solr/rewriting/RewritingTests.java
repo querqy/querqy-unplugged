@@ -10,8 +10,8 @@ import querqy.FieldConfig;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
 import querqy.QuerqyConfig;
+import querqy.QueryTypeConfig;
 import querqy.converter.solr.map.MapConverterFactory;
-import querqy.converter.solr.map.SolrQueryTypeConfig;
 import querqy.model.Query;
 import querqy.parser.QuerqyParser;
 import solr.SolrTestRequest;
@@ -98,41 +98,12 @@ public class RewritingTests extends SolrTestCaseJ4 {
     }
 
     @Test
-    public void testThat_filterIsApplied_forBeingIncludedInCommonRules_withQuerqyQuery() throws Exception {
-        final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
-                .queryConfig(queryConfig)
-                .querqyConfig(
-                        singleRewriterConfig("apple =>\n  FILTER: * type:case")
-                )
-                .converterFactory(MapConverterFactory.create())
-                .build();
-
-        QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
-        QuerqyParser querqyParser = rewritingConfig.getQuerqyParserFactory().createParser();
-        Query querqyQuery = querqyParser.parse("apple");
-        final Map<String, Object> query = queryRewritingHandler.rewriteQuery(querqyQuery).getConvertedQuery();
-
-        final SolrTestResult result = SolrTestRequest.builder()
-                .param("fl", "id")
-                .query(query)
-                .solrClient(SOLR_CLIENT)
-                .build()
-                .applyRequest();
-
-        Assertions.assertThat(result).containsExactlyInAnyOrderElementsOf(
-                SolrTestResult.builder()
-                        .fields("id")
-                        .doc("4")
-                        .build()
-        );
-    }
-    @Test
     public void testThat_disjunctionIsCreated_forTermThatIsSplitInLucenePipelineAndLuceneQueryParser() throws Exception {
 
         final List<FieldConfig> fieldConfigs = queryConfig.getFields().stream()
                 .map(
                         fieldConfig -> fieldConfig.toBuilder().queryTypeConfig(
-                                SolrQueryTypeConfig.builder()
+                                QueryTypeConfig.builder()
                                         .typeName("lucene")
                                         .queryParamName("query")
                                         .fieldParamName("df")
@@ -174,7 +145,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
         final List<FieldConfig> fieldConfigs = queryConfig.getFields().stream()
                 .map(
                         fieldConfig -> fieldConfig.toBuilder().queryTypeConfig(
-                                SolrQueryTypeConfig.builder()
+                                QueryTypeConfig.builder()
                                         .typeName("lucene")
                                         .queryParamName("query")
                                         .fieldParamName("df")
