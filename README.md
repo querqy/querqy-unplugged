@@ -1,8 +1,8 @@
-# querqy-for-service
+# Querqy-Unplugged
 
 ## Overview
 
-TBD
+Querqy-Unplugged is a library that 
 
 ## Applying rewriting outside a search engine
 

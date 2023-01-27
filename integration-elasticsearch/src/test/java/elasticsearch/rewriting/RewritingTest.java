@@ -91,7 +91,6 @@ public class RewritingTest extends AbstractElasticsearchTest {
 
         final List<Product> products = search(query);
 
-        System.out.println(toIdAndScoreMaps(products));
         assertThat(toIdAndScoreMaps(products)).containsExactlyInAnyOrder(
                 idAndScoreMap("1", 40.0),
                 idAndScoreMap("2", 30.0),
@@ -100,59 +99,13 @@ public class RewritingTest extends AbstractElasticsearchTest {
         );
     }
 
-    private Map<String, Object> idAndScoreMap(final String id, final Double score) {
-        return Map.of("id", id,"_score", score);
-    }
-
-    private List<Map<String, Object>> toIdAndScoreMaps(final List<Product> products) {
-        return products.stream()
-                .map(product -> idAndScoreMap(product.getId(), product.get_score()))
-                .collect(Collectors.toList());
-    }
-
-    private List<Product> search(final Query query) {
-        try {
-            final SearchResponse<Product> response = client.search(s -> s
-                            .index(INDEX_NAME)
-                            .query(query),
-                    Product.class);
-
-            return matches(response);
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @SuppressWarnings("ConstantConditions")
-    private List<Product> matches(final SearchResponse<Product> response) {
-        return response.hits().hits().stream()
-                .map(hit -> {
-                    final Product product = hit.source();
-                    product.set_score(hit.score());
-                    return product;
-                })
-                .collect(Collectors.toList());
-    }
-
-    private QueryRewriting<Query> queryRewriting(final String rules) {
+    private QueryRewriting<Query> queryRewriting(final String rulesKey) {
         return QueryRewriting.<Query>builder()
                 .queryConfig(queryConfig)
                 .querqyConfig(
-                        querqyConfig(RULES.get(rules))
+                        querqyConfig(RULES.get(rulesKey))
                 )
                 .converterFactory(converterFactory)
-                .build();
-    }
-
-    private QuerqyConfig querqyConfig(final String rules) {
-        return QuerqyConfig.builder()
-                .commonRules(
-                        CommonRulesDefinition.builder()
-                                .rewriterId("id1")
-                                .rules(rules)
-                                .build()
-                )
                 .build();
     }
 

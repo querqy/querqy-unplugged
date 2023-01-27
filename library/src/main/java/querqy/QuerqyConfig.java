@@ -41,6 +41,10 @@ public class QuerqyConfig {
         );
     }
 
+    public static QuerqyConfig empty() {
+        return QuerqyConfig.builder().build();
+    }
+
     public static class QuerqyConfigBuilder {
         public QuerqyConfig.QuerqyConfigBuilder commonRules(final CommonRulesDefinition commonRulesDefinition) {
             final RewriterFactory rewriterFactory = CommonRulesFactoryBuilder.of(commonRulesDefinition).build();

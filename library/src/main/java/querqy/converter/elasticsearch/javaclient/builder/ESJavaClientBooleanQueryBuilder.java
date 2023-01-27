@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import querqy.converter.generic.builder.BooleanQueryBuilder;
 import querqy.converter.generic.model.BooleanQueryDefinition;
 
-import java.util.List;
 
 @RequiredArgsConstructor(staticName = "create")
 public class ESJavaClientBooleanQueryBuilder implements BooleanQueryBuilder<Query> {

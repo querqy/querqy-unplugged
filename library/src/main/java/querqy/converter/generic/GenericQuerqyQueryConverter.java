@@ -1,9 +1,12 @@
 package querqy.converter.generic;
 
 import lombok.Builder;
+import lombok.NonNull;
 import querqy.QueryConfig;
 import querqy.converter.generic.builder.BooleanQueryBuilder;
 import querqy.converter.generic.builder.DismaxQueryBuilder;
+import querqy.converter.generic.builder.MatchAllQueryBuilder;
+import querqy.converter.generic.builder.RawQueryBuilder;
 import querqy.converter.generic.model.BooleanQueryDefinition;
 import querqy.converter.generic.model.DismaxQueryDefinition;
 import querqy.model.AbstractNodeVisitor;
@@ -11,7 +14,11 @@ import querqy.model.BooleanClause;
 import querqy.model.BooleanQuery;
 import querqy.model.DisjunctionMaxClause;
 import querqy.model.DisjunctionMaxQuery;
+import querqy.model.MatchAllQuery;
+import querqy.model.QuerqyQuery;
 import querqy.model.Query;
+import querqy.model.RawQuery;
+import querqy.model.StringRawQuery;
 import querqy.model.Term;
 
 import java.util.Collection;
@@ -21,12 +28,19 @@ import java.util.stream.Collectors;
 @Builder
 public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
 
-    private final QueryConfig queryConfig;
+    @NonNull private final QueryConfig queryConfig;
 
-    private final BooleanQueryBuilder<T> booleanQueryBuilder;
-    private final DismaxQueryBuilder<T> dismaxQueryBuilder;
+    @NonNull private final BooleanQueryBuilder<T> booleanQueryBuilder;
+    @NonNull private final DismaxQueryBuilder<T> dismaxQueryBuilder;
 
-    private final GenericTermConverter<T> genericTermConverter;
+    @NonNull private final GenericTermConverter<T> genericTermConverter;
+
+    @NonNull private final MatchAllQueryBuilder<T> matchAllQueryBuilder;
+    @NonNull private final RawQueryBuilder<T> rawQueryBuilder;
+
+    public T convert(final QuerqyQuery<?> querqyQuery) {
+        return querqyQuery.accept(this);
+    }
 
     @Override
     public T visit(final Query query) {
@@ -97,11 +111,28 @@ public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
     }
 
     private List<T> convertTerm(final Term term) {
-        if (term.getField() == null) {
-            return genericTermConverter.convert(term);
+        return genericTermConverter.convert(term);
+    }
+
+    @Override
+    public T visit(final Term term) {
+        throw new UnsupportedOperationException("Visiting a single term is not supported for " + this.getClass().getName());
+    }
+
+    @Override
+    public T visit(final MatchAllQuery query) {
+        return matchAllQueryBuilder.build();
+    }
+
+    @Override
+    public T visit(final RawQuery rawQuery) {
+        if (rawQuery instanceof StringRawQuery) {
+            final StringRawQuery stringRawQuery = (StringRawQuery) rawQuery;
+            return rawQueryBuilder.buildFromString(stringRawQuery.getQueryString());
 
         } else {
-            throw new IllegalArgumentException("Not implemented so far");
+            throw new IllegalArgumentException("GenericQuerqyQueryConverter currently only supports StringRawQuery");
         }
     }
+
 }

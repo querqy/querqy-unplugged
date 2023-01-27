@@ -10,12 +10,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 import querqy.QueryConfig;
 import querqy.converter.generic.builder.BooleanQueryBuilder;
 import querqy.converter.generic.builder.DismaxQueryBuilder;
+import querqy.converter.generic.builder.MatchAllQueryBuilder;
+import querqy.converter.generic.builder.RawQueryBuilder;
 import querqy.converter.generic.model.BooleanQueryDefinition;
 import querqy.converter.generic.model.DismaxQueryDefinition;
 import querqy.model.BooleanQuery;
 import querqy.model.Clause;
 import querqy.model.DisjunctionMaxQuery;
+import querqy.model.MatchAllQuery;
 import querqy.model.Query;
+import querqy.model.StringRawQuery;
 import querqy.model.Term;
 
 import java.util.List;
@@ -31,6 +35,9 @@ public class GenericQuerqyQueryConverterTest {
     @Mock private BooleanQueryBuilder<String> booleanQueryBuilder;
     @Mock private DismaxQueryBuilder<String> dismaxQueryBuilder;
     @Mock private GenericTermConverter<String> genericTermConverter;
+
+    @Mock private MatchAllQueryBuilder<String> matchAllQueryBuilder;
+    @Mock private RawQueryBuilder<String> rawQueryBuilder;
 
     @Captor private ArgumentCaptor<BooleanQueryDefinition<String>> booleanDefinitionCaptor;
     @Captor private ArgumentCaptor<DismaxQueryDefinition<String>> dismaxDefinitionCaptor;
@@ -50,10 +57,12 @@ public class GenericQuerqyQueryConverterTest {
     @Before
     public void setup() {
         genericQuerqyQueryConverter = GenericQuerqyQueryConverter.<String>builder()
+                .queryConfig(queryConfig)
                 .booleanQueryBuilder(booleanQueryBuilder)
                 .dismaxQueryBuilder(dismaxQueryBuilder)
                 .genericTermConverter(genericTermConverter)
-                .queryConfig(queryConfig)
+                .matchAllQueryBuilder(matchAllQueryBuilder)
+                .rawQueryBuilder(rawQueryBuilder)
                 .build();
     }
 
@@ -152,5 +161,17 @@ public class GenericQuerqyQueryConverterTest {
         verify(dismaxQueryBuilder).build(dismaxDefinitionCaptor.capture());
 
         assertThat(dismaxDefinitionCaptor.getValue().getDismaxClauses()).hasSize(4);
+    }
+
+    @Test
+    public void testThat_matchAllBuilderIsUsed_forGivenMatchAllQuery() {
+        genericQuerqyQueryConverter.convert(new MatchAllQuery());
+        verify(matchAllQueryBuilder).build();
+    }
+
+    @Test
+    public void testThat_rawQueryBuilderIsUsed_forGivenRawQuery() {
+        genericQuerqyQueryConverter.convert(new StringRawQuery(null,"q", null, false));
+        verify(rawQueryBuilder).buildFromString("q");
     }
 }
