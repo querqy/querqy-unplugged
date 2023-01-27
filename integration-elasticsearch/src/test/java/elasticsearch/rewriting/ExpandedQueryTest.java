@@ -25,8 +25,7 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
     private static final Map<String, String> RULES = Map.of(
             "filter", "apple => \n  FILTER: smartphone",
             "filter_with_field", "apple => \n  FILTER: type:smartphone",
-            "raw_filter", "iphone => \n SYNONYM: apple smartphone",
-            "synonym_weighted", "iphone => \n SYNONYM(0.5): smartphone"
+            "raw_filter", "apple => \n FILTER: * {\"term\":{\"type\":\"smartphone\"}}"
     );
 
     private final List<Product> products = List.of(
@@ -61,6 +60,15 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
 
         final List<Product> products = search(query);
         assertThat(toIdList(products)).containsExactlyInAnyOrder("1", "2");
+    }
+
+    @Test
+    public void testThat_documentsAreFiltered_forGivenRawFilterQuery() {
+        final QueryRewriting<Query> queryRewriting = queryRewriting("raw_filter");
+        final Query query = queryRewriting.rewriteQuery("apple").getConvertedQuery();
+
+        final List<Product> products = search(query);
+        assertThat(toIdList(products)).containsExactlyInAnyOrder("1");
     }
 
     @Test
