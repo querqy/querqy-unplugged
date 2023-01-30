@@ -2,10 +2,12 @@ package querqy.converter.generic;
 
 import lombok.Builder;
 import lombok.NonNull;
+import querqy.BoostConfig;
 import querqy.QueryConfig;
 import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
 import querqy.converter.generic.builder.BooleanQueryBuilder;
+import querqy.converter.generic.builder.BoostQueryBuilder;
 import querqy.converter.generic.builder.DismaxQueryBuilder;
 import querqy.converter.generic.builder.ExpandedQueryBuilder;
 import querqy.converter.generic.builder.MatchAllQueryBuilder;
@@ -21,6 +23,7 @@ public class GenericConverterFactory<T> implements ConverterFactory<T> {
     @NonNull private final TermQueryBuilder<T> termQueryBuilder;
     @NonNull private final MatchAllQueryBuilder<T> matchAllQueryBuilder;
     @NonNull private final RawQueryBuilder<T> rawQueryBuilder;
+    @NonNull private final BoostQueryBuilder<T> boostQueryBuilder;
 
     @Override
     public Converter<T> createConverter(final QueryConfig queryConfig) {
@@ -28,9 +31,14 @@ public class GenericConverterFactory<T> implements ConverterFactory<T> {
     }
 
     private GenericConverter<T> createGenericConverter(final QueryConfig queryConfig) {
+        final GenericQuerqyQueryConverter<T> genericQuerqyQueryConverter = createGenericQuerqyQueryConverter(queryConfig);
+        final GenericBoostConverter<T> genericBoostConverter = createGenericBoostConverter(
+                genericQuerqyQueryConverter, queryConfig.getBoostConfig());
+
         return GenericConverter.<T>builder()
                 .expandedQueryBuilder(expandedQueryBuilder)
-                .genericQuerqyQueryConverter(createGenericQuerqyQueryConverter(queryConfig))
+                .genericQuerqyQueryConverter(genericQuerqyQueryConverter)
+                .genericBoostConverter(genericBoostConverter)
                 .build();
     }
 
@@ -49,6 +57,17 @@ public class GenericConverterFactory<T> implements ConverterFactory<T> {
         return GenericTermConverter.<T>builder()
                 .termQueryBuilder(termQueryBuilder)
                 .queryConfig(queryConfig)
+                .build();
+    }
+
+    private GenericBoostConverter<T> createGenericBoostConverter(
+            final GenericQuerqyQueryConverter<T> genericQuerqyQueryConverter,
+            final BoostConfig boostConfig
+            ) {
+        return GenericBoostConverter.<T>builder()
+                .boostQueryBuilder(boostQueryBuilder)
+                .genericQuerqyQueryConverter(genericQuerqyQueryConverter)
+                .boostConfig(boostConfig)
                 .build();
     }
 }

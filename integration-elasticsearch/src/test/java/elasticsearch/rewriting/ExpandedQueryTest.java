@@ -5,6 +5,7 @@ import elasticsearch.AbstractElasticsearchTest;
 import elasticsearch.Elasticsearch7Container;
 import org.junit.Test;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import querqy.BoostConfig;
 import querqy.QuerqyConfig;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
@@ -25,7 +26,10 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
     private static final Map<String, String> RULES = Map.of(
             "filter", "apple => \n  FILTER: smartphone",
             "filter_with_field", "apple => \n  FILTER: type:smartphone",
-            "raw_filter", "apple => \n FILTER: * {\"term\":{\"type\":\"smartphone\"}}"
+            "raw_filter", "apple => \n FILTER: * {\"term\":{\"type\":\"smartphone\"}}",
+            "boost", "apple => \n UP(100): smartphone",
+            "boost_additive", "apple => \n UP(10): smartphone",
+            "boost_multiplicative", "apple => \n UP(1.5): smartphone"
     );
 
     private final List<Product> products = List.of(
@@ -83,22 +87,79 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
                 )
                 .build();
 
-        final QueryRewriting<Query> queryRewriting = queryRewriting(querqyConfig);
+        final QueryRewriting<Query> queryRewriting = queryRewriting(querqyConfig, queryConfig);
         final Query query = queryRewriting.rewriteQuery("apple").getConvertedQuery();
 
         final List<Product> products = search(query);
         assertThat(toIdList(products)).containsExactlyInAnyOrder("1");
     }
 
+    @Test
+    public void testThat_documentsAreBoosted_forGivenConstantScoreBoostQuery() {
+        final QueryRewriting<Query> queryRewriting = queryRewriting("boost");
+        final Query query = queryRewriting.rewriteQuery("apple").getConvertedQuery();
+
+        final List<Product> products = search(query);
+        assertThat(toIdAndScoreMaps(products)).containsExactlyInAnyOrder(
+                idAndScoreMap("1", 140.0),
+                idAndScoreMap("2", 140.0),
+                idAndScoreMap("3", 40.0)
+        );
+    }
+
+    @Test
+    public void testThat_documentsAreBoosted_forGivenAdditiveBoostQuery() {
+        final QueryRewriting<Query> queryRewriting = queryRewriting(
+                "boost_additive",
+                queryConfig.toBuilder()
+                        .boostConfig(BoostConfig.builder()
+                                .boostMode(BoostConfig.BoostMode.ADDITIVE)
+                                .build())
+                        .build()
+        );
+        final Query query = queryRewriting.rewriteQuery("apple").getConvertedQuery();
+
+        final List<Product> products = search(query);
+        assertThat(toIdAndScoreMaps(products)).containsExactlyInAnyOrder(
+                idAndScoreMap("2", 90.0),
+                idAndScoreMap("1", 70.0),
+                idAndScoreMap("3", 40.0)
+        );
+    }
+
+    @Test
+    public void testThat_documentsAreBoosted_forGivenMultiplicativeBoostQuery() {
+        final QueryRewriting<Query> queryRewriting = queryRewriting(
+                "boost_multiplicative",
+                queryConfig.toBuilder()
+                        .boostConfig(BoostConfig.builder()
+                                .boostMode(BoostConfig.BoostMode.MULTIPLICATIVE)
+                                .build())
+                        .build()
+        );
+        final Query query = queryRewriting.rewriteQuery("apple").getConvertedQuery();
+
+        final List<Product> products = search(query);
+        assertThat(toIdAndScoreMaps(products)).containsExactlyInAnyOrder(
+                idAndScoreMap("2", 100.0),
+                idAndScoreMap("1", 70.0),
+                idAndScoreMap("3", 40.0)
+        );
+    }
+
     private QueryRewriting<Query> queryRewriting() {
-        return queryRewriting(QuerqyConfig.empty());
+        return queryRewriting(QuerqyConfig.empty(), queryConfig);
     }
 
     private QueryRewriting<Query> queryRewriting(final String rulesKey) {
-        return queryRewriting(querqyConfig(RULES.get(rulesKey)));
+        return queryRewriting(querqyConfig(RULES.get(rulesKey)), queryConfig);
     }
 
-    private QueryRewriting<Query> queryRewriting(final QuerqyConfig querqyConfig) {
+    private QueryRewriting<Query> queryRewriting(final String rulesKey, final QueryConfig queryConfig) {
+        return queryRewriting(querqyConfig(RULES.get(rulesKey)), queryConfig);
+    }
+
+    private QueryRewriting<Query> queryRewriting(final QuerqyConfig querqyConfig, final QueryConfig queryConfig) {
         return QueryRewriting.<Query>builder()
                 .queryConfig(queryConfig)
                 .querqyConfig(querqyConfig)

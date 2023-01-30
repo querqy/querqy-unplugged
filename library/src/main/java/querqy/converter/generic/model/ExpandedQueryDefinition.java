@@ -11,5 +11,6 @@ public class ExpandedQueryDefinition<T> {
 
     private final T userQuery;
     private final List<T> filterQueries;
+    private final List<T> boostQueries;
 
 }

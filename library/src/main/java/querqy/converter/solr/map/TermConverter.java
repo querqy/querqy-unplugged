@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 @Builder(toBuilder = true)
 public class TermConverter {
 
+    // TODO: this is redundant to QueryNodesConfig?
+    // TODO: fieldParamName is null here -> must not be nullable for other query type configs
     public static final QueryTypeConfig DEFAULT_CONSTANT_SCORE_QUERY_TYPE_CONFIG = QueryTypeConfig.builder()
             .typeName("constantScore")
             .queryParamName("filter")

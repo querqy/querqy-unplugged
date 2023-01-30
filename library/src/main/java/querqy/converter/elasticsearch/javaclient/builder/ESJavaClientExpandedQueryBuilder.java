@@ -15,6 +15,7 @@ public class ESJavaClientExpandedQueryBuilder implements ExpandedQueryBuilder<Qu
 
         builder.must(expandedQueryDefinition.getUserQuery());
         builder.filter(expandedQueryDefinition.getFilterQueries());
+        builder.should(expandedQueryDefinition.getBoostQueries());
 
         return new Query(builder.build());
     }

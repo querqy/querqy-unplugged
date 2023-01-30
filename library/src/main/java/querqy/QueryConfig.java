@@ -19,6 +19,7 @@ public class QueryConfig {
     private final String minimumShouldMatch;
 
     @Builder.Default private final QueryNodesConfig queryNodesConfig = QueryNodesConfig.empty();
+    @Builder.Default private final BoostConfig boostConfig = BoostConfig.defaultConfig();
 
     public Optional<String> getMinimumShouldMatch() {
         return Optional.ofNullable(minimumShouldMatch);

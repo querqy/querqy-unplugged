@@ -17,15 +17,20 @@ public class GenericConverter<T> implements Converter<T> {
 
     @NonNull private final ExpandedQueryBuilder<T> expandedQueryBuilder;
     @NonNull private final GenericQuerqyQueryConverter<T> genericQuerqyQueryConverter;
+    @NonNull private final GenericBoostConverter<T> genericBoostConverter;
 
     @Override
     public T convert(final ExpandedQuery expandedQuery) {
         final T userQuery = convertUserQuery(expandedQuery.getUserQuery());
         final List<T> filterQueries = convertFilterQueries(expandedQuery.getFilterQueries());
+        final List<T> boostQueries = genericBoostConverter.convert(
+                expandedQuery.getBoostUpQueries(), expandedQuery.getBoostDownQueries()
+        );
 
         final ExpandedQueryDefinition<T> expandedQueryDefinition = ExpandedQueryDefinition.<T>builder()
                 .userQuery(userQuery)
                 .filterQueries(filterQueries)
+                .boostQueries(boostQueries)
                 .build();
 
 
@@ -36,6 +41,7 @@ public class GenericConverter<T> implements Converter<T> {
         return genericQuerqyQueryConverter.convert(userQuery);
     }
 
+    // TODO: Put into GenericFilterConverter
     private List<T> convertFilterQueries(final Collection<QuerqyQuery<?>> filterQueries) {
         if (filterQueries == null) {
             return List.of();
