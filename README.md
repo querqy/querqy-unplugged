@@ -15,8 +15,8 @@ Fundamentals of query-rewriting are explained [here](https://opensourceconnectio
 
 ## Setup
 
-
-
+Querqy-Unplugged can be included as a dependency via the public Maven repository, e.g. using Gradle:
+`implementation 'org.querqy:querqy-unplugged:0.13.0'`.
 
 ## Usage
 
@@ -25,9 +25,13 @@ and with Solr via its [JSON Query DSL](https://solr.apache.org/guide/solr/latest
 library is implemented in a way to minimize efforts to add support for additional approaches (e.g. Elasticsearch Query DSL)
 and search engines (e.g. OpenSearch). 
 
-The basic usage of Querqy-Unplugged requires three components: a Querqy configuration (e.g. rewriters), 
-a query configuration (e.g. fields) and a converter. The 
-processing is applied in a way that the query is rewritten by Querqy into a Querqy tree structure and subsequently
+The basic usage of Querqy-Unplugged requires three components: 
+
+* a Querqy configuration (e.g. rewriters),
+* a query configuration (e.g. fields) and 
+* a converter. 
+
+* The processing is applied in a way that the query is rewritten by Querqy into a Querqy tree structure and subsequently
 transformed by the given converter to an output that can be applied to query a certain search engine using the query 
 configuration. Therefore, the querqy and the query configuration are used in the same way across search engines whereas
 only the converter is search engine-specific. 
@@ -155,9 +159,34 @@ a factory. The classes related to converters as well as the class `QueryRewritin
 type needs to be specified depending on the converter that is used. 
 
 #### MapConverter for Solr
-tbd
 
-* 
+The output of the `MapConverter` for Solr is a Java Map that makes use of Solr's JSON Query DSL:
+```java
+final MapConverterFactory converterFactory = MapConverterFactory.create();
+
+final QueryRewriting<Map<String, Object>> queryRewriting = QueryRewriting.<Map<String, Object>>builder()
+        .querqyConfig(querqyConfig)
+        .queryConfig(queryConfig)
+        .converterFactory(converterFactory)
+        .build();
+```
+
+Unfortunately, the features of the current JSON Query DSL are not sufficient to cover the full external query rewriting.
+Therefore, the following very lightweight package including a few query parsers must be included into the deployment of
+Solr: `implementation 'org.querqy:querqy-unplugged-solr:0.3.0'`
+
+Furthermore, the following snippet must be included under the `config` node in `solrconfig.xml`:
+
+```xml
+<config>
+    <queryParser name="bool" class="solr.qparser.BoolQParserWrapperPlugin"/>
+    <queryParser name="nestedDismax" class="solr.qparser.NestedDisMaxQParserPlugin"/>
+    <queryParser name="constantScore" class="solr.qparser.ConstantScoreQParserPlugin"/>
+    <queryParser name="field" class="solr.qparser.FieldQParserPluginPatch"/>
+</config>
+```
+
+However, it is planned to contribute this little enhancement to Solr in order to allow using a vanilla deployment.
 
 #### Elasticsearch Java API Client Converter
 

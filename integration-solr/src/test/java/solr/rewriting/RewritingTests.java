@@ -52,10 +52,12 @@ public class RewritingTests extends SolrTestCaseJ4 {
 
     @Test
     public void testThat_allDocsAreReturned_forGivenMatchAllQuery() throws Exception {
+        final MapConverterFactory converterFactory = MapConverterFactory.create();
+
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .querqyConfig(emptyQuerqyConfig())
-                .converterFactory(MapConverterFactory.create())
+                .converterFactory(converterFactory)
                 .build();
 
         final Map<String, Object> query = queryRewritingHandler.rewriteQuery("*:*").getConvertedQuery();
