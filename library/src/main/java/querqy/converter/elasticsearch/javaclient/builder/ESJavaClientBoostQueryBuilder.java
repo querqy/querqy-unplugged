@@ -4,7 +4,6 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.ConstantScoreQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.FunctionBoostMode;
 import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScore;
-import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreMode;
 import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchAllQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
@@ -12,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import querqy.BoostConfig;
 import querqy.converter.generic.builder.BoostQueryBuilder;
 import querqy.converter.generic.model.BoostQueryDefinition;
-
-import java.util.List;
 
 @RequiredArgsConstructor(staticName = "create")
 public class ESJavaClientBoostQueryBuilder implements BoostQueryBuilder<Query> {
@@ -26,9 +23,16 @@ public class ESJavaClientBoostQueryBuilder implements BoostQueryBuilder<Query> {
     @Override
     public Query convertBoostDown(final BoostQueryDefinition<Query> boostQueryDefinition) {
         return new Query(
-                new BoolQuery.Builder()
-                        .should(createMatchAllQuery())
-                        .mustNot(createBoostQuery(boostQueryDefinition))
+                new ConstantScoreQuery.Builder()
+                        .filter(
+                                new Query(
+                                        new BoolQuery.Builder()
+                                                .should(createMatchAllQuery())
+                                                .mustNot(createBoostQuery(boostQueryDefinition))
+                                                .build()
+                                )
+                        )
+                        .boost(boostQueryDefinition.getBoost())
                         .build()
         );
     }
@@ -37,7 +41,7 @@ public class ESJavaClientBoostQueryBuilder implements BoostQueryBuilder<Query> {
         final BoostConfig.BoostMode boostMode = boostQueryDefinition.getBoostConfig().getBoostMode();
 
         switch (boostMode) {
-            case BOOST_SCORE_ONLY: return createConstantScoreQuery(boostQueryDefinition);
+            case PARAM_ONLY: return createConstantScoreQuery(boostQueryDefinition);
             case ADDITIVE: return createAdditiveScoreQuery(boostQueryDefinition);
             case MULTIPLICATIVE: return createMultiplicativeScoreQuery(boostQueryDefinition);
 

@@ -59,11 +59,17 @@ The subsequent examples will be based on the query input `iphone` with a single 
 Querqy configurations include a parser definition and rewriters. A Querqy configuration can be created as follows:
 ```java
 QuerqyConfig.builder()
-    .commonRules(
-        CommonRulesDefinition.builder()
-            .rewriterId("id1")
-            .rules("iphone => \n SYNONYM: apple smartphone")
-            .build()
+        .replaceRules(
+                ReplaceRulesDefinition.builder()
+                    .rewriterId("id1")
+                    .rules("aple => apple")
+                    .build()
+        )
+        .commonRules(
+                CommonRulesDefinition.builder()
+                    .rewriterId("id1")
+                    .rules("iphone => \n SYNONYM: apple smartphone")
+                    .build()
         )
     .build();
 ```
@@ -150,8 +156,47 @@ Be aware that the representation above is simplified, as scoring implications of
 considered. 
 
 Notice that fields either can be configured in the direct way (as above) by passing a field name and a weight or more 
-specifically by creating a field config passing a query type config (e.g. for defining a specific Solr query parser for a field).  
+specifically by creating a field config passing a query type config (e.g. for defining a specific Solr query parser for a field).
 
+#### Boost configuration
+
+Querqy rules can include boosts. The subsequent rule pushes all apple products for queries containing `iphone`:
+
+```text
+iphone =>
+  UP(10): apple
+```
+
+The query configuration can be enhanced by a boost configuration, which defines the way how boost scores are handled:
+
+```java
+QueryConfig.builder()
+        .field("name", 40.0f)
+        .field("type", 20.0f)
+        .minimumShouldMatch("100%")
+        .tie(0.0f)
+        .boostConfig(
+                BoostConfig.builder()
+                    .boostMode(BoostConfig.BoostMode.ADDITIVE)
+                    .build()
+        )
+        .build();
+```
+
+There are three boost modes:
+
+*PARAM_ONLY (default)*
+Only the score defined in the parameter of the boost rule is added to the result. Given the term `iphone` matches in the
+field `name`, the product gets a basic score of `40`. If the term `apple` additionally matches anywhere, an additional score
+of `10` is added.
+
+*ADDITIVE*
+The score of the parameter is added in addition to the score of the boosting query. If the term `apple` matches in 
+the field `type`, an additional score of `30` (`20` boosting query score, `10` parameter score) is added.
+
+*MULTIPLICATIVE*
+The score of the parameter is multiplied by the score of the boosting query. If the term `apple` matches in 
+the field `type`, an additional score of `200` (`20` boosting query score, `10` parameter score) is added.
 
 ### Converters
 Converters are the search engine-specific part of Querqy-Unplugged. Converters are created for each query separately via 

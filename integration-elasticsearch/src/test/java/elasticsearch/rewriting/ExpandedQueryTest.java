@@ -13,6 +13,7 @@ import querqy.converter.ConverterFactory;
 import querqy.converter.elasticsearch.javaclient.ESJavaClientConverterFactory;
 import querqy.parser.FieldAwareWhiteSpaceQuerqyParser;
 import querqy.rewriter.builder.CommonRulesDefinition;
+import querqy.rewriter.builder.ReplaceRulesDefinition;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,8 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
             "raw_filter", "apple => \n FILTER: * {\"term\":{\"type\":\"smartphone\"}}",
             "boost", "apple => \n UP(100): smartphone",
             "boost_additive", "apple => \n UP(10): smartphone",
-            "boost_multiplicative", "apple => \n UP(1.5): smartphone"
+            "boost_multiplicative", "apple => \n UP(1.5): smartphone",
+            "down_boost", "apple => \n DOWN(10): case"
     );
 
     private final List<Product> products = List.of(
@@ -61,6 +63,31 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
     public void testThat_documentsAreFiltered_forGivenFilterQuery() {
         final QueryRewriting<Query> queryRewriting = queryRewriting("filter");
         final Query query = queryRewriting.rewriteQuery("apple").getConvertedQuery();
+
+        final List<Product> products = search(query);
+        assertThat(toIdList(products)).containsExactlyInAnyOrder("1", "2");
+    }
+
+    @Test
+    public void testThat_rewriterChainIsApplied_forGivenCommonRulesAndReplaceRewriter() {
+        final QuerqyConfig querqyConfig = QuerqyConfig.builder()
+                .replaceRules(
+                        ReplaceRulesDefinition.builder()
+                                .rewriterId("id1")
+                                .rules("aple => apple")
+                                .build()
+                )
+                .commonRules(
+                        CommonRulesDefinition.builder()
+                                .rewriterId("id2")
+                                .rules(RULES.get("filter"))
+                                .querqyParserFactory(FieldAwareWhiteSpaceQuerqyParser::new)
+                                .build()
+                )
+                .build();
+
+        final QueryRewriting<Query> queryRewriting = queryRewriting(querqyConfig, queryConfig);
+        final Query query = queryRewriting.rewriteQuery("aple").getConvertedQuery();
 
         final List<Product> products = search(query);
         assertThat(toIdList(products)).containsExactlyInAnyOrder("1", "2");
@@ -143,6 +170,26 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
         assertThat(toIdAndScoreMaps(products)).containsExactlyInAnyOrder(
                 idAndScoreMap("2", 100.0),
                 idAndScoreMap("1", 70.0),
+                idAndScoreMap("3", 40.0)
+        );
+    }
+
+    @Test
+    public void testThat_documentsArePunished_forGivenAdditiveDownBoostQuery() {
+        final QueryRewriting<Query> queryRewriting = queryRewriting(
+                "down_boost",
+                queryConfig.toBuilder()
+                        .boostConfig(BoostConfig.builder()
+                                .boostMode(BoostConfig.BoostMode.ADDITIVE)
+                                .build())
+                        .build()
+        );
+        final Query query = queryRewriting.rewriteQuery("apple").getConvertedQuery();
+
+        final List<Product> products = search(query);
+        assertThat(toIdAndScoreMaps(products)).containsExactlyInAnyOrder(
+                idAndScoreMap("1", 50.0),
+                idAndScoreMap("2", 40.0),
                 idAndScoreMap("3", 40.0)
         );
     }
