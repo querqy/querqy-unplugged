@@ -60,8 +60,8 @@ public class GenericBoostConverter<T> {
 
         switch (queryScoreConfig) {
             case IGNORE: return createIgnoringScoreQuery(boostQueryDefinition);
-            case ADD_TO_BOOST_PARAM: return boostQueryBuilder.convertBoostUp(boostQueryDefinition);
-            case MULTIPLY_WITH_BOOST_PARAM: return boostQueryBuilder.convertBoostUp(boostQueryDefinition);
+            case ADD_TO_BOOST_PARAM: return createAddToBoostParamQuery(boostQueryDefinition);
+            case MULTIPLY_WITH_BOOST_PARAM: return createMultiplyWithBoostParamQuery(boostQueryDefinition);
 
             default:
                 throw new IllegalArgumentException(
