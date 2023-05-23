@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import querqy.ComparableCharSequence;
 import querqy.QueryConfig;
+import querqy.converter.generic.builder.ConstantScoreQueryBuilder;
 import querqy.converter.generic.builder.TermQueryBuilder;
 import querqy.converter.generic.model.TermQueryDefinition;
 import querqy.model.BoostedTerm;
@@ -26,15 +27,18 @@ import static org.mockito.Mockito.when;
 public class GenericTermConverterTest {
 
     @Mock private TermQueryBuilder<String> termQueryBuilder;
+    @Mock private ConstantScoreQueryBuilder<String> constantScoreQueryBuilder;
 
     @Mock private Term term;
     @Mock private BoostedTerm boostedTerm;
     @Mock private ComparableCharSequence charSequence;
 
     @Captor private ArgumentCaptor<TermQueryDefinition> termDefinitionCaptor;
+    @Captor private ArgumentCaptor<String> queryCaptor;
+    @Captor private ArgumentCaptor<Float> weightCaptor;
 
     private final QueryConfig twoFieldsQueryConfig = QueryConfig.builder()
-            .field("f1", 10.0f)
+            .field("f1", 5.0f)
             .field("f2", 5.0f)
             .build();
 
@@ -49,25 +53,20 @@ public class GenericTermConverterTest {
 
         genericTermConverter = GenericTermConverter.<String>builder()
                 .termQueryBuilder(termQueryBuilder)
+                .constantScoreQueryBuilder(constantScoreQueryBuilder)
                 .queryConfig(twoFieldsQueryConfig)
                 .build();
     }
 
     @Test
-    public void testThat_builderIsCalledTwice_forTwoGivenFields() {
-        final List<String> convertedTerms = genericTermConverter.convert(term);
-        assertThat(convertedTerms).hasSize(2);
-        assertThat(convertedTerms).containsExactlyInAnyOrder("term", "term");
-    }
-
-    @Test
-    public void testThat_boostIsTaken_fromBoostedTerm() {
+    public void testThat_boostIsMultipliedWithFieldWeight_forBoostedTerm() {
         when(boostedTerm.getBoost()).thenReturn(3.0f);
 
         genericTermConverter.convert(boostedTerm);
-        verify(termQueryBuilder, times(2)).build(termDefinitionCaptor.capture());
+        verify(constantScoreQueryBuilder, times(2)).build(queryCaptor.capture(), weightCaptor.capture());
 
-        assertThat(termDefinitionCaptor.getValue().getTermBoost()).isEqualTo(3.0f);
+        assertThat(queryCaptor.getAllValues()).isEqualTo(List.of("term", "term"));
+        assertThat(weightCaptor.getAllValues()).isEqualTo(List.of(15.0f, 15.0f));
     }
 
 

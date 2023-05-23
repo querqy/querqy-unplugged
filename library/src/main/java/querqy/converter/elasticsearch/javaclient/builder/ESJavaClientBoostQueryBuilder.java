@@ -38,20 +38,20 @@ public class ESJavaClientBoostQueryBuilder implements BoostQueryBuilder<Query> {
     }
 
     private Query createBoostQuery(final BoostQueryDefinition<Query> boostQueryDefinition) {
-        final BoostConfig.BoostMode boostMode = boostQueryDefinition.getBoostConfig().getBoostMode();
+        final BoostConfig.QueryScoreConfig queryScoreConfig = boostQueryDefinition.getBoostConfig().getQueryScoreConfig();
 
-        switch (boostMode) {
-            case PARAM_ONLY: return createConstantScoreQuery(boostQueryDefinition);
-            case ADDITIVE: return createAdditiveScoreQuery(boostQueryDefinition);
-            case MULTIPLICATIVE: return createMultiplicativeScoreQuery(boostQueryDefinition);
+        switch (queryScoreConfig) {
+            case IGNORE: return createIgnoringScoreQuery(boostQueryDefinition);
+            case ADD_TO_BOOST_PARAM: return createAddToBoostParamQuery(boostQueryDefinition);
+            case MULTIPLY_WITH_BOOST_PARAM: return createMultiplyWithBoostParamQuery(boostQueryDefinition);
 
             default:
                 throw new IllegalArgumentException(
-                        "Boost mode " + boostMode + " is not supported by " + this.getClass().getName());
+                        "Boost mode " + queryScoreConfig + " is not supported by " + this.getClass().getName());
         }
     }
 
-    private Query createConstantScoreQuery(final BoostQueryDefinition<Query> boostQueryDefinition) {
+    private Query createIgnoringScoreQuery(final BoostQueryDefinition<Query> boostQueryDefinition) {
         return new Query(
                 new ConstantScoreQuery.Builder()
                         .filter(boostQueryDefinition.getQuery())
@@ -60,7 +60,8 @@ public class ESJavaClientBoostQueryBuilder implements BoostQueryBuilder<Query> {
         );
     }
 
-    private Query createAdditiveScoreQuery(final BoostQueryDefinition<Query> boostQueryDefinition) {
+    @Override
+    public Query createAddToBoostParamQuery(final BoostQueryDefinition<Query> boostQueryDefinition) {
         return new Query(
                 new FunctionScoreQuery.Builder()
                         .query(boostQueryDefinition.getQuery())
@@ -70,7 +71,8 @@ public class ESJavaClientBoostQueryBuilder implements BoostQueryBuilder<Query> {
         );
     }
 
-    private Query createMultiplicativeScoreQuery(final BoostQueryDefinition<Query> boostQueryDefinition) {
+    @Override
+    public Query createMultiplyWithBoostParamQuery(final BoostQueryDefinition<Query> boostQueryDefinition) {
         return new Query(
                 new FunctionScoreQuery.Builder()
                         .query(boostQueryDefinition.getQuery())

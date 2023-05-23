@@ -49,7 +49,7 @@ public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
 
     @Override
     public T visit(final BooleanQuery booleanQuery) {
-        final BooleanQueryDefinition.BooleanQueryDefinitionBuilder<T> builder = BooleanQueryDefinition.<T>builder();
+        final BooleanQueryDefinition.BooleanQueryDefinitionBuilder<T> builder = BooleanQueryDefinition.builder();
 
         for (final BooleanClause clause : booleanQuery.getClauses()) {
             switch (clause.getOccur()) {
@@ -68,7 +68,7 @@ public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
         }
 
         if (builder.numberOfShouldClauses() == 0) {
-            builder.boost(builder.numberOfMustClauses() > 0 ? (float) 1 / (float) builder.numberOfMustClauses() : 0.0f);
+            builder.boost(builder.numberOfMustClauses() > 0 ? 1.0f / (float) builder.numberOfMustClauses() : 0.0f);
 
         } else {
             builder.boost(1.0f);

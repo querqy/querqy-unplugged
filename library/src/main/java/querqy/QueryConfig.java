@@ -20,6 +20,7 @@ public class QueryConfig {
 
     @Builder.Default private final QueryNodesConfig queryNodesConfig = QueryNodesConfig.empty();
     @Builder.Default private final BoostConfig boostConfig = BoostConfig.defaultConfig();
+    @Builder.Default private final boolean isConstantScoresQuery = true;
 
     public Optional<String> getMinimumShouldMatch() {
         return Optional.ofNullable(minimumShouldMatch);

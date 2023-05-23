@@ -7,6 +7,7 @@ import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
 import querqy.converter.elasticsearch.javaclient.builder.ESJavaClientBooleanQueryBuilder;
 import querqy.converter.elasticsearch.javaclient.builder.ESJavaClientBoostQueryBuilder;
+import querqy.converter.elasticsearch.javaclient.builder.ESJavaClientConstantScoreQueryBuilder;
 import querqy.converter.elasticsearch.javaclient.builder.ESJavaClientDismaxQueryBuilder;
 import querqy.converter.elasticsearch.javaclient.builder.ESJavaClientExpandedQueryBuilder;
 import querqy.converter.elasticsearch.javaclient.builder.ESJavaClientMatchAllQueryBuilder;
@@ -20,6 +21,7 @@ public class ESJavaClientConverterFactory implements ConverterFactory<Query> {
     private final ESJavaClientExpandedQueryBuilder expandedQueryBuilder = ESJavaClientExpandedQueryBuilder.create();
     private final ESJavaClientBooleanQueryBuilder booleanQueryBuilder = ESJavaClientBooleanQueryBuilder.create();
     private final ESJavaClientDismaxQueryBuilder dismaxQueryBuilder = ESJavaClientDismaxQueryBuilder.create();
+    private final ESJavaClientConstantScoreQueryBuilder constantScoreQueryBuilder = ESJavaClientConstantScoreQueryBuilder.create();
     private final ESJavaClientTermQueryBuilder termQueryBuilder = ESJavaClientTermQueryBuilder.create();
     private final ESJavaClientMatchAllQueryBuilder matchAllQueryBuilder = ESJavaClientMatchAllQueryBuilder.create();
     private final ESJavaClientRawQueryBuilder rawQueryBuilder = ESJavaClientRawQueryBuilder.create();
@@ -29,6 +31,7 @@ public class ESJavaClientConverterFactory implements ConverterFactory<Query> {
             .expandedQueryBuilder(expandedQueryBuilder)
             .booleanQueryBuilder(booleanQueryBuilder)
             .dismaxQueryBuilder(dismaxQueryBuilder)
+            .constantScoreQueryBuilder(constantScoreQueryBuilder)
             .termQueryBuilder(termQueryBuilder)
             .matchAllQueryBuilder(matchAllQueryBuilder)
             .rawQueryBuilder(rawQueryBuilder)

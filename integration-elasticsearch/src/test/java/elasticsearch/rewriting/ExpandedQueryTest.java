@@ -140,7 +140,7 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
                 "boost_additive",
                 queryConfig.toBuilder()
                         .boostConfig(BoostConfig.builder()
-                                .boostMode(BoostConfig.BoostMode.ADDITIVE)
+                                .queryScoreConfig(BoostConfig.QueryScoreConfig.ADD_TO_BOOST_PARAM)
                                 .build())
                         .build()
         );
@@ -160,7 +160,7 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
                 "boost_multiplicative",
                 queryConfig.toBuilder()
                         .boostConfig(BoostConfig.builder()
-                                .boostMode(BoostConfig.BoostMode.MULTIPLICATIVE)
+                                .queryScoreConfig(BoostConfig.QueryScoreConfig.MULTIPLY_WITH_BOOST_PARAM)
                                 .build())
                         .build()
         );
@@ -175,12 +175,12 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
     }
 
     @Test
-    public void testThat_documentsArePunished_forGivenAdditiveDownBoostQuery() {
+    public void testThat_documentsArePunished_forGivenDownBoostQuery() {
         final QueryRewriting<Query> queryRewriting = queryRewriting(
                 "down_boost",
                 queryConfig.toBuilder()
                         .boostConfig(BoostConfig.builder()
-                                .boostMode(BoostConfig.BoostMode.ADDITIVE)
+                                .queryScoreConfig(BoostConfig.QueryScoreConfig.ADD_TO_BOOST_PARAM)
                                 .build())
                         .build()
         );

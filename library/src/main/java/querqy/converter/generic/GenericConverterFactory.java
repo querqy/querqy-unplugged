@@ -8,6 +8,7 @@ import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
 import querqy.converter.generic.builder.BooleanQueryBuilder;
 import querqy.converter.generic.builder.BoostQueryBuilder;
+import querqy.converter.generic.builder.ConstantScoreQueryBuilder;
 import querqy.converter.generic.builder.DismaxQueryBuilder;
 import querqy.converter.generic.builder.ExpandedQueryBuilder;
 import querqy.converter.generic.builder.MatchAllQueryBuilder;
@@ -20,6 +21,7 @@ public class GenericConverterFactory<T> implements ConverterFactory<T> {
     @NonNull private final ExpandedQueryBuilder<T> expandedQueryBuilder;
     @NonNull private final BooleanQueryBuilder<T> booleanQueryBuilder;
     @NonNull private final DismaxQueryBuilder<T> dismaxQueryBuilder;
+    @NonNull private final ConstantScoreQueryBuilder<T> constantScoreQueryBuilder;
     @NonNull private final TermQueryBuilder<T> termQueryBuilder;
     @NonNull private final MatchAllQueryBuilder<T> matchAllQueryBuilder;
     @NonNull private final RawQueryBuilder<T> rawQueryBuilder;
@@ -55,6 +57,7 @@ public class GenericConverterFactory<T> implements ConverterFactory<T> {
 
     private GenericTermConverter<T> createGenericTermConverter(final QueryConfig queryConfig) {
         return GenericTermConverter.<T>builder()
+                .constantScoreQueryBuilder(constantScoreQueryBuilder)
                 .termQueryBuilder(termQueryBuilder)
                 .queryConfig(queryConfig)
                 .build();
@@ -67,6 +70,8 @@ public class GenericConverterFactory<T> implements ConverterFactory<T> {
         return GenericBoostConverter.<T>builder()
                 .boostQueryBuilder(boostQueryBuilder)
                 .genericQuerqyQueryConverter(genericQuerqyQueryConverter)
+                .booleanQueryBuilder(booleanQueryBuilder)
+                .constantScoreQueryBuilder(constantScoreQueryBuilder)
                 .boostConfig(boostConfig)
                 .build();
     }
