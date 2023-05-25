@@ -59,9 +59,10 @@ public class GenericBoostConverter<T> {
         final BoostConfig.QueryScoreConfig queryScoreConfig = boostConfig.getQueryScoreConfig();
 
         switch (queryScoreConfig) {
-            case IGNORE: return createIgnoringScoreQuery(boostQueryDefinition);
+            case IGNORE_QUERY_SCORE: return createIgnoringScoreQuery(boostQueryDefinition);
             case ADD_TO_BOOST_PARAM: return createAddToBoostParamQuery(boostQueryDefinition);
             case MULTIPLY_WITH_BOOST_PARAM: return createMultiplyWithBoostParamQuery(boostQueryDefinition);
+            case CLASSIC: return createClassicBoostQuery(boostQueryDefinition);
 
             default:
                 throw new IllegalArgumentException(
@@ -79,6 +80,10 @@ public class GenericBoostConverter<T> {
 
     private T createMultiplyWithBoostParamQuery(final BoostQueryDefinition<T> boostQueryDefinition) {
         return boostQueryBuilder.createMultiplyWithBoostParamQuery(boostQueryDefinition);
+    }
+
+    private T createClassicBoostQuery(final BoostQueryDefinition<T> boostQueryDefinition) {
+        return boostQueryBuilder.createClassicBoostQuery(boostQueryDefinition);
     }
 
     private T createBoostDownQuery(final BoostQueryDefinition<T> boostQueryDefinition) {

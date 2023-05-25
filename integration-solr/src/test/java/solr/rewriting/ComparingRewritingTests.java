@@ -5,6 +5,7 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import querqy.BoostConfig;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
 import querqy.QuerqyConfig;
@@ -76,6 +77,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
             .field("type", 20.0f)
             .minimumShouldMatch("100%")
             .tie(0.5f)
+            .boostConfig(BoostConfig.builder().queryScoreConfig(BoostConfig.QueryScoreConfig.CLASSIC).build())
             .build();
 
     @Test
@@ -87,6 +89,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
         assertEquals(paramResult, jsonResult);
     }
 
+    // Score is not included here as the ranking is as expected, but the score varies
     @Test
     public void testThat_rankingsAreIdentical_forNegatedBoostRule() throws Exception {
         final String rewriterName = "negated_boost_common_rules";

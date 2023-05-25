@@ -34,6 +34,11 @@ public class ESJavaClientBoostQueryBuilder implements BoostQueryBuilder<Query> {
         );
     }
 
+    @Override
+    public Query createClassicBoostQuery(BoostQueryDefinition<Query> boostQueryDefinition) {
+        throw new UnsupportedOperationException("Boost mode CLASSIC is not supported by " + this.getClass().getName());
+    }
+
     private Query createMatchAllQuery() {
         return new Query(new MatchAllQuery.Builder().build());
     }

@@ -48,7 +48,7 @@ public class GenericBoostConverterTest {
     @Test
     public void testThat_constantScoreQueryBuilderIsCalledTwice_forIgnoreBoostScoresConfigAndTwoGivenQueries() {
         final GenericBoostConverter<String> genericBoostConverter = createBoostConverter(
-                BoostConfig.builder().queryScoreConfig(BoostConfig.QueryScoreConfig.IGNORE).build()
+                BoostConfig.builder().queryScoreConfig(BoostConfig.QueryScoreConfig.IGNORE_QUERY_SCORE).build()
         );
 
         genericBoostConverter.convert(
@@ -61,7 +61,7 @@ public class GenericBoostConverterTest {
     @Test
     public void testThat_constantScoreQueryBuilderIsCalled_forIgnoreBoostScoresConfig() {
         final GenericBoostConverter<String> genericBoostConverter = createBoostConverter(
-                BoostConfig.builder().queryScoreConfig(BoostConfig.QueryScoreConfig.IGNORE).build()
+                BoostConfig.builder().queryScoreConfig(BoostConfig.QueryScoreConfig.IGNORE_QUERY_SCORE).build()
         );
 
         genericBoostConverter.convert(
@@ -74,7 +74,7 @@ public class GenericBoostConverterTest {
     @Test
     public void testThat_constantScoreQueryBuilderAndBooleanBuilderAreCalled_forBoostDownQuery() {
         final GenericBoostConverter<String> genericBoostConverter = createBoostConverter(
-                BoostConfig.builder().queryScoreConfig(BoostConfig.QueryScoreConfig.IGNORE).build()
+                BoostConfig.builder().queryScoreConfig(BoostConfig.QueryScoreConfig.IGNORE_QUERY_SCORE).build()
         );
 
         genericBoostConverter.convert(
