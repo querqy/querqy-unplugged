@@ -16,6 +16,8 @@ public class QueryRewriting<T> {
     private final QuerqyConfig querqyConfig;
     private final ConverterFactory<T> converterFactory;
 
+    @Builder.Default private final QueryExpansionConfig<T> queryExpansionConfig = QueryExpansionConfig.empty();
+
     public RewrittenQuery<T> rewriteQuery(final String queryInput) {
         final QueryRewritingExecutor executor = createExecutor();
         final RewrittenQuerqyQuery rewrittenQuerqyQuery = executor.rewriteQuery(queryInput);

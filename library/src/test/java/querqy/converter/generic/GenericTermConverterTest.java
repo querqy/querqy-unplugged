@@ -46,7 +46,6 @@ public class GenericTermConverterTest {
 
     @Before
     public void prepare() {
-        when(term.getValue()).thenReturn(charSequence);
         when(boostedTerm.getValue()).thenReturn(charSequence);
 
         when(termQueryBuilder.build(any())).thenReturn("term");

@@ -27,7 +27,7 @@ public class ESJavaClientBooleanQueryBuilder implements BooleanQueryBuilder<Quer
         public Query build() {
             addClauses();
 
-            builder.boost(definition.getBoost());
+            definition.getBoost().ifPresent(builder::boost);
             definition.getMinimumShouldMatch().ifPresent(builder::minimumShouldMatch);
 
             return new Query(builder.build());
@@ -41,6 +41,7 @@ public class ESJavaClientBooleanQueryBuilder implements BooleanQueryBuilder<Quer
             } else {
                 addShouldClauses();
                 addMustClauses();
+                addFilterClauses();
                 addMustNotClauses();
             }
         }
@@ -59,6 +60,12 @@ public class ESJavaClientBooleanQueryBuilder implements BooleanQueryBuilder<Quer
         private void addMustClauses() {
             for (final Query query : definition.getMustClauses()) {
                 builder.must(query);
+            }
+        }
+
+        private void addFilterClauses() {
+            for (final Query query : definition.getFilterClauses()) {
+                builder.filter(query);
             }
         }
 

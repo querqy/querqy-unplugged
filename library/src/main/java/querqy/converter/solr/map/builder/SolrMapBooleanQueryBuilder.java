@@ -19,6 +19,7 @@ public class SolrMapBooleanQueryBuilder implements BooleanQueryBuilder<Map<Strin
 
     private static final String SHOULD = "should";
     private static final String MUST = "must";
+    private static final String FILTER = "filter";
     private static final String MUST_NOT = "must_not";
 
 
@@ -38,7 +39,7 @@ public class SolrMapBooleanQueryBuilder implements BooleanQueryBuilder<Map<Strin
         public Map<String, Object> build() {
             addClauses();
 
-            innerNode.put(BOOST_PARAM, definition.getBoost());
+            definition.getBoost().ifPresent(boost -> innerNode.put(BOOST_PARAM, boost));
             definition.getMinimumShouldMatch().ifPresent(mm -> innerNode.put(MM_PARAM, mm));
 
             return Map.of("bool", innerNode);
@@ -51,10 +52,12 @@ public class SolrMapBooleanQueryBuilder implements BooleanQueryBuilder<Map<Strin
                     && definition.getShouldClauses().isEmpty()
             ) {
                 addStandaloneMustNotClause();
+                addFilterClauses();
 
             } else {
                 addShouldClauses();
                 addMustClauses();
+                addFilterClauses();
                 addMustNotClauses();
             }
         }
@@ -73,6 +76,12 @@ public class SolrMapBooleanQueryBuilder implements BooleanQueryBuilder<Map<Strin
         private void addMustClauses() {
             if (definition.getMustClauses().size() > 0) {
                 innerNode.put(MUST, definition.getMustClauses());
+            }
+        }
+
+        private void addFilterClauses() {
+            if (definition.getFilterClauses().size() > 0) {
+                innerNode.put(FILTER, definition.getFilterClauses());
             }
         }
 

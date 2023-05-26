@@ -69,28 +69,19 @@ public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
         }
 
 //        final int numberOfSubClauses = booleanQuery.getClauses().size();
+
+        // query is main query?
         if (booleanQuery instanceof Query) {
             queryConfig.getMinimumShouldMatch().ifPresent(builder::minimumShouldMatch);
             builder.boost(1.0f);
 
+        // query is nested alternative?
+        } else if (builder.numberOfShouldClauses() == 0 && builder.numberOfMustClauses() > 1) {
+            builder.boost(1.0f / (float) builder.numberOfMustClauses());
+
         } else {
-            final float boost = builder.numberOfShouldClauses() == 0 && builder.numberOfMustClauses() > 0
-                    ? 1.0f / (float) builder.numberOfMustClauses()
-                    : 0.0f;
-
-            builder.boost(boost);
+            builder.boost(1.0f);
         }
-
-//        if (builder.numberOfShouldClauses() == 0) {
-//            builder.boost(builder.numberOfMustClauses() > 0 ? 1.0f / (float) builder.numberOfMustClauses() : 0.0f);
-//
-//        } else {
-//            builder.boost(1.0f);
-//        }
-//
-//        if (booleanQuery instanceof Query) {
-//            queryConfig.getMinimumShouldMatch().ifPresent(builder::minimumShouldMatch);
-//        }
 
         return booleanQueryBuilder.build(builder.build());
     }

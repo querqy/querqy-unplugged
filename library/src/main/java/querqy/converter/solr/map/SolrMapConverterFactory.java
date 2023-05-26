@@ -6,15 +6,16 @@ import querqy.QueryTypeConfig;
 import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
 import querqy.converter.generic.GenericConverterFactory;
+import querqy.converter.generic.GenericExpandedQueryConverter;
 import querqy.converter.solr.map.builder.SolrMapBooleanQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapBoostQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapConstantScoreQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapDismaxQueryBuilder;
-import querqy.converter.solr.map.builder.SolrMapExpandedQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapMatchAllQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapQueryReferenceBuilder;
 import querqy.converter.solr.map.builder.SolrMapRawQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapTermQueryBuilder;
+import querqy.converter.solr.map.builder.SolrMapWrappedQueryBuilder;
 
 import java.util.Map;
 
@@ -40,12 +41,11 @@ public class SolrMapConverterFactory implements ConverterFactory<Map<String, Obj
     public Converter<Map<String, Object>> createConverter(final QueryConfig queryConfig) {
         final SolrMapQueryReferenceBuilder queryReferenceBuilder = SolrMapQueryReferenceBuilder.create();
 
-        final SolrMapExpandedQueryBuilder expandedQueryBuilder = SolrMapExpandedQueryBuilder.of(queryReferenceBuilder);
         final SolrMapRawQueryBuilder rawQueryBuilder = SolrMapRawQueryBuilder.of(queryReferenceBuilder);
         final SolrMapBoostQueryBuilder boostQueryBuilder = SolrMapBoostQueryBuilder.create(queryReferenceBuilder);
+        final SolrMapWrappedQueryBuilder wrappedQueryBuilder = SolrMapWrappedQueryBuilder.of(queryReferenceBuilder);
 
         final GenericConverterFactory<Map<String, Object>> converterFactory = GenericConverterFactory.<Map<String, Object>>builder()
-                .expandedQueryBuilder(expandedQueryBuilder)
                 .booleanQueryBuilder(booleanQueryBuilder)
                 .dismaxQueryBuilder(dismaxQueryBuilder)
                 .constantScoreQueryBuilder(constantScoreQueryBuilder)
@@ -53,6 +53,7 @@ public class SolrMapConverterFactory implements ConverterFactory<Map<String, Obj
                 .matchAllQueryBuilder(matchAllQueryBuilder)
                 .rawQueryBuilder(rawQueryBuilder)
                 .boostQueryBuilder(boostQueryBuilder)
+                .wrappedQueryBuilder(wrappedQueryBuilder)
                 .build();
 
         return converterFactory.createConverter(queryConfig);

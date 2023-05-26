@@ -3,7 +3,6 @@ package querqy.converter.generic;
 import lombok.Builder;
 import lombok.NonNull;
 import querqy.converter.Converter;
-import querqy.converter.generic.builder.ExpandedQueryBuilder;
 import querqy.converter.generic.model.ExpandedQueryDefinition;
 import querqy.model.ExpandedQuery;
 import querqy.model.QuerqyQuery;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 @Builder
 public class GenericConverter<T> implements Converter<T> {
 
-    @NonNull private final ExpandedQueryBuilder<T> expandedQueryBuilder;
+    @NonNull private final GenericExpandedQueryConverter<T> genericExpandedQueryConverter;
     @NonNull private final GenericQuerqyQueryConverter<T> genericQuerqyQueryConverter;
     @NonNull private final GenericBoostConverter<T> genericBoostConverter;
 
@@ -34,7 +33,7 @@ public class GenericConverter<T> implements Converter<T> {
                 .build();
 
 
-        return expandedQueryBuilder.build(expandedQueryDefinition);
+        return genericExpandedQueryConverter.convert(expandedQueryDefinition);
     }
 
     private T convertUserQuery(final QuerqyQuery<?> userQuery) {
