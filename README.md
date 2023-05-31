@@ -177,26 +177,125 @@ QueryConfig.builder()
         .tie(0.0f)
         .boostConfig(
                 BoostConfig.builder()
-                    .boostMode(BoostConfig.BoostMode.ADDITIVE)
+                    .boostMode(BoostConfig.QueryScoreConfig.ADD_TO_BOOST_PARAM)
                     .build()
         )
         .build();
 ```
 
-There are three boost modes:
+There are four boost modes:
 
-*PARAM_ONLY (default)*
+*QueryScoreConfig.IGNORE_QUERY_SCORE (default)*
+
 Only the score defined in the parameter of the boost rule is added to the result. Given the term `iphone` matches in the
 field `name`, the product gets a basic score of `40`. If the term `apple` additionally matches anywhere, an additional score
 of `10` is added.
 
-*ADDITIVE*
+*QueryScoreConfig.ADD_TO_BOOST_PARAM*
+
 The score of the parameter is added in addition to the score of the boosting query. If the term `apple` matches in 
 the field `type`, an additional score of `30` (`20` boosting query score, `10` parameter score) is added.
 
-*MULTIPLICATIVE*
+*QueryScoreConfig.MULTIPLY_WITH_BOOST_PARAM*
+
 The score of the parameter is multiplied by the score of the boosting query. If the term `apple` matches in 
 the field `type`, an additional score of `200` (`20` boosting query score, `10` parameter score) is added.
+
+*QueryScoreConfig.CLASSIC*
+
+This mode aims to achieve a backwards-compatible boost scoring to Querqy as a plugin. However, this mode is currently only 
+supported for the SolrMap client.
+
+
+### QueryExpansion Configuration
+Several use cases might require to enhance a query irrespective of rules or rewriters. Such enhancements can be configured 
+via the `QueryExpansionConfig`. The easiest way to add queries is to add them as strings. For the Elasticsearch Java Client,
+the syntax must be compatible to query string queries (which are built under the hood). For the SolrMap Client, the syntax must be 
+compatible to the lucene query parser.
+
+```java
+final QueryExpansionConfig.<Query>builder()
+        .addAlternativeMatchingStringQuery("id:123", 50f)
+        .addBoostUpStringQuery("brand:apple", 50f)
+        .filterStringQuery("type:smartphone")
+        .build()
+```
+
+Currently, three types of query expansions are supported:
+
+*Filters* are added within a bool query in addition to the querqy query.
+
+```
+bool(
+  must(
+    bool(
+      dismax(...)
+    )
+  )
+  filter(
+    query-expansion-filter-query()
+  )
+)
+```
+
+*Boosts* are added within a bool query as should clauses in addition to the querqy query.
+
+```
+bool(
+  must(
+    bool(
+      dismax(...)
+    )
+  )
+  should(
+    query-expansion-boost-query()
+  )
+)
+```
+
+*Alternative matching queries* are fully qualified alternatives to the querqy query, for instance to include a product with 
+a certain id into the results that is not included in the regular query. The original querqy query and the alternative
+matching queries are combined as should clauses in an additional bool layer (notice that the subsequent query also includes a 
+query expansion boost query for demonstration purposes).
+
+```
+bool(
+  should(
+    bool(
+      must(
+        bool(
+          dismax(...)
+        )
+      )
+      should(
+        query-expansion-boost-query()
+      )
+    )
+    query-expansion-alternative-matching-query()
+  )
+)
+```
+
+
+For the case that the string based queries are not sufficient, there is the additional option to include them as query 
+objects. 
+
+```java
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
+
+final QueryExpansionConfig.<Query>builder()
+        .addBoostUpQuery(
+                new Query(
+                        new TermQuery.Builder()
+                            .field("brand")
+                            .value("apple")
+                            .build()
+                ),
+                50f
+        )
+        .build()
+```
 
 ### Converters
 Converters are the search engine-specific part of Querqy-Unplugged. Converters are created for each query separately via 
