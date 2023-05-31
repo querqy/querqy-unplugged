@@ -30,6 +30,7 @@ public class QueryConfig {
         return Optional.ofNullable(tie);
     }
 
+    @Deprecated // Be careful - might lead to NPE
     public static QueryConfig empty() {
         return QueryConfig.builder().build();
     }

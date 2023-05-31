@@ -12,6 +12,7 @@ import querqy.converter.generic.builder.BoostQueryBuilder;
 import querqy.converter.generic.builder.ConstantScoreQueryBuilder;
 import querqy.converter.generic.builder.DismaxQueryBuilder;
 import querqy.converter.generic.builder.MatchAllQueryBuilder;
+import querqy.converter.generic.builder.QueryStringQueryBuilder;
 import querqy.converter.generic.builder.RawQueryBuilder;
 import querqy.converter.generic.builder.TermQueryBuilder;
 import querqy.converter.generic.builder.WrappedQueryBuilder;
@@ -26,22 +27,31 @@ public class GenericConverterFactory<T> implements ConverterFactory<T> {
     @NonNull private final MatchAllQueryBuilder<T> matchAllQueryBuilder;
     @NonNull private final RawQueryBuilder<T> rawQueryBuilder;
     @NonNull private final BoostQueryBuilder<T> boostQueryBuilder;
+    @NonNull private final QueryStringQueryBuilder<T> queryStringQueryBuilder;
 
     @Builder.Default private final WrappedQueryBuilder<T> wrappedQueryBuilder = WrappedQueryBuilder.defaultBuilder();
 
     @Override
     public Converter<T> createConverter(final QueryConfig queryConfig) {
-        return createGenericConverter(queryConfig);
+        return createConverter(queryConfig, QueryExpansionConfig.empty());
     }
 
     @Override
     public Converter<T> createConverter(final QueryConfig queryConfig, final QueryExpansionConfig<T> queryExpansionConfig) {
-        return null;
+        return createGenericConverter(queryConfig, queryExpansionConfig);
     }
 
-    private GenericConverter<T> createGenericConverter(final QueryConfig queryConfig) {
-        final GenericExpandedQueryConverter<T> genericExpandedQueryConverter = GenericExpandedQueryConverter.of(
-                booleanQueryBuilder, wrappedQueryBuilder);
+    private GenericConverter<T> createGenericConverter(
+            final QueryConfig queryConfig, final QueryExpansionConfig<T> queryExpansionConfig
+    ) {
+        final GenericExpandedQueryConverter<T> genericExpandedQueryConverter = GenericExpandedQueryConverter.<T>builder()
+                .booleanQueryBuilder(booleanQueryBuilder)
+                .constantScoreQueryBuilder(constantScoreQueryBuilder)
+                .queryStringQueryBuilder(queryStringQueryBuilder)
+                .wrappedQueryBuilder(wrappedQueryBuilder)
+                .queryExpansionConfig(queryExpansionConfig)
+                .build();
+
         final GenericQuerqyQueryConverter<T> genericQuerqyQueryConverter = createGenericQuerqyQueryConverter(queryConfig);
         final GenericBoostConverter<T> genericBoostConverter = createGenericBoostConverter(
                 genericQuerqyQueryConverter, queryConfig.getBoostConfig());

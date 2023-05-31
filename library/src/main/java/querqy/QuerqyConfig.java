@@ -23,6 +23,8 @@ import java.util.Objects;
 @Getter
 public class QuerqyConfig {
 
+    private static QuerqyConfig EMPTY = QuerqyConfig.builder().build();
+
     private final QuerqyParserFactory querqyParserFactory;
     private final RewriteChain rewriteChain;
 
@@ -42,7 +44,7 @@ public class QuerqyConfig {
     }
 
     public static QuerqyConfig empty() {
-        return QuerqyConfig.builder().build();
+        return EMPTY;
     }
 
     public static class QuerqyConfigBuilder {

@@ -12,6 +12,7 @@ import querqy.converter.generic.builder.BoostQueryBuilder;
 import querqy.converter.generic.builder.ConstantScoreQueryBuilder;
 import querqy.converter.generic.builder.DismaxQueryBuilder;
 import querqy.converter.generic.builder.MatchAllQueryBuilder;
+import querqy.converter.generic.builder.QueryStringQueryBuilder;
 import querqy.converter.generic.builder.RawQueryBuilder;
 import querqy.converter.generic.builder.TermQueryBuilder;
 
@@ -25,6 +26,7 @@ public class GenericConverterFactoryTest {
     @Mock private ConstantScoreQueryBuilder<String> constantScoreQueryBuilder;
     @Mock private TermQueryBuilder<String> termQueryBuilder;
     @Mock private BoostQueryBuilder<String> boostQueryBuilder;
+    @Mock private QueryStringQueryBuilder<String> queryStringQueryBuilder;
 
     @Mock private MatchAllQueryBuilder<String> matchAllQueryBuilder;
     @Mock private RawQueryBuilder<String> rawQueryBuilder;
@@ -47,6 +49,7 @@ public class GenericConverterFactoryTest {
                 .matchAllQueryBuilder(matchAllQueryBuilder)
                 .rawQueryBuilder(rawQueryBuilder)
                 .boostQueryBuilder(boostQueryBuilder)
+                .queryStringQueryBuilder(queryStringQueryBuilder)
                 .build()
                 .createConverter(queryConfig);
     }
