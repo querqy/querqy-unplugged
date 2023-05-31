@@ -2,7 +2,6 @@ package elasticsearch.rewriting;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
-import co.elastic.clients.elasticsearch.core.termvectors.Term;
 import elasticsearch.AbstractElasticsearchTest;
 import elasticsearch.Elasticsearch7Container;
 import org.junit.Test;
@@ -12,7 +11,6 @@ import querqy.QueryExpansionConfig;
 import querqy.QueryRewriting;
 import querqy.converter.ConverterFactory;
 import querqy.converter.elasticsearch.javaclient.ESJavaClientConverterFactory;
-import querqy.converter.generic.builder.TermQueryBuilder;
 
 import java.util.List;
 import java.util.Map;

@@ -7,7 +7,6 @@ import querqy.QueryTypeConfig;
 import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
 import querqy.converter.generic.GenericConverterFactory;
-import querqy.converter.generic.GenericExpandedQueryConverter;
 import querqy.converter.solr.map.builder.SolrMapBooleanQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapBoostQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapConstantScoreQueryBuilder;
