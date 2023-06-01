@@ -10,6 +10,7 @@ import querqy.QuerqyConfig;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
 import querqy.converter.ConverterFactory;
+import querqy.converter.elasticsearch.javaclient.ESJavaClientConverterConfig;
 import querqy.converter.elasticsearch.javaclient.ESJavaClientConverterFactory;
 import querqy.parser.FieldAwareWhiteSpaceQuerqyParser;
 import querqy.rewriter.builder.CommonRulesDefinition;
@@ -27,7 +28,8 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
     private static final Map<String, String> RULES = Map.of(
             "filter", "apple => \n  FILTER: smartphone",
             "filter_with_field", "apple => \n  FILTER: type:smartphone",
-            "raw_filter", "apple => \n FILTER: * {\"term\":{\"type\":\"smartphone\"}}",
+            "raw_filter", "apple => \n FILTER: * type:smartphone",
+            "raw_filter_json", "apple => \n FILTER: * {\"term\":{\"type\":\"smartphone\"}}",
             "boost", "apple => \n UP(100): smartphone",
             "boost_additive", "apple => \n UP(10): smartphone",
             "boost_multiplicative", "apple => \n UP(1.5): smartphone",
@@ -49,6 +51,12 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
 
 
     private final ConverterFactory<Query> converterFactory = ESJavaClientConverterFactory.create();
+
+    private final ConverterFactory<Query> converterFactoryJson = ESJavaClientConverterFactory.of(
+            ESJavaClientConverterConfig.builder()
+                    .rawQueryInputType(ESJavaClientConverterConfig.RawQueryInputType.JSON)
+                    .build()
+    );
 
     @Test
     public void testThat_allDocumentsAreReturned_forGivenMatchAllQuery() {
@@ -91,6 +99,15 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
 
         final List<Product> products = search(query);
         assertThat(toIdList(products)).containsExactlyInAnyOrder("1", "2");
+    }
+
+    @Test
+    public void testThat_documentsAreFiltered_forGivenRawFilterJsonQuery() {
+        final QueryRewriting<Query> queryRewriting = queryRewriting("raw_filter_json", converterFactoryJson);
+        final Query query = queryRewriting.rewriteQuery("apple").getConvertedQuery();
+
+        final List<Product> products = search(query);
+        assertThat(toIdList(products)).containsExactlyInAnyOrder("1");
     }
 
     @Test
@@ -202,11 +219,19 @@ public class ExpandedQueryTest extends AbstractElasticsearchTest {
         return queryRewriting(querqyConfig(RULES.get(rulesKey)), queryConfig);
     }
 
+    private QueryRewriting<Query> queryRewriting(final String rulesKey, final ConverterFactory<Query> converterFactory) {
+        return queryRewriting(querqyConfig(RULES.get(rulesKey)), queryConfig, converterFactory);
+    }
+
     private QueryRewriting<Query> queryRewriting(final String rulesKey, final QueryConfig queryConfig) {
         return queryRewriting(querqyConfig(RULES.get(rulesKey)), queryConfig);
     }
 
     private QueryRewriting<Query> queryRewriting(final QuerqyConfig querqyConfig, final QueryConfig queryConfig) {
+        return queryRewriting(querqyConfig, queryConfig, converterFactory);
+    }
+
+    private QueryRewriting<Query> queryRewriting(final QuerqyConfig querqyConfig, final QueryConfig queryConfig, final ConverterFactory<Query> converterFactory) {
         return QueryRewriting.<Query>builder()
                 .queryConfig(queryConfig)
                 .querqyConfig(querqyConfig)

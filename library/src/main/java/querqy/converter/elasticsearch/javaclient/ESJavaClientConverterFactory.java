@@ -16,31 +16,42 @@ import querqy.converter.elasticsearch.javaclient.builder.ESJavaClientRawQueryBui
 import querqy.converter.elasticsearch.javaclient.builder.ESJavaClientTermQueryBuilder;
 import querqy.converter.generic.GenericConverterFactory;
 
-@RequiredArgsConstructor(staticName = "create")
+@RequiredArgsConstructor
 public class ESJavaClientConverterFactory implements ConverterFactory<Query> {
+
+    private final ESJavaClientConverterConfig converterConfig;
 
     private final ESJavaClientBooleanQueryBuilder booleanQueryBuilder = ESJavaClientBooleanQueryBuilder.create();
     private final ESJavaClientDismaxQueryBuilder dismaxQueryBuilder = ESJavaClientDismaxQueryBuilder.create();
     private final ESJavaClientConstantScoreQueryBuilder constantScoreQueryBuilder = ESJavaClientConstantScoreQueryBuilder.create();
     private final ESJavaClientTermQueryBuilder termQueryBuilder = ESJavaClientTermQueryBuilder.create();
     private final ESJavaClientMatchAllQueryBuilder matchAllQueryBuilder = ESJavaClientMatchAllQueryBuilder.create();
-    private final ESJavaClientRawQueryBuilder rawQueryBuilder = ESJavaClientRawQueryBuilder.create();
     private final ESJavaClientBoostQueryBuilder boostQueryBuilder = ESJavaClientBoostQueryBuilder.create();
     private final ESJavaClientQueryStringQueryBuilder queryStringQueryBuilder = ESJavaClientQueryStringQueryBuilder.create();
 
-    private final GenericConverterFactory<Query> converterFactory = GenericConverterFactory.<Query>builder()
-            .booleanQueryBuilder(booleanQueryBuilder)
-            .dismaxQueryBuilder(dismaxQueryBuilder)
-            .constantScoreQueryBuilder(constantScoreQueryBuilder)
-            .termQueryBuilder(termQueryBuilder)
-            .matchAllQueryBuilder(matchAllQueryBuilder)
-            .rawQueryBuilder(rawQueryBuilder)
-            .boostQueryBuilder(boostQueryBuilder)
-            .queryStringQueryBuilder(queryStringQueryBuilder)
-            .build();
-
     @Override
     public Converter<Query> createConverter(final QueryConfig queryConfig, final QueryExpansionConfig<Query> queryExpansionConfig) {
+        final ESJavaClientRawQueryBuilder rawQueryBuilder = ESJavaClientRawQueryBuilder.of(converterConfig);
+
+        final GenericConverterFactory<Query> converterFactory = GenericConverterFactory.<Query>builder()
+                .booleanQueryBuilder(booleanQueryBuilder)
+                .dismaxQueryBuilder(dismaxQueryBuilder)
+                .constantScoreQueryBuilder(constantScoreQueryBuilder)
+                .termQueryBuilder(termQueryBuilder)
+                .matchAllQueryBuilder(matchAllQueryBuilder)
+                .rawQueryBuilder(rawQueryBuilder)
+                .boostQueryBuilder(boostQueryBuilder)
+                .queryStringQueryBuilder(queryStringQueryBuilder)
+                .build();
+
         return converterFactory.createConverter(queryConfig, queryExpansionConfig);
+    }
+
+    public static ESJavaClientConverterFactory create() {
+        return new ESJavaClientConverterFactory(ESJavaClientConverterConfig.defaultConfig());
+    }
+
+    public static ESJavaClientConverterFactory of(final ESJavaClientConverterConfig clientConverterConfig) {
+        return new ESJavaClientConverterFactory(clientConverterConfig);
     }
 }
