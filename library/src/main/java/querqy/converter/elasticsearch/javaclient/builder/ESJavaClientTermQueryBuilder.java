@@ -1,6 +1,5 @@
 package querqy.converter.elasticsearch.javaclient.builder;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.ConstantScoreQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import lombok.RequiredArgsConstructor;
@@ -12,26 +11,7 @@ public class ESJavaClientTermQueryBuilder implements TermQueryBuilder<Query> {
 
     @Override
     public Query build(final TermQueryDefinition termQueryDefinition) {
-        if (termQueryDefinition.isConstantScoreQuery()) {
-            return createConstantScoreQuery(termQueryDefinition);
-
-        } else {
-            throw new UnsupportedOperationException(
-                    "ESJavaClientTermQueryBuilder currently only supports creating constant score queries");
-        }
-    }
-
-    private Query createConstantScoreQuery(final TermQueryDefinition termQueryDefinition) {
-        final Query termQuery = createTermQuery(termQueryDefinition);
-
-        final ConstantScoreQuery.Builder constantScoreQueryBuilder = new ConstantScoreQuery.Builder();
-
-        constantScoreQueryBuilder.filter(termQuery);
-        constantScoreQueryBuilder.boost(
-                termQueryDefinition.getTermBoost() * termQueryDefinition.getFieldConfig().getWeight()
-        );
-
-        return new Query(constantScoreQueryBuilder.build());
+        return createTermQuery(termQueryDefinition);
     }
 
     private Query createTermQuery(final TermQueryDefinition termQueryDefinition) {

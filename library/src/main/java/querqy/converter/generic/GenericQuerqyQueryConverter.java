@@ -47,9 +47,10 @@ public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
         return visit((BooleanQuery) query);
     }
 
+    // TODO: shorten method to smaller chunks
     @Override
     public T visit(final BooleanQuery booleanQuery) {
-        final BooleanQueryDefinition.BooleanQueryDefinitionBuilder<T> builder = BooleanQueryDefinition.<T>builder();
+        final BooleanQueryDefinition.BooleanQueryDefinitionBuilder<T> builder = BooleanQueryDefinition.builder();
 
         for (final BooleanClause clause : booleanQuery.getClauses()) {
             switch (clause.getOccur()) {
@@ -67,16 +68,19 @@ public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
             }
         }
 
-        if (builder.numberOfShouldClauses() == 0) {
-            builder.boost(builder.numberOfMustClauses() > 0 ? (float) 1 / (float) builder.numberOfMustClauses() : 0.0f);
+//        final int numberOfSubClauses = booleanQuery.getClauses().size();
+
+        // query is main query?
+        if (booleanQuery instanceof Query) {
+            queryConfig.getMinimumShouldMatch().ifPresent(builder::minimumShouldMatch);
+            builder.boost(1.0f);
+
+        // query is nested alternative?
+        } else if (builder.numberOfShouldClauses() == 0 && builder.numberOfMustClauses() > 1) {
+            builder.boost(1.0f / (float) builder.numberOfMustClauses());
 
         } else {
             builder.boost(1.0f);
-        }
-
-
-        if (booleanQuery instanceof Query) {
-            queryConfig.getMinimumShouldMatch().ifPresent(builder::minimumShouldMatch);
         }
 
         return booleanQueryBuilder.build(builder.build());

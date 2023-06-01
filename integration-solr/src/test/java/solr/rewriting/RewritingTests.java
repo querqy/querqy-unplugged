@@ -11,7 +11,8 @@ import querqy.QueryConfig;
 import querqy.QueryRewriting;
 import querqy.QuerqyConfig;
 import querqy.QueryTypeConfig;
-import querqy.converter.solr.map.MapConverterFactory;
+import querqy.converter.ConverterFactory;
+import querqy.converter.solr.map.SolrMapConverterFactory;
 import querqy.model.Query;
 import querqy.parser.QuerqyParser;
 import solr.SolrTestRequest;
@@ -34,6 +35,8 @@ public class RewritingTests extends SolrTestCaseJ4 {
             .tie(0.0f)
             .build();
 
+    private ConverterFactory<Map<String, Object>> converterFactory = SolrMapConverterFactory.create();
+
     @BeforeClass
     public static void setupIndex() throws Exception {
         initCore("solrconfig.xml", "schema-boolean-similarity.xml");
@@ -52,8 +55,6 @@ public class RewritingTests extends SolrTestCaseJ4 {
 
     @Test
     public void testThat_allDocsAreReturned_forGivenMatchAllQuery() throws Exception {
-        final MapConverterFactory converterFactory = MapConverterFactory.create();
-
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .querqyConfig(emptyQuerqyConfig())
@@ -79,7 +80,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .querqyConfig(
                         singleRewriterConfig("apple =>\n  FILTER: * type:case")
                 )
-                .converterFactory(MapConverterFactory.create())
+                .converterFactory(converterFactory)
                 .build();
 
         final Map<String, Object> query = queryRewritingHandler.rewriteQuery("apple").getConvertedQuery();
@@ -118,7 +119,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig.toBuilder().fields(fieldConfigs).build())
                 .querqyConfig(emptyQuerqyConfig())
-                .converterFactory(MapConverterFactory.create())
+                .converterFactory(converterFactory)
                 .build();
 
         final Map<String, Object> query = queryRewritingHandler.rewriteQuery("apple&&&smartphone").getConvertedQuery();
@@ -160,7 +161,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig.toBuilder().fields(fieldConfigs).build())
                 .querqyConfig(emptyQuerqyConfig())
-                .converterFactory(MapConverterFactory.create())
+                .converterFactory(converterFactory)
                 .build();
 
         QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
@@ -194,7 +195,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .querqyConfig(
                         singleRewriterConfig("apple smartphone =>\n  SYNONYM: iphone")
                 )
-                .converterFactory(MapConverterFactory.create())
+                .converterFactory(converterFactory)
                 .build();
 
         final Map<String, Object> query = queryRewritingHandler.rewriteQuery("apple smartphone").getConvertedQuery();
@@ -223,7 +224,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .querqyConfig(
                         singleRewriterConfig("apple smartphone =>\n  SYNONYM: iphone")
                 )
-                .converterFactory(MapConverterFactory.create())
+                .converterFactory(converterFactory)
                 .build();
 
         QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
@@ -255,7 +256,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .querqyConfig(
                         singleRewriterConfig("iphone =>\n  SYNONYM: apple smartphone")
                 )
-                .converterFactory(MapConverterFactory.create())
+                .converterFactory(converterFactory)
                 .build();
 
         QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
@@ -287,7 +288,7 @@ public class RewritingTests extends SolrTestCaseJ4 {
                 .querqyConfig(
                         singleRewriterConfig("iphone =>\n  SYNONYM: apple smartphone")
                 )
-                .converterFactory(MapConverterFactory.create())
+                .converterFactory(converterFactory)
                 .build();
 
         final Map<String, Object> query = queryRewritingHandler.rewriteQuery("iphone").getConvertedQuery();

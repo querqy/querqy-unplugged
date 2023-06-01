@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Singular;
 import querqy.QuerqyConfig;
 import querqy.domain.RewrittenQuerqyQuery;
@@ -24,12 +25,13 @@ import java.util.Optional;
 @Builder
 public class QueryRewritingExecutor {
 
-    private final QuerqyConfig querqyConfig;
+    @NonNull private final QuerqyConfig querqyConfig;
     @Singular private final Map<String, String[]> params;
 
     public RewrittenQuerqyQuery rewriteQuery(final String queryInput) {
-        final ExpandedQuery parsedQuery =
-                ExpandedQueryParser.create().parseQuery(querqyConfig.getQuerqyParserFactory(), queryInput);
+        final ExpandedQueryParser expandedQueryParser = ExpandedQueryParser.create();
+
+        final ExpandedQuery parsedQuery = expandedQueryParser.parseQuery(querqyConfig.getQuerqyParserFactory(), queryInput);
         return rewriteQuery(parsedQuery);
     }
 

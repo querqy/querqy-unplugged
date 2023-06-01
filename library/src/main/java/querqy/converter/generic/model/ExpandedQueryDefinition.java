@@ -2,6 +2,7 @@ package querqy.converter.generic.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Singular;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 public class ExpandedQueryDefinition<T> {
 
     private final T userQuery;
-    private final List<T> filterQueries;
-    private final List<T> boostQueries;
+    @Singular private final List<T> filterQueries;
+    @Singular private final List<T> boostQueries;
 
 }

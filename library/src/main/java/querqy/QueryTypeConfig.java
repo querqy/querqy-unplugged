@@ -8,6 +8,7 @@ import java.util.Map;
 
 @Builder
 @Getter
+// TODO: this is client-engine specific as it requires strings for SolrMap, but enums for ESJavaClient
 public class QueryTypeConfig {
 
     private final String typeName;

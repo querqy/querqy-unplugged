@@ -1,6 +1,7 @@
 package querqy;
 
 import lombok.Builder;
+import lombok.NonNull;
 import querqy.model.ExpandedQuery;
 import querqy.model.Query;
 import querqy.rewriter.QueryRewritingExecutor;
@@ -12,9 +13,11 @@ import querqy.domain.RewrittenQuery;
 @Builder(toBuilder = true)
 public class QueryRewriting<T> {
 
-    private final QueryConfig queryConfig;
-    private final QuerqyConfig querqyConfig;
-    private final ConverterFactory<T> converterFactory;
+    @NonNull private final QueryConfig queryConfig;
+    @Builder.Default private final QuerqyConfig querqyConfig = QuerqyConfig.empty();
+    @NonNull private final ConverterFactory<T> converterFactory;
+
+    @Builder.Default private final QueryExpansionConfig<T> queryExpansionConfig = QueryExpansionConfig.empty();
 
     public RewrittenQuery<T> rewriteQuery(final String queryInput) {
         final QueryRewritingExecutor executor = createExecutor();
@@ -35,7 +38,7 @@ public class QueryRewriting<T> {
     }
 
     private RewrittenQuery<T> convertQuery(final RewrittenQuerqyQuery rewrittenQuerqyQuery) {
-        final Converter<T> converter = converterFactory.createConverter(queryConfig);
+        final Converter<T> converter = converterFactory.createConverter(queryConfig, queryExpansionConfig);
 
         final T convertedQuery = converter.convert(rewrittenQuerqyQuery.getQuery());
         return RewrittenQuery.<T>builder()

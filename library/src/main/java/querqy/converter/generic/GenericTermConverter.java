@@ -1,8 +1,10 @@
 package querqy.converter.generic;
 
 import lombok.Builder;
+import lombok.NonNull;
 import querqy.FieldConfig;
 import querqy.QueryConfig;
+import querqy.converter.generic.builder.ConstantScoreQueryBuilder;
 import querqy.converter.generic.builder.TermQueryBuilder;
 import querqy.converter.generic.model.TermQueryDefinition;
 import querqy.model.BoostedTerm;
@@ -14,46 +16,76 @@ import java.util.stream.Collectors;
 @Builder
 public class GenericTermConverter<T> {
 
+    private final ConstantScoreQueryBuilder<T> constantScoreQueryBuilder;
     private final TermQueryBuilder<T> termQueryBuilder;
-
     private final QueryConfig queryConfig;
 
     public List<T> convert(final Term term) {
-        return term.getField() == null
-                ? convertUsingQueryConfig(term)
-                : convertTermForField(term.getField(), term);
-    }
-
-    private List<T> convertUsingQueryConfig(final Term term) {
-        return queryConfig.getFields().stream()
-                .map(fieldConfig -> createQueryDefinition(fieldConfig, term))
-                .map(termQueryBuilder::build)
-                .collect(Collectors.toList());
-    }
-
-    public List<T> convertTermForField(final String fieldName, final Term term) {
-        final TermQueryDefinition termQueryDefinition = createQueryDefinition(
-                FieldConfig.fromFieldName(fieldName), term);
-
-        final T convertedTerm = termQueryBuilder.build(termQueryDefinition);
-        return List.of(convertedTerm);
-    }
-
-    private TermQueryDefinition createQueryDefinition(final FieldConfig fieldConfig, final Term term) {
-        return TermQueryDefinition.builder()
-                .isConstantScoreQuery(true)
-                .term(term.getValue().toString())
-                .termBoost(getTermBoost(term))
-                .fieldConfig(fieldConfig)
+        final _GenericTermConverter<T> converter = _GenericTermConverter.<T>builder()
+                .constantScoreQueryBuilder(constantScoreQueryBuilder)
+                .termQueryBuilder(termQueryBuilder)
+                .queryConfig(queryConfig)
+                .term(term)
                 .build();
+        return converter.convert();
     }
 
-    private float getTermBoost(final Term term) {
-        if (term instanceof BoostedTerm) {
-            return ((BoostedTerm) term).getBoost();
+    @Builder
+    private static class _GenericTermConverter<T> {
+        @NonNull private final ConstantScoreQueryBuilder<T> constantScoreQueryBuilder;
+        @NonNull private final TermQueryBuilder<T> termQueryBuilder;
+        @NonNull private final QueryConfig queryConfig;
+        @NonNull private final Term term;
 
-        } else {
-            return 1f;
+        public List<T> convert() {
+            return term.getField() == null
+                    ? convertUsingQueryConfig()
+                    : convertTermForField(term.getField());
+        }
+
+        private List<T> convertUsingQueryConfig() {
+            return queryConfig.getFields().stream()
+                    .map(this::buildTermQuery)
+                    .collect(Collectors.toList());
+        }
+
+        private T buildTermQuery(final FieldConfig fieldConfig) {
+            final TermQueryDefinition termQueryDefinition = createQueryDefinition(fieldConfig);
+            final T termQuery = termQueryBuilder.build(termQueryDefinition);
+
+            if (queryConfig.isConstantScoresQuery()) {
+                return constantScoreQueryBuilder.build(termQuery, getTermBoost() * fieldConfig.getWeight());
+
+
+            } else {
+                throw new UnsupportedOperationException(
+                        this.getClass().getName() + " currently only supports creating constant scores queries");
+            }
+        }
+
+        private TermQueryDefinition createQueryDefinition(final FieldConfig fieldConfig) {
+            return TermQueryDefinition.builder()
+                    .term(term.getValue().toString())
+                    .fieldName(fieldConfig.getFieldName())
+                    .fieldConfig(fieldConfig)
+                    .build();
+        }
+
+        public List<T> convertTermForField(final String fieldName) {
+            final TermQueryDefinition termQueryDefinition = createQueryDefinition(
+                    FieldConfig.fromFieldName(fieldName));
+
+            final T convertedTerm = termQueryBuilder.build(termQueryDefinition);
+            return List.of(convertedTerm);
+        }
+
+        private float getTermBoost() {
+            if (term instanceof BoostedTerm) {
+                return ((BoostedTerm) term).getBoost();
+
+            } else {
+                return 1f;
+            }
         }
     }
 }

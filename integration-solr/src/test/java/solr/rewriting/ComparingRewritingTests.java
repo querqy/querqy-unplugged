@@ -5,10 +5,11 @@ import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import querqy.BoostConfig;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
 import querqy.QuerqyConfig;
-import querqy.converter.solr.map.MapConverterFactory;
+import querqy.converter.solr.map.SolrMapConverterFactory;
 import querqy.solr.rewriter.commonrules.CommonRulesConfigRequestBuilder;
 import solr.SolrTestRequest;
 import solr.SolrTestResult;
@@ -42,6 +43,8 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
 
             "raw_filter_common_rules", "apple => \n  FILTER: * type:smartphone",
 
+            "two_raw_filter_common_rules", "apple => \n  FILTER: * name:iphone \n apple => \n FILTER: * type:iphone",
+
             "weighted_synonym_common_rules", "apple => \n  SYNONYM(0.5): iphone"
 
     );
@@ -74,6 +77,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
             .field("type", 20.0f)
             .minimumShouldMatch("100%")
             .tie(0.5f)
+            .boostConfig(BoostConfig.builder().queryScoreConfig(BoostConfig.QueryScoreConfig.CLASSIC).build())
             .build();
 
     @Test
@@ -85,6 +89,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
         assertEquals(paramResult, jsonResult);
     }
 
+    // Score is not included here as the ranking is as expected, but the score varies
     @Test
     public void testThat_rankingsAreIdentical_forNegatedBoostRule() throws Exception {
         final String rewriterName = "negated_boost_common_rules";
@@ -149,6 +154,15 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
     }
 
     @Test
+    public void testThat_resultsAreIdentical_forTwoRawFilterRules() throws Exception {
+        final String rewriterName = "two_raw_filter_common_rules";
+
+        final SolrTestResult paramResult = applyParamRequest(rewriterName).print();
+        final SolrTestResult jsonResult = applyJsonRequest(RULES.get(rewriterName)).print();
+        assertEquals(paramResult, jsonResult);
+    }
+
+    @Test
     public void testThat_resultsAreIdentical_forWeightedSynonymRule() throws Exception {
         final String rewriterName = "weighted_synonym_common_rules";
 
@@ -165,7 +179,7 @@ public class ComparingRewritingTests extends SolrTestCaseJ4 {
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
                 .querqyConfig(singleRewriterConfig(rules))
-                .converterFactory(MapConverterFactory.create())
+                .converterFactory(SolrMapConverterFactory.create())
                 .build();
 
         final Map<String, Object> query = queryRewritingHandler.rewriteQuery(USER_QUERY).getConvertedQuery();

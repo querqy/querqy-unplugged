@@ -59,11 +59,17 @@ The subsequent examples will be based on the query input `iphone` with a single 
 Querqy configurations include a parser definition and rewriters. A Querqy configuration can be created as follows:
 ```java
 QuerqyConfig.builder()
-    .commonRules(
-        CommonRulesDefinition.builder()
-            .rewriterId("id1")
-            .rules("iphone => \n SYNONYM: apple smartphone")
-            .build()
+        .replaceRules(
+                ReplaceRulesDefinition.builder()
+                    .rewriterId("id1")
+                    .rules("aple => apple")
+                    .build()
+        )
+        .commonRules(
+                CommonRulesDefinition.builder()
+                    .rewriterId("id1")
+                    .rules("iphone => \n SYNONYM: apple smartphone")
+                    .build()
         )
     .build();
 ```
@@ -150,8 +156,146 @@ Be aware that the representation above is simplified, as scoring implications of
 considered. 
 
 Notice that fields either can be configured in the direct way (as above) by passing a field name and a weight or more 
-specifically by creating a field config passing a query type config (e.g. for defining a specific Solr query parser for a field).  
+specifically by creating a field config passing a query type config (e.g. for defining a specific Solr query parser for a field).
 
+#### Boost configuration
+
+Querqy rules can include boosts. The subsequent rule pushes all apple products for queries containing `iphone`:
+
+```text
+iphone =>
+  UP(10): apple
+```
+
+The query configuration can be enhanced by a boost configuration, which defines the way how boost scores are handled:
+
+```java
+QueryConfig.builder()
+        .field("name", 40.0f)
+        .field("type", 20.0f)
+        .minimumShouldMatch("100%")
+        .tie(0.0f)
+        .boostConfig(
+                BoostConfig.builder()
+                    .boostMode(BoostConfig.QueryScoreConfig.ADD_TO_BOOST_PARAM)
+                    .build()
+        )
+        .build();
+```
+
+There are four boost modes:
+
+*QueryScoreConfig.IGNORE_QUERY_SCORE (default)*
+
+Only the score defined in the parameter of the boost rule is added to the result. Given the term `iphone` matches in the
+field `name`, the product gets a basic score of `40`. If the term `apple` additionally matches anywhere, an additional score
+of `10` is added.
+
+*QueryScoreConfig.ADD_TO_BOOST_PARAM*
+
+The score of the parameter is added in addition to the score of the boosting query. If the term `apple` matches in 
+the field `type`, an additional score of `30` (`20` boosting query score, `10` parameter score) is added.
+
+*QueryScoreConfig.MULTIPLY_WITH_BOOST_PARAM*
+
+The score of the parameter is multiplied by the score of the boosting query. If the term `apple` matches in 
+the field `type`, an additional score of `200` (`20` boosting query score, `10` parameter score) is added.
+
+*QueryScoreConfig.CLASSIC*
+
+This mode aims to achieve a backwards-compatible boost scoring to Querqy as a plugin. However, this mode is currently only 
+supported for the SolrMap client.
+
+
+### QueryExpansion Configuration
+Several use cases might require to enhance a query irrespective of rules or rewriters. Such enhancements can be configured 
+via the `QueryExpansionConfig`. The easiest way to add queries is to add them as strings. For the Elasticsearch Java Client,
+the syntax must be compatible to query string queries (which are built under the hood). For the SolrMap Client, the syntax must be 
+compatible to the lucene query parser.
+
+```java
+final QueryExpansionConfig.<Query>builder()
+        .addAlternativeMatchingStringQuery("id:123", 50f)
+        .addBoostUpStringQuery("brand:apple", 50f)
+        .filterStringQuery("type:smartphone")
+        .build()
+```
+
+Currently, three types of query expansions are supported:
+
+*Filters* are added within a bool query in addition to the querqy query.
+
+```
+bool(
+  must(
+    bool(
+      dismax(...)
+    )
+  )
+  filter(
+    query-expansion-filter-query()
+  )
+)
+```
+
+*Boosts* are added within a bool query as should clauses in addition to the querqy query.
+
+```
+bool(
+  must(
+    bool(
+      dismax(...)
+    )
+  )
+  should(
+    query-expansion-boost-query()
+  )
+)
+```
+
+*Alternative matching queries* are fully qualified alternatives to the querqy query, for instance to include a product with 
+a certain id into the results that is not included in the regular query. The original querqy query and the alternative
+matching queries are combined as should clauses in an additional bool layer (notice that the subsequent query also includes a 
+query expansion boost query for demonstration purposes).
+
+```
+bool(
+  should(
+    bool(
+      must(
+        bool(
+          dismax(...)
+        )
+      )
+      should(
+        query-expansion-boost-query()
+      )
+    )
+    query-expansion-alternative-matching-query()
+  )
+)
+```
+
+
+For the case that the string based queries are not sufficient, there is the additional option to include them as query 
+objects. 
+
+```java
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
+
+final QueryExpansionConfig.<Query>builder()
+        .addBoostUpQuery(
+                new Query(
+                        new TermQuery.Builder()
+                            .field("brand")
+                            .value("apple")
+                            .build()
+                ),
+                50f
+        )
+        .build()
+```
 
 ### Converters
 Converters are the search engine-specific part of Querqy-Unplugged. Converters are created for each query separately via 
@@ -205,6 +349,32 @@ final QueryRewriting<Query> queryRewriting = QueryRewriting.<Query>builder()
 
 Using this converter requires including the dependency for the client as Querqy-Unplugged only includes it as `compileOnly`. 
 
+The definition of RawQuery instructions always have been cumbersome for Elasticsearch as it expects JSON as a default for queries.
+Therefore, users were required to define RawQuery instructions as follows:
+
+```text
+apple => 
+  FILTER: * {\"term\":{\"type\":\"smartphone\"}}
+```
+
+Querqy-Unplugged facilitates this by enabling users to define RawQuery instructions using the 
+[Query String Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
+syntax. So the rule above can be defined as follows:
+
+```text
+apple => 
+ FILTER: * type:smartphone
+```
+
+If you require Querqy-Unplugged to expect RawQuery instructions as JSON, you need to pass a `ESJavaClientConverterConfig`
+to the `ESJavaClientConverterFactory`:
+
+```java
+final ConverterFactory<Query> converterFactoryJson = ESJavaClientConverterFactory.of(
+        ESJavaClientConverterConfig.builder()
+            .rawQueryInputType(ESJavaClientConverterConfig.RawQueryInputType.JSON)
+            .build());
+```
 
 #### Implementing additional converters
 

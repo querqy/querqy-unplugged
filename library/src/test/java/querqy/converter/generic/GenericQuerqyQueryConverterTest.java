@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 @RunWith(MockitoJUnitRunner.class)
 public class GenericQuerqyQueryConverterTest {
 
@@ -92,7 +93,7 @@ public class GenericQuerqyQueryConverterTest {
         genericQuerqyQueryConverter.visit(booleanQuery);
         verify(booleanQueryBuilder).build(booleanDefinitionCaptor.capture());
 
-        assertThat(booleanDefinitionCaptor.getValue().getBoost()).isEqualTo(0.5f);
+        assertThat(booleanDefinitionCaptor.getValue().getBoost().get()).isEqualTo(0.5f);
     }
 
     @Test
@@ -104,7 +105,7 @@ public class GenericQuerqyQueryConverterTest {
         genericQuerqyQueryConverter.visit(booleanQuery);
         verify(booleanQueryBuilder).build(booleanDefinitionCaptor.capture());
 
-        assertThat(booleanDefinitionCaptor.getValue().getBoost()).isEqualTo(1.0f);
+        assertThat(booleanDefinitionCaptor.getValue().getBoost().get()).isEqualTo(1.0f);
     }
 
     @Test
