@@ -349,6 +349,32 @@ final QueryRewriting<Query> queryRewriting = QueryRewriting.<Query>builder()
 
 Using this converter requires including the dependency for the client as Querqy-Unplugged only includes it as `compileOnly`. 
 
+The definition of RawQuery instructions always have been cumbersome for Elasticsearch as it expects JSON as a default for queries.
+Therefore, users were required to define RawQuery instructions as follows:
+
+```text
+apple => 
+  FILTER: * {\"term\":{\"type\":\"smartphone\"}}
+```
+
+Querqy-Unplugged facilitates this by enabling users to define RawQuery instructions using the 
+[Query String Query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
+syntax. So the rule above can be defined as follows:
+
+```text
+apple => 
+ FILTER: * type:smartphone
+```
+
+If you require Querqy-Unplugged to expect RawQuery instructions as JSON, you need to pass a `ESJavaClientConverterConfig`
+to the `ESJavaClientConverterFactory`:
+
+```java
+final ConverterFactory<Query> converterFactoryJson = ESJavaClientConverterFactory.of(
+        ESJavaClientConverterConfig.builder()
+            .rawQueryInputType(ESJavaClientConverterConfig.RawQueryInputType.JSON)
+            .build());
+```
 
 #### Implementing additional converters
 
