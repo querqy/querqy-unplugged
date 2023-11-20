@@ -25,7 +25,7 @@ public class CommonRulesFactoryBuilder {
                     definition.isIgnoreCase(),
                     Collections.emptyMap(),
                     new ExpressionCriteriaSelectionStrategyFactory(),
-                    false
+                    definition.isBuildTermCache()
             );
 
         } catch (IOException e) {
