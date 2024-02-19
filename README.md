@@ -382,6 +382,23 @@ Most of the converter logic is implemented using Java generics. Adding additiona
 [interfaces](https://github.com/querqy/querqy-unplugged/tree/main/library/src/main/java/querqy/converter/generic/builder)
 and by creating a converter factory implementing this [interface](https://github.com/querqy/querqy-unplugged/blob/main/library/src/main/java/querqy/converter/ConverterFactory.java).  
 
+### Passing a preprocessed query
+
+In some cases, you might want to rewrite a query that has already been preprocessed, so you might want to pass 
+tokens instead of a string. This can be done by using the `ExpandedQueryParser` to transform a list of strings into 
+an `ExpandedQuery` object that can be passed to `QueryRewriting`. 
+
+```java
+final ExpandedQueryParser expandedQueryParser = ExpandedQueryParser.create();
+final ExpandedQuery expandedQuery = expandedQueryParser.parse(Arrays.asList("apple", "iphone"));
+
+final QueryRewriting<String> queryRewriting = QueryRewriting.<String>builder()
+        .querqyConfig(querqyConfig)
+        .queryConfig(queryConfig)
+        .expandedQuery(expandedQuery)
+        .build();
+```
+
 ## Limitations
 
 ### Limitations regarding the approach of rewriting without a plugin 
