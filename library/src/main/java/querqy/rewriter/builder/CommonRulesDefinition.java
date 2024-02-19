@@ -15,7 +15,7 @@ import querqy.rewrite.commonrules.model.BoostInstruction;
 // TODO: termCache, selectionStrategyFactories
 
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 @AllArgsConstructor
 @Data
 @EqualsAndHashCode(exclude = {"boostMethod", "querqyParserFactory"})
@@ -27,6 +27,7 @@ public class CommonRulesDefinition {
 
     @Builder.Default private boolean ignoreCase = true;
     @Builder.Default private boolean allowBooleanInput = false;
+    @Builder.Default private boolean buildTermCache = false;
     @Builder.Default private BoostInstruction.BoostMethod boostMethod = BoostInstruction.BoostMethod.ADDITIVE;
     @Builder.Default private QuerqyParserFactory querqyParserFactory = new WhiteSpaceQuerqyParserFactory();
 
