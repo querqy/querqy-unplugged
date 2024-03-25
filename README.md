@@ -395,8 +395,9 @@ final ExpandedQuery expandedQuery = expandedQueryParser.parse(Arrays.asList("app
 final QueryRewriting<String> queryRewriting = QueryRewriting.<String>builder()
         .querqyConfig(querqyConfig)
         .queryConfig(queryConfig)
-        .expandedQuery(expandedQuery)
         .build();
+
+queryRewriting.rewrite(expandedQuery);
 ```
 
 ## Limitations
