@@ -1,5 +1,6 @@
 rootProject.name = 'querqy-unplugged'
 include 'integration-elasticsearch'
+include 'integration-opensearch'
 include 'integration-solr'
 include 'library'
 

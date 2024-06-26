@@ -16,12 +16,15 @@ allprojects {
 ext {
     querqyCoreVersion = '3.15.0'
     elasticsearchVersion = '7.17.8'
+    openSearchVersion = '2.8.1'
 }
 
 dependencies {
     api "org.querqy:querqy-core:${querqyCoreVersion}"
 
     compileOnly "co.elastic.clients:elasticsearch-java:${elasticsearchVersion}"
+    compileOnly "org.opensearch.client:opensearch-java:${openSearchVersion}"
+    testImplementation "org.opensearch.client:opensearch-java:${openSearchVersion}" // remove
 
     // Testing
     testImplementation "org.assertj:assertj-core:3.23.1"
