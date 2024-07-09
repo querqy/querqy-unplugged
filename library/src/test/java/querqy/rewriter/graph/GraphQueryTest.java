@@ -12,7 +12,7 @@ public class GraphQueryTest {
     @Test
     public void testThat_graphQueryIsCreatedInCorrectOrder() {
         final GraphQuery graphQuery = GraphQuery.of("a", "b", "c");
-        final Node startNode = graphQuery.getStartNode();
+        final Node startNode = graphQuery.getRootNode();
 
         assert getEdgeByPositions(startNode, 0).getTerm().equals("a");
         assert getEdgeByPositions(startNode, 0, 0).getTerm().equals("b");
@@ -22,18 +22,18 @@ public class GraphQueryTest {
     @Test
     public void testThat_subGraphsAreFullyConnected() {
         final GraphQuery graphQuery = GraphTestUtils.GraphQueryBuilder.of("a", "b", "c")
-                .addSubGraph(GraphTestUtils.node(0), GraphTestUtils.node(0, 0, 0), "d", "e")
+                .addSubGraph("a", "b", "d", "e")
                 .build();
 
-        assert getEdgeByPositions(graphQuery.getStartNode(), 1).getTerm().equals("d");
-        assert getEdgeByPositions(graphQuery.getStartNode(), 1, 0).getTerm().equals("e");
-        assert getEdgeByPositions(graphQuery.getStartNode(), 1, 0, 0).getTerm().equals("c");
+        assert getEdgeByPositions(graphQuery.getRootNode(), 1).getTerm().equals("d");
+        assert getEdgeByPositions(graphQuery.getRootNode(), 1, 0).getTerm().equals("e");
+        assert getEdgeByPositions(graphQuery.getRootNode(), 1, 0, 0).getTerm().equals("c");
     }
 
     @Test
     public void testThat_registryContainsAllEdges() {
         final GraphQuery graphQuery = GraphTestUtils.GraphQueryBuilder.of("a", "b", "c")
-                .addSubGraph(GraphTestUtils.node(0), GraphTestUtils.node(0, 0, 0), "d", "e")
+                .addSubGraph("a", "b", "d", "e")
                 .build();
 
         assert graphQuery.getEdges().size() == 5;

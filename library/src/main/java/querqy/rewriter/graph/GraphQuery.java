@@ -15,11 +15,11 @@ public class GraphQuery {
 
     private static final Pattern WHITESPACE_SPLIT = Pattern.compile("\\s+");
 
-    private final Node startNode = Node.of();
+    private final Node rootNode = Node.of();
     private final List<Edge> edges = new ArrayList<>();
 
     private void initiateGraph(final List<String> queryTerms) {
-        addSubGraph(SubGraph.of(startNode, Node.of(), queryTerms));
+        addSubGraph(SubGraph.of(rootNode, Node.of(), queryTerms));
     }
 
     public void addSubGraph(final SubGraph subGraph) {
@@ -42,6 +42,10 @@ public class GraphQuery {
 
         nodes.add(subGraph.getEndNode());
         return nodes;
+    }
+
+    public List<Edge> getRootEdges() {
+        return rootNode.getTargetEdges();
     }
 
     public static GraphQuery of(final String queryInput) {

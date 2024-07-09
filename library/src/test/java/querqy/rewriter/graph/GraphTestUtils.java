@@ -59,17 +59,6 @@ public class GraphTestUtils {
             return this;
         }
 
-        @Deprecated
-        public GraphQueryBuilder addSubGraph(
-                final NodePositions startNodePositions, final NodePositions endNodePositions, final String... terms) {
-
-            final Node startNode = getNodeByPositions(query.getStartNode(), startNodePositions.positions);
-            final Node endNode = getNodeByPositions(query.getStartNode(), endNodePositions.positions);
-            query.addSubGraph(GraphQuery.SubGraph.of(startNode, endNode, Arrays.asList(terms)));
-
-            return this;
-        }
-
         public GraphQuery build() {
             return query;
         }

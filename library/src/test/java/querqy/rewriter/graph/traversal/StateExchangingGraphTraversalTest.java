@@ -1,6 +1,5 @@
 package querqy.rewriter.graph.traversal;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import querqy.rewriter.graph.GraphQuery;
 import querqy.rewriter.graph.GraphTestUtils;
@@ -12,20 +11,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class StateExchangingGraphTraversalTest {
 
+    // Think about implementing parameterized tests to allow many more test cases and different graph variants
+
     @Test
     public void testThat_allSubsequencesAreReturned_forAlwaysExchangingState() {
+        // O - a - O - b - O - c - O
+        //   \           /
+        //     d - O - e
+
         final GraphQuery graphQuery = GraphTestUtils.GraphQueryBuilder.of("a", "b", "c")
                 .addSubGraph("a", "b", "d", "e")
                 .build();
 
-        final StateExchangingGraphTraversal<String> traversal = StateExchangingGraphTraversal.of(graphQuery.getEdges());
-        final List<String> sequences = extractAllSubsequences(traversal);
+        final List<String> sequences = extractAllSubsequences(graphQuery);
 
         assertThat(sequences).containsExactly("a", "a b", "a b c", "b", "b c", "c", "d", "d e", "d e c", "e", "e c");
     }
 
     @Test
     public void testThat_traversalVisitsOnlySingleEdges_forNoStateReturned() {
+        // O - a - O - b - O - c - O
+        //   \           /
+        //     d - O - e
+
         final GraphQuery graphQuery = GraphTestUtils.GraphQueryBuilder.of("a", "b", "c")
                 .addSubGraph("a", "b", "d", "e")
                 .build();
@@ -41,6 +49,10 @@ public class StateExchangingGraphTraversalTest {
 
     @Test
     public void testThat_traversalVisitsFirstTwoEdges_forStateReturnedOncePerStartingEdge() {
+        // O - a - O - b - O - c - O
+        //   \           /
+        //     d - O - e
+
         final GraphQuery graphQuery = GraphTestUtils.GraphQueryBuilder.of("a", "b", "c")
                 .addSubGraph("a", "b", "d", "e")
                 .build();
@@ -64,13 +76,64 @@ public class StateExchangingGraphTraversalTest {
     }
 
     @Test
+    public void testThat_allSubsequencesAreReturned_forOverlappingNesting() {
+        //             f - O - g
+        //           /           \
+        // O - a - O - b - O - c - O
+        //   \           /
+        //     d - O - e
+
+        final GraphQuery graphQuery = GraphTestUtils.GraphQueryBuilder.of("a", "b", "c")
+                .addSubGraph("a", "b", "d", "e")
+                .addSubGraph("b", "c", "f", "g")
+                .build();
+
+        final List<String> sequences = extractAllSubsequences(graphQuery);
+
+        assertThat(sequences).containsExactlyInAnyOrder(
+                "a", "a b", "a b c", "a f", "a f g",
+                "b", "b c",
+                "c",
+                "d", "d e", "d e c",
+                "e", "e c",
+                "f", "f g",
+                "g"
+        );
+    }
+
+    @Test
+    public void testThat_allSubsequencesAreReturned_forNestedNesting() {
+        // O - a - O  -  b - O - c - O
+        //   \             / |
+        //     d - O  -  e   |
+        //          \        |
+        //           f - O - g
+
+        final GraphQuery graphQuery = GraphTestUtils.GraphQueryBuilder.of("a", "b", "c")
+                .addSubGraph("a", "b", "d", "e")
+                .addSubGraph("e", "e", "f", "g")
+                .build();
+
+        final List<String> sequences = extractAllSubsequences(graphQuery);
+
+        assertThat(sequences).containsExactlyInAnyOrder(
+                "a", "a b", "a b c",
+                "b", "b c",
+                "c",
+                "d", "d e", "d e c", "d f", "d f g", "d f g c",
+                "e", "e c",
+                "f", "f g", "f g c",
+                "g", "g c"
+        );
+    }
+
+    @Test
     public void testThat_termIsSkippedInMidOfSimpleSequence_ifEdgeIsLabeledAsDeleted() {
         final GraphQuery graphQuery = GraphTestUtils.GraphQueryBuilder.of("a", "b", "c")
                 .delete("b")
                 .build();
 
-        final StateExchangingGraphTraversal<String> traversal = StateExchangingGraphTraversal.of(graphQuery.getEdges());
-        final List<String> sequences = extractAllSubsequences(traversal);
+        final List<String> sequences = extractAllSubsequences(graphQuery);
 
         assertThat(sequences).containsExactly("a", "a c", "c");
     }
@@ -81,8 +144,7 @@ public class StateExchangingGraphTraversalTest {
                 .delete("a")
                 .build();
 
-        final StateExchangingGraphTraversal<String> traversal = StateExchangingGraphTraversal.of(graphQuery.getEdges());
-        final List<String> sequences = extractAllSubsequences(traversal);
+        final List<String> sequences = extractAllSubsequences(graphQuery);
 
         assertThat(sequences).containsExactly("b", "b c", "c");
     }
@@ -93,8 +155,7 @@ public class StateExchangingGraphTraversalTest {
                 .delete("c")
                 .build();
 
-        final StateExchangingGraphTraversal<String> traversal = StateExchangingGraphTraversal.of(graphQuery.getEdges());
-        final List<String> sequences = extractAllSubsequences(traversal);
+        final List<String> sequences = extractAllSubsequences(graphQuery);
 
         assertThat(sequences).containsExactly("a", "a b", "b");
     }
@@ -106,8 +167,7 @@ public class StateExchangingGraphTraversalTest {
                 .delete("c")
                 .build();
 
-        final StateExchangingGraphTraversal<String> traversal = StateExchangingGraphTraversal.of(graphQuery.getEdges());
-        final List<String> sequences = extractAllSubsequences(traversal);
+        final List<String> sequences = extractAllSubsequences(graphQuery);
 
         assertThat(sequences).containsExactly("a", "a d", "d");
     }
@@ -119,8 +179,7 @@ public class StateExchangingGraphTraversalTest {
                 .delete("b")
                 .build();
 
-        final StateExchangingGraphTraversal<String> traversal = StateExchangingGraphTraversal.of(graphQuery.getEdges());
-        final List<String> sequences = extractAllSubsequences(traversal);
+        final List<String> sequences = extractAllSubsequences(graphQuery);
 
         assertThat(sequences).containsExactly("c", "c d", "d");
     }
@@ -132,8 +191,7 @@ public class StateExchangingGraphTraversalTest {
                 .delete("d")
                 .build();
 
-        final StateExchangingGraphTraversal<String> traversal = StateExchangingGraphTraversal.of(graphQuery.getEdges());
-        final List<String> sequences = extractAllSubsequences(traversal);
+        final List<String> sequences = extractAllSubsequences(graphQuery);
 
         assertThat(sequences).containsExactly("a", "a b", "b");
     }
@@ -152,8 +210,7 @@ public class StateExchangingGraphTraversalTest {
                 .delete("d")
                 .build();
 
-        final StateExchangingGraphTraversal<String> traversal = StateExchangingGraphTraversal.of(graphQuery.getEdges());
-        final List<String> sequences = extractAllSubsequences(traversal);
+        final List<String> sequences = extractAllSubsequences(graphQuery);
 
         assertThat(sequences).containsExactlyInAnyOrder("a", "a b", "b", "c", "c b", "c e", "e");
     }
@@ -173,14 +230,19 @@ public class StateExchangingGraphTraversalTest {
                 .delete("b")
                 .build();
 
-        final StateExchangingGraphTraversal<String> traversal = StateExchangingGraphTraversal.of(graphQuery.getEdges());
-        final List<String> sequences = extractAllSubsequences(traversal);
+        final List<String> sequences = extractAllSubsequences(graphQuery);
 
         assertThat(sequences).containsExactlyInAnyOrder("a", "c", "c e", "e");
     }
 
+    private List<String> extractAllSubsequences(final GraphQuery graphQuery) {
+        final StateExchangingGraphTraversal<String> traversal = StateExchangingGraphTraversal.of(graphQuery.getEdges());
+        return extractAllSubsequences(traversal);
+    }
+
     private List<String> extractAllSubsequences(final StateExchangingGraphTraversal<String> traversal) {
         final List<String> sequences = new ArrayList<>();
+
         TraversalState<String> state = traversal.next();
         state.setExchangedState(String.join(" ", state.getTerms()));
 
@@ -192,4 +254,5 @@ public class StateExchangingGraphTraversalTest {
 
         return sequences;
     }
+
 }
