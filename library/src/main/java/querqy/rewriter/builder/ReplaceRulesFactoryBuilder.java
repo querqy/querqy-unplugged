@@ -18,7 +18,7 @@ public class ReplaceRulesFactoryBuilder {
         try (
                 final ByteArrayInputStream rulesInput = new ByteArrayInputStream(
                         definition.getRules().getBytes(StandardCharsets.UTF_8));
-                final InputStreamReader rulesReader = new InputStreamReader(rulesInput)
+                final InputStreamReader rulesReader = new InputStreamReader(rulesInput, StandardCharsets.UTF_8)
         ){
             return new ReplaceRewriterFactory(
                     definition.getRewriterId(),
