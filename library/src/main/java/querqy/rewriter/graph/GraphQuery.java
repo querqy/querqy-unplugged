@@ -9,6 +9,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+// Dictionary -> interface for lookups
+// LuceneDictionary -> implementation of Dictionary
+// Implement DictionaryLookup -> takes a list of query terms and applies stateful lookup
+
+
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public class GraphQuery {
