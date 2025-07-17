@@ -1,8 +1,9 @@
 package querqy.converter.elasticsearch.javaclient.builder;
 
+import lombok.RequiredArgsConstructor;
+
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryStringQuery;
-import lombok.RequiredArgsConstructor;
 import querqy.converter.elasticsearch.javaclient.ESJavaClientConverterConfig;
 import querqy.converter.elasticsearch.javaclient.ElasticsearchDSLRawQuery;
 import querqy.converter.generic.builder.RawQueryBuilder;

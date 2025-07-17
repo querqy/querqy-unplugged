@@ -172,7 +172,8 @@ public class GenericQuerqyQueryConverterTest {
 
     @Test
     public void testThat_rawQueryBuilderIsUsed_forGivenRawQuery() {
-        genericQuerqyQueryConverter.convert(new StringRawQuery(null,"q", null, false));
-        verify(rawQueryBuilder).buildFromString("q");
+        final StringRawQuery q = new StringRawQuery(null,"q", null, false);
+        genericQuerqyQueryConverter.convert(q);
+        verify(rawQueryBuilder).build(q);
     }
 }

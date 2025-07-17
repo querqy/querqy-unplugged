@@ -12,7 +12,6 @@ import querqy.model.BoostQuery;
 import querqy.model.Clause;
 import querqy.model.RawQuery;
 import querqy.rewrite.contrib.numberunit.NumberUnitQueryCreator;
-import querqy.rewrite.contrib.numberunit.model.LinearFunction;
 import querqy.rewrite.contrib.numberunit.model.NumberUnitDefinition;
 import querqy.rewrite.contrib.numberunit.model.PerUnitNumberUnitDefinition;
 
@@ -20,7 +19,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class NumberUnitQueryCreatorElasticsearch extends NumberUnitQueryCreator {
 
@@ -32,9 +30,6 @@ public class NumberUnitQueryCreatorElasticsearch extends NumberUnitQueryCreator 
     protected RawQuery createRawBoostQuery(final BigDecimal value,
                                            final List<PerUnitNumberUnitDefinition> perUnitNumberUnitDefinitions) {
 
-        //final BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
-
-        //final BoolQueryBuilder boolQueryBuilderLowerFilter = new BoolQueryBuilder();
         final List<Query> lowerFilterClauses = new ArrayList<>(perUnitNumberUnitDefinitions.size());
         final List<Query> upperFilterClauses = new ArrayList<>(perUnitNumberUnitDefinitions.size());
 
@@ -106,7 +101,6 @@ public class NumberUnitQueryCreatorElasticsearch extends NumberUnitQueryCreator 
                 ).weight(numberUnitDef.maxScoreForExactMatch.doubleValue())));
 
 
-                // String fieldName, Object origin, Object scale, Object offset, double decay
                 upperFilterFunctions.add( FunctionScore.of((f -> f.linear(
                                 l -> l
                                         .field(field.fieldName)
@@ -133,11 +127,6 @@ public class NumberUnitQueryCreatorElasticsearch extends NumberUnitQueryCreator 
 
                                 ))._toQuery()
                         );
-
-
-
-
-
 
             });
         });
