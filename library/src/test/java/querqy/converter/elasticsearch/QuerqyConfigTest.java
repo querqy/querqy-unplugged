@@ -1,4 +1,4 @@
-package elasticsearch;
+package querqy.converter.elasticsearch;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 
