@@ -3,6 +3,8 @@ package querqy.converter.solr.map.builder;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import querqy.converter.generic.builder.RawQueryBuilder;
+import querqy.model.RawQuery;
+import querqy.model.StringRawQuery;
 
 import java.util.Map;
 
@@ -12,9 +14,19 @@ public class SolrMapRawQueryBuilder implements RawQueryBuilder<Map<String, Objec
     @NonNull private final SolrMapQueryReferenceBuilder queryReferenceBuilder;
 
     @Override
-    public Map<String, Object> buildFromString(final String rawQueryString) {
-        final String reference = queryReferenceBuilder.createReferenceForQuery(rawQueryString);
+    public Map<String, Object> build(final RawQuery rawQuery) {
+        if (rawQuery instanceof StringRawQuery) {
+            return buildFromString((StringRawQuery) rawQuery);
+        } else {
+            throw new IllegalArgumentException("Unsupported RawQuery type: " + rawQuery.getClass());
+        }
+    }
+
+    protected Map<String, Object> buildFromString(final StringRawQuery rawQuery) {
+        final String reference = queryReferenceBuilder.createReferenceForQuery(rawQuery.getQueryString());
 
         return Map.of("param", reference);
     }
+
+
 }
