@@ -14,7 +14,7 @@ allprojects {
 }
 
 ext {
-    querqyCoreVersion = '3.15.0'
+    querqyCoreVersion = '3.18.2'
     elasticsearchVersion = '7.17.8'
 }
 
