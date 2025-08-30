@@ -1,5 +1,6 @@
 package querqy.converter.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 
 import org.junit.Test;
@@ -14,7 +15,11 @@ import querqy.domain.RewrittenQuery;
 import querqy.rewriter.builder.CommonRulesDefinition;
 import querqy.rewriter.builder.NumberUnitRulesDefinition;
 
-public class QuerqyConfigTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
+
+
+public class NumberUnitRewritingTest {
 
     private static final int DEFAULT_SCALE_FOR_LINEAR_FUNCTIONS = 5;
 
@@ -45,9 +50,6 @@ public class QuerqyConfigTest {
             "}";
 
 
-
-
-
     @Test
     public void testRewriting()  {
 
@@ -62,7 +64,8 @@ public class QuerqyConfigTest {
                 .commonRules(
                         CommonRulesDefinition.builder()
                                 .rewriterId("id1")
-                                .rules("iphone => \n SYNONYM: apple smartphone\n\niphone =>\nDOWN(5): * {\"term\":{\"category\": \"accessories\"}}")
+                                .rules("iphone => \n SYNONYM: apple smartphone\n\niphone =>\n" +
+                                        "DOWN(5): * {\"term\":{\"category\": \"accessories\"}}")
                                 .build()
                 )
                 .numberUnitRules(NumberUnitRulesDefinition.builder()
@@ -85,88 +88,12 @@ public class QuerqyConfigTest {
                 .converterFactory(converterFactory)
                 .build();
 
-
         final RewrittenQuery<Query> query = queryRewriting.rewriteQuery("iphone 4 inch ");
-        System.out.println(query);
         final Query convertedQuery = query.getConvertedQuery();
-        System.out.println(convertedQuery);
+        assertTrue(convertedQuery._get() instanceof BoolQuery);
+        final BoolQuery boolQuery = (BoolQuery) convertedQuery._get();
+        assertThat(boolQuery.filter()).isNotEmpty(); // we just test whether the filter was created
     }
 
-
-    private final String CONFIG_ROUNDING = "{\n" +
-            "    \"numberUnitDefinitions\": [\n" +
-            "        {\n" +
-            "            \"units\": [\n" +
-            "                {\n" +
-            "                    \"term\": \"inches\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"term\": \"inch\"\n" +
-            "                },\n" +
-            "                {\n" +
-            "                    \"term\": \"IN\"\n" +
-            "                }\n" +
-            "            ],\n" +
-            "            \"fields\": [\n" +
-            "                {\n" +
-            "                    \"fieldName\": \"dim_in\", \"scale\":1 \n" +
-            "                }\n" +
-            "            ],\n" +
-            "            \"boost\": {\n" +
-            "                \"percentageLowerBoundary\": 10,\n" +
-            "                \"percentageUpperBoundary\": 10,\n" +
-            "                \"minScoreAtLowerBoundary\": 20,\n" +
-            "                \"minScoreAtUpperBoundary\": 20,\n" +
-            "                \"percentageLowerBoundaryExactMatch\": 0,\n" +
-            "                \"percentageUpperBoundaryExactMatch\": 0,\n" +
-            "                \"maxScoreForExactMatch\": 40,\n" +
-            "                \"additionalScoreForExactMatch\": 50\n" +
-            "            },\n" +
-            "            \"filter\": {\n" +
-            "                \"percentageLowerBoundary\": 20,\n" +
-            "                \"percentageUpperBoundary\": 10\n" +
-            "            }\n" +
-            "        }\n" +
-            "    ]\n" +
-            "}";
-
-
-    @Test
-    public void testRounding()  {
-
-        final ConverterFactory<Query> converterFactory = ESJavaClientConverterFactory.of(
-                ESJavaClientConverterConfig.builder()
-                        .rawQueryInputType(ESJavaClientConverterConfig.RawQueryInputType.JSON)
-                        .build()
-        );
-
-        final QuerqyConfig querqyConfig = QuerqyConfig.builder()
-
-                .numberUnitRules(NumberUnitRulesDefinition.builder()
-                        .rewriterId("id2")
-                        .rules(CONFIG_ROUNDING)
-                        .numberUnitQueryCreator(new NumberUnitQueryCreatorElasticsearch(DEFAULT_SCALE_FOR_LINEAR_FUNCTIONS))
-                        .build())
-                .build();
-
-        final QueryConfig queryConfig = QueryConfig.builder()
-                .field("name", 40.0f)
-                .field("type", 20.0f)
-                .minimumShouldMatch("100%")
-                .tie(0.0f)
-                .build();
-
-        final QueryRewriting<Query> queryRewriting = QueryRewriting.<Query>builder()
-                .querqyConfig(querqyConfig)
-                .queryConfig(queryConfig)
-                .converterFactory(converterFactory)
-                .build();
-
-
-        final RewrittenQuery<Query> query = queryRewriting.rewriteQuery("6.9IN bag");
-        System.out.println(query);
-        final Query convertedQuery = query.getConvertedQuery();
-        System.out.println(convertedQuery);
-    }
 
 }

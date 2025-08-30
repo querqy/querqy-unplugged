@@ -26,7 +26,7 @@ public class ExpandedQueryParser {
 
         final Query query = new Query();
 
-        for (String normalizedToken : normalizedQueryTokenList) {
+        for (final String normalizedToken : normalizedQueryTokenList) {
             final DisjunctionMaxQuery dmq = new DisjunctionMaxQuery(query, Clause.Occur.SHOULD, false);
             dmq.addClause(new Term(dmq, normalizedToken));
             query.addClause(dmq);

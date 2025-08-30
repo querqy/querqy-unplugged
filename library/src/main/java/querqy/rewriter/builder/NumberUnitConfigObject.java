@@ -10,7 +10,7 @@ public class NumberUnitConfigObject {
         return scaleForLinearFunctions;
     }
 
-    public void setScaleForLinearFunctions(Integer scaleForLinearFunctions) {
+    public void setScaleForLinearFunctions(final Integer scaleForLinearFunctions) {
         this.scaleForLinearFunctions = scaleForLinearFunctions;
     }
 
@@ -18,7 +18,7 @@ public class NumberUnitConfigObject {
         return numberUnitDefinitions;
     }
 
-    public void setNumberUnitDefinitions(List<NumberUnitDefinitionObject> numberUnitDefinitions) {
+    public void setNumberUnitDefinitions(final List<NumberUnitDefinitionObject> numberUnitDefinitions) {
         this.numberUnitDefinitions = numberUnitDefinitions;
     }
 
@@ -32,7 +32,7 @@ public class NumberUnitConfigObject {
             return units;
         }
 
-        public void setUnits(List<UnitObject> units) {
+        public void setUnits(final List<UnitObject> units) {
             this.units = units;
         }
 
@@ -40,7 +40,7 @@ public class NumberUnitConfigObject {
             return fields;
         }
 
-        public void setFields(List<FieldObject> fields) {
+        public void setFields(final List<FieldObject> fields) {
             this.fields = fields;
         }
 
@@ -48,7 +48,7 @@ public class NumberUnitConfigObject {
             return boost;
         }
 
-        public void setBoost(BoostObject boost) {
+        public void setBoost(final BoostObject boost) {
             this.boost = boost;
         }
 
@@ -56,7 +56,7 @@ public class NumberUnitConfigObject {
             return filter;
         }
 
-        public void setFilter(FilterObject filter) {
+        public void setFilter(final FilterObject filter) {
             this.filter = filter;
         }
     }
@@ -69,7 +69,7 @@ public class NumberUnitConfigObject {
             return term;
         }
 
-        public void setTerm(String term) {
+        public void setTerm(final String term) {
             this.term = term;
         }
 
@@ -77,7 +77,7 @@ public class NumberUnitConfigObject {
             return multiplier;
         }
 
-        public void setMultiplier(Float multiplier) {
+        public void setMultiplier(final Float multiplier) {
             this.multiplier = multiplier;
         }
     }
@@ -90,7 +90,7 @@ public class NumberUnitConfigObject {
             return fieldName;
         }
 
-        public void setFieldName(String fieldName) {
+        public void setFieldName(final String fieldName) {
             this.fieldName = fieldName;
         }
 
@@ -118,7 +118,7 @@ public class NumberUnitConfigObject {
             return percentageLowerBoundary;
         }
 
-        public void setPercentageLowerBoundary(Float percentageLowerBoundary) {
+        public void setPercentageLowerBoundary(final Float percentageLowerBoundary) {
             this.percentageLowerBoundary = percentageLowerBoundary;
         }
 
@@ -126,7 +126,7 @@ public class NumberUnitConfigObject {
             return percentageUpperBoundary;
         }
 
-        public void setPercentageUpperBoundary(Float percentageUpperBoundary) {
+        public void setPercentageUpperBoundary(final Float percentageUpperBoundary) {
             this.percentageUpperBoundary = percentageUpperBoundary;
         }
 
@@ -134,7 +134,7 @@ public class NumberUnitConfigObject {
             return percentageLowerBoundaryExactMatch;
         }
 
-        public void setPercentageLowerBoundaryExactMatch(Float percentageLowerBoundaryExactMatch) {
+        public void setPercentageLowerBoundaryExactMatch(final Float percentageLowerBoundaryExactMatch) {
             this.percentageLowerBoundaryExactMatch = percentageLowerBoundaryExactMatch;
         }
 
@@ -142,7 +142,7 @@ public class NumberUnitConfigObject {
             return percentageUpperBoundaryExactMatch;
         }
 
-        public void setPercentageUpperBoundaryExactMatch(Float percentageUpperBoundaryExactMatch) {
+        public void setPercentageUpperBoundaryExactMatch(final Float percentageUpperBoundaryExactMatch) {
             this.percentageUpperBoundaryExactMatch = percentageUpperBoundaryExactMatch;
         }
 
@@ -150,7 +150,7 @@ public class NumberUnitConfigObject {
             return minScoreAtLowerBoundary;
         }
 
-        public void setMinScoreAtLowerBoundary(Float minScoreAtLowerBoundary) {
+        public void setMinScoreAtLowerBoundary(final Float minScoreAtLowerBoundary) {
             this.minScoreAtLowerBoundary = minScoreAtLowerBoundary;
         }
 
@@ -158,7 +158,7 @@ public class NumberUnitConfigObject {
             return minScoreAtUpperBoundary;
         }
 
-        public void setMinScoreAtUpperBoundary(Float minScoreAtUpperBoundary) {
+        public void setMinScoreAtUpperBoundary(final Float minScoreAtUpperBoundary) {
             this.minScoreAtUpperBoundary = minScoreAtUpperBoundary;
         }
 
@@ -166,7 +166,7 @@ public class NumberUnitConfigObject {
             return maxScoreForExactMatch;
         }
 
-        public void setMaxScoreForExactMatch(Float maxScoreForExactMatch) {
+        public void setMaxScoreForExactMatch(final Float maxScoreForExactMatch) {
             this.maxScoreForExactMatch = maxScoreForExactMatch;
         }
 
@@ -174,7 +174,7 @@ public class NumberUnitConfigObject {
             return additionalScoreForExactMatch;
         }
 
-        public void setAdditionalScoreForExactMatch(Float additionalScoreForExactMatch) {
+        public void setAdditionalScoreForExactMatch(final Float additionalScoreForExactMatch) {
             this.additionalScoreForExactMatch = additionalScoreForExactMatch;
         }
     }
@@ -187,7 +187,7 @@ public class NumberUnitConfigObject {
             return percentageLowerBoundary;
         }
 
-        public void setPercentageLowerBoundary(Float percentageLowerBoundary) {
+        public void setPercentageLowerBoundary(final Float percentageLowerBoundary) {
             this.percentageLowerBoundary = percentageLowerBoundary;
         }
 
@@ -195,7 +195,7 @@ public class NumberUnitConfigObject {
             return percentageUpperBoundary;
         }
 
-        public void setPercentageUpperBoundary(Float percentageUpperBoundary) {
+        public void setPercentageUpperBoundary(final Float percentageUpperBoundary) {
             this.percentageUpperBoundary = percentageUpperBoundary;
         }
     }
