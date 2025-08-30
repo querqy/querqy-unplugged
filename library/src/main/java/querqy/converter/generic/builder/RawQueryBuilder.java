@@ -1,7 +1,9 @@
 package querqy.converter.generic.builder;
 
+import querqy.model.RawQuery;
+
 public interface RawQueryBuilder<T> {
 
-    T buildFromString(String rawQueryString);
+    T build(RawQuery rawQuery);
 
 }

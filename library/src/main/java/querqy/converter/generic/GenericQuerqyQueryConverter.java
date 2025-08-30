@@ -130,13 +130,7 @@ public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
 
     @Override
     public T visit(final RawQuery rawQuery) {
-        if (rawQuery instanceof StringRawQuery) {
-            final StringRawQuery stringRawQuery = (StringRawQuery) rawQuery;
-            return rawQueryBuilder.buildFromString(stringRawQuery.getQueryString());
-
-        } else {
-            throw new IllegalArgumentException("GenericQuerqyQueryConverter currently only supports StringRawQuery");
-        }
+        return rawQueryBuilder.build(rawQuery);
     }
 
 }

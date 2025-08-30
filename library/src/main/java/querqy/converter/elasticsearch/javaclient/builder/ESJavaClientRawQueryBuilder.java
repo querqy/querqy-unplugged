@@ -1,10 +1,14 @@
 package querqy.converter.elasticsearch.javaclient.builder;
 
+import lombok.RequiredArgsConstructor;
+
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryStringQuery;
-import lombok.RequiredArgsConstructor;
 import querqy.converter.elasticsearch.javaclient.ESJavaClientConverterConfig;
+import querqy.converter.elasticsearch.javaclient.ElasticsearchDSLRawQuery;
 import querqy.converter.generic.builder.RawQueryBuilder;
+import querqy.model.RawQuery;
+import querqy.model.StringRawQuery;
 
 import java.io.StringReader;
 
@@ -14,7 +18,17 @@ public class ESJavaClientRawQueryBuilder implements RawQueryBuilder<Query> {
     private final ESJavaClientConverterConfig converterConfig;
 
     @Override
-    public Query buildFromString(final String rawQueryString) {
+    public Query build(final RawQuery rawQuery) {
+        if (rawQuery instanceof StringRawQuery) {
+            return buildFromStringRawQuery((StringRawQuery) rawQuery);
+        } else if (rawQuery instanceof ElasticsearchDSLRawQuery) {
+            return ((ElasticsearchDSLRawQuery) rawQuery).getQuery();
+        } else {
+            throw new IllegalArgumentException("Unsupported RawQuery type: " + rawQuery.getClass());
+        }
+    }
+    protected Query buildFromStringRawQuery(final StringRawQuery rawQuery) {
+        final String rawQueryString = rawQuery.getQueryString();
         switch (converterConfig.getRawQueryInputType()) {
 
             case QUERY_STRING_QUERY: return parseAsQueryStringQuery(rawQueryString);

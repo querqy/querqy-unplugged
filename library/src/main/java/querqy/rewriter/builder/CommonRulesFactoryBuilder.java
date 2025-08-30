@@ -3,6 +3,7 @@ package querqy.rewriter.builder;
 import lombok.RequiredArgsConstructor;
 import querqy.rewrite.commonrules.SimpleCommonRulesRewriterFactory;
 import querqy.rewrite.commonrules.select.ExpressionCriteriaSelectionStrategyFactory;
+import querqy.rewrite.lookup.preprocessing.LookupPreprocessorType;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -22,10 +23,10 @@ public class CommonRulesFactoryBuilder {
                     definition.isAllowBooleanInput(),
                     definition.getBoostMethod(),
                     definition.getQuerqyParserFactory(),
-                    definition.isIgnoreCase(),
                     Collections.emptyMap(),
                     new ExpressionCriteriaSelectionStrategyFactory(),
-                    definition.isBuildTermCache()
+                    definition.isBuildTermCache(),
+                    definition.isIgnoreCase() ? LookupPreprocessorType.LOWERCASE : LookupPreprocessorType.NONE
             );
 
         } catch (IOException e) {

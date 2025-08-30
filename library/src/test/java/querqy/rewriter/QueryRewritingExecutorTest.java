@@ -12,6 +12,8 @@ import querqy.rewriter.builder.RewriterSupport;
 import querqy.domain.RewrittenQuerqyQuery;
 import querqy.model.convert.builder.ExpandedQueryBuilder;
 
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static querqy.model.convert.builder.BooleanQueryBuilder.bq;
 import static querqy.model.convert.builder.DisjunctionMaxQueryBuilder.dmq;
@@ -190,7 +192,10 @@ public class QueryRewritingExecutorTest {
                                 "rules", "apple smartphone =>\n  SYNONYM: iphone\n"
                         )
                 )
-                .rewriteLoggingConfig(RewriteLoggingConfig.details())
+                .rewriteLoggingConfig(
+                        RewriteLoggingConfig.builder()
+                            .hasDetails(true).isActive(true)
+                            .includedRewriters(Set.of("1")).build())
                 .build();
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
