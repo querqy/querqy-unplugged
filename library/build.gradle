@@ -8,15 +8,22 @@ repositories {
     mavenCentral()
 }
 
-allprojects {
-    group = 'org.querqy'
-    version = '1.0.1-SNAPSHOT'
+ext {
+    querqyCoreVersion = '3.19.0'
+    elasticsearchVersion = '7.17.8'
+    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
-ext {
-    querqyCoreVersion = '3.18.2'
-    elasticsearchVersion = '7.17.8'
+allprojects {
+    group = 'org.querqy'
+    version = '1.1.0'
+
+    if (isSnapshot) {
+        version += "-SNAPSHOT"
+    }
 }
+
+
 
 dependencies {
     api "org.querqy:querqy-core:${querqyCoreVersion}"
@@ -30,10 +37,10 @@ dependencies {
     testImplementation "co.elastic.clients:elasticsearch-java:${elasticsearchVersion}"
 
     // Lombok
-    compileOnly "org.projectlombok:lombok:1.18.24"
-    annotationProcessor "org.projectlombok:lombok:1.18.24"
-    testCompileOnly "org.projectlombok:lombok:1.18.24"
-    testAnnotationProcessor "org.projectlombok:lombok:1.18.24"
+    compileOnly "org.projectlombok:lombok:1.18.38"
+    annotationProcessor "org.projectlombok:lombok:1.18.38"
+    testCompileOnly "org.projectlombok:lombok:1.18.38"
+    testAnnotationProcessor "org.projectlombok:lombok:1.18.38"
 }
 
 test {
@@ -92,11 +99,11 @@ publishing {
     }
     repositories {
         maven {
-            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-            def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            //def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+            //def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
 
             name = 'sonatype'
-            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            url = 'https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/' //version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials(PasswordCredentials)
         }
     }
