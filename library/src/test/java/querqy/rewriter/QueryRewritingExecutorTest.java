@@ -205,4 +205,44 @@ public class QueryRewritingExecutorTest {
 
         assertThat(rewrittenQuery.getRewriteLogging()).isNotEmpty();
     }
+
+    @Test
+    public void testThat_DecorationsAreAvailableFromASingleCommonRulesRewriter() {
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
+                .rewriterFactory(
+                        RewriterSupport.createRewriterFactory(
+                                "common",
+                                "id", "1",
+                                "rules", """
+                                        apple smartphone =>
+                                          SYNONYM: iphone
+                                          DECORATE: REDIRECT https://example.com/apple
+                                        """
+                        )
+                )
+                .build();
+
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
+                .querqyConfig(rewritingConfig)
+                .build()
+                .rewriteQuery("apple smartphone");
+
+        assertThat(rewrittenQuery.getDecorations()).hasSize(1).contains("REDIRECT https://example.com/apple");
+
+        final ExpandedQueryBuilder expanded = expanded(rewrittenQuery.getQuery());
+
+        // are gthe other rules stuill being applied?
+        assertThat(expanded.getUserQuery()).isEqualTo(
+                bq(
+                        dmq(
+                                term("apple"),
+                                term("iphone", true)
+                        ),
+                        dmq(
+                                term("smartphone"),
+                                term("iphone", true)
+                        )
+                )
+        );
+    }
 }
