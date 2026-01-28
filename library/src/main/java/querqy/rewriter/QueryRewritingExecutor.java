@@ -15,12 +15,14 @@ import querqy.parser.QuerqyParser;
 import querqy.rewrite.RewriteChain;
 import querqy.rewrite.RewriteChainOutput;
 import querqy.rewrite.commonrules.QuerqyParserFactory;
+import querqy.rewrite.commonrules.model.DecorateInstruction;
 import querqy.rewrite.logging.RewriteChainLog;
 import querqy.rewriter.builder.ExpandedQueryParser;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Builder
 public class QueryRewritingExecutor {
@@ -46,10 +48,27 @@ public class QueryRewritingExecutor {
 
         final RewriteChainOutput rewriteChainOutput = rewriteChain.rewrite(parsedQuery, requestAdapter);
 
-        return RewrittenQuerqyQuery.builder()
-                .query(rewriteChainOutput.getExpandedQuery())
-                .rewriteLogging(extractRewriteLog(rewriteChainOutput))
-                .build();
+        final RewrittenQuerqyQuery.RewrittenQuerqyQueryBuilder builder = RewrittenQuerqyQuery.builder();
+        builder.query(rewriteChainOutput.getExpandedQuery())
+                .rewriteLogging(extractRewriteLog(rewriteChainOutput));
+
+        final Map<String, Object> context = requestAdapter.getContext();
+
+        if (context != null) {
+
+            @SuppressWarnings("unchecked")
+            final Set<Object> decorations = (Set<Object>) context.get(DecorateInstruction.DECORATION_CONTEXT_KEY);
+
+            builder.decorations(decorations);
+
+            @SuppressWarnings("unchecked")
+            final Map<String, Object> namedDecorations =
+                    (Map<String, Object>) context.get(DecorateInstruction.DECORATION_CONTEXT_MAP_KEY);
+            builder.namedDecorations(namedDecorations);
+        }
+
+
+        return builder.build();
     }
 
     private LocalSearchEngineRequestAdapter createLocalSearchEngineRequestAdapter(final RewriteChain rewriteChain) {

@@ -51,7 +51,7 @@ test {
 java {
     withJavadocJar()
     withSourcesJar()
-    sourceCompatibility = 11
+    sourceCompatibility = 21
 }
 
 publishing {
