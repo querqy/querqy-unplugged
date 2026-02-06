@@ -12,8 +12,6 @@ import querqy.converter.elasticsearch.javaclient.ESJavaClientConverterFactory;
 import querqy.domain.RewrittenQuery;
 import querqy.rewriter.builder.CommonRulesDefinition;
 
-import java.util.Map;
-
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
@@ -139,9 +137,24 @@ public class CommonRulesRewritingTest {
                 )
         ));
 
+
+        final QueryConfig queryConfigWithFilter = QueryConfig.builder()
+                .field("name", 40.0f)
+                .minimumShouldMatch("100%")
+                .tie(0.0f)
+                .addRewriterParam("id1", "criteria.filter", "$[?(@.tenant == 't1')]" )
+                .build();
+
+        final QueryRewriting<Query> queryRewritingWithFilter = QueryRewriting.<Query>builder()
+                .querqyConfig(querqyConfig)
+                .queryConfig(queryConfigWithFilter)
+                .converterFactory(converterFactory)
+                .build();
+
+
+
         // now add the filter for tenant t1
-        final Map<String, String[]> params = Map.of("id1.criteria.filter", new String[] {"$[?(@.tenant == 't1')]"});
-        final RewrittenQuery<Query> queryWithAppliedFilter = queryRewriting.rewriteQuery("A", params);
+        final RewrittenQuery<Query> queryWithAppliedFilter = queryRewritingWithFilter.rewriteQuery("A");
         assertThat((querqy.model.Query) queryWithAppliedFilter.getRewrittenQuerqyQuery().getQuery().getUserQuery(),
                 bq(
                         dmq(
@@ -187,6 +200,10 @@ public class CommonRulesRewritingTest {
                 .field("name", 40.0f)
                 .minimumShouldMatch("100%")
                 .tie(0.0f)
+                .addRewriterParam("id1", "criteria.sort", "prio asc")
+                .addRewriterParam("id1", "criteria.limit", 1)
+                .addRewriterParam("id1", "criteria.limitByLevel", true)
+
                 .build();
 
         final QueryRewriting<Query> queryRewriting = QueryRewriting.<Query>builder()
@@ -195,13 +212,7 @@ public class CommonRulesRewritingTest {
                 .converterFactory(converterFactory)
                 .build();
 
-        final Map<String, String[]> params = Map.of(
-                "id1.criteria.sort", new String[] {"prio asc"},
-                "id1.criteria.limit", new String[] {"1"},
-                "id1.criteria.limitByLevel", new String[] {"true"}
-
-        );
-        final RewrittenQuery<Query> queryWithAppliedOrder = queryRewriting.rewriteQuery("A", params);
+        final RewrittenQuery<Query> queryWithAppliedOrder = queryRewriting.rewriteQuery("A");
 
         assertThat((querqy.model.Query) queryWithAppliedOrder.getRewrittenQuerqyQuery().getQuery().getUserQuery(),
                 bq(
