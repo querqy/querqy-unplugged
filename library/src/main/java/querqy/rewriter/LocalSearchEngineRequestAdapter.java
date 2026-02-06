@@ -111,10 +111,7 @@ public class LocalSearchEngineRequestAdapter implements SearchEngineRequestAdapt
     }
 
     protected String[] getParam(final String name) {
-        return params.get(paramName((name)));
+        return params == null ? null : params.get(name);
     }
 
-    protected String paramName(final String name) {
-        return (name.startsWith("querqy.")) ? name.substring(7) : name;
-    }
 }

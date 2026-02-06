@@ -1,22 +1,17 @@
 package elasticsearch.rewriting;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
 import elasticsearch.AbstractElasticsearchTest;
 import elasticsearch.Elasticsearch7Container;
 import org.junit.Test;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
-import querqy.QuerqyConfig;
 import querqy.QueryConfig;
 import querqy.QueryRewriting;
 import querqy.converter.ConverterFactory;
 import querqy.converter.elasticsearch.javaclient.ESJavaClientConverterFactory;
-import querqy.rewriter.builder.CommonRulesDefinition;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -21,12 +21,6 @@ public class QueryRewriting<T> {
 
     @Builder.Default private final QueryExpansionConfig<T> queryExpansionConfig = QueryExpansionConfig.empty();
 
-    public RewrittenQuery<T> rewriteQuery(final String queryInput, final Map<String, String[]> params) {
-        final QueryRewritingExecutor executor = createExecutor(params);
-        final RewrittenQuerqyQuery rewrittenQuerqyQuery = executor.rewriteQuery(queryInput);
-        return convertQuery(rewrittenQuerqyQuery);
-    }
-
     public RewrittenQuery<T> rewriteQuery(final String queryInput) {
         final QueryRewritingExecutor executor = createExecutor();
         final RewrittenQuerqyQuery rewrittenQuerqyQuery = executor.rewriteQuery(queryInput);
@@ -58,15 +52,8 @@ public class QueryRewriting<T> {
     private QueryRewritingExecutor createExecutor() {
         return QueryRewritingExecutor.builder()
                 .querqyConfig(querqyConfig)
+                .params(queryConfig.getParams())
                 .build();
     }
-
-    private QueryRewritingExecutor createExecutor(final Map<String, String[]> params) {
-        return QueryRewritingExecutor.builder()
-                .querqyConfig(querqyConfig)
-                .params(params)
-                .build();
-    }
-
 
 }
