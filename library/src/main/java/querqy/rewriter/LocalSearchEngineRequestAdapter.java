@@ -33,25 +33,25 @@ public class LocalSearchEngineRequestAdapter implements SearchEngineRequestAdapt
 
     @Override
     public Optional<String> getRequestParam(final String name) {
-        final String[] paramValues = params.get(name);
-        return paramValues != null && paramValues.length > 0 ? Optional.ofNullable(params.get(name)[0]) : Optional.empty();
+        final String[] paramValues = getParam(name);
+        return paramValues != null && paramValues.length > 0 ? Optional.ofNullable(paramValues[0]) : Optional.empty();
     }
 
     @Override
     public String[] getRequestParams(final String name) {
-        final String[] paramValues = params.get(name);
+        final String[] paramValues = getParam(name);
         return paramValues != null ? paramValues : new String[0];
     }
 
     @Override
     public Optional<Boolean> getBooleanRequestParam(final String name) {
-        final String[] param = params.get(name);
+        final String[] param = getParam(name);
         return param != null && param.length > 0 ? Optional.of(Boolean.parseBoolean(param[0])) : Optional.empty();
     }
 
     @Override
     public Optional<Integer> getIntegerRequestParam(final String name) {
-        final String[] param = params.get(name);
+        final String[] param = getParam(name);
 
         if (param != null && param.length > 0) {
             try {
@@ -68,7 +68,7 @@ public class LocalSearchEngineRequestAdapter implements SearchEngineRequestAdapt
 
     @Override
     public Optional<Float> getFloatRequestParam(final String name) {
-        final String[] param = params.get(name);
+        final String[] param = getParam(name);
 
         if (param != null && param.length > 0) {
             try {
@@ -85,7 +85,7 @@ public class LocalSearchEngineRequestAdapter implements SearchEngineRequestAdapt
 
     @Override
     public Optional<Double> getDoubleRequestParam(final String name) {
-        final String[] param = params.get(name);
+        final String[] param = getParam(name);
 
         if (param != null && param.length > 0) {
             try {
@@ -108,5 +108,13 @@ public class LocalSearchEngineRequestAdapter implements SearchEngineRequestAdapt
     @Override
     public RewriteLoggingConfig getRewriteLoggingConfig() {
         return rewriteLoggingConfig;
+    }
+
+    protected String[] getParam(final String name) {
+        return params.get(paramName((name)));
+    }
+
+    protected String paramName(final String name) {
+        return (name.startsWith("querqy.")) ? name.substring(7) : name;
     }
 }

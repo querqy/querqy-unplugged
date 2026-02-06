@@ -10,6 +10,8 @@ import querqy.converter.Converter;
 import querqy.converter.ConverterFactory;
 import querqy.domain.RewrittenQuery;
 
+import java.util.Map;
+
 @Builder(toBuilder = true)
 public class QueryRewriting<T> {
 
@@ -18,6 +20,12 @@ public class QueryRewriting<T> {
     @NonNull private final ConverterFactory<T> converterFactory;
 
     @Builder.Default private final QueryExpansionConfig<T> queryExpansionConfig = QueryExpansionConfig.empty();
+
+    public RewrittenQuery<T> rewriteQuery(final String queryInput, final Map<String, String[]> params) {
+        final QueryRewritingExecutor executor = createExecutor(params);
+        final RewrittenQuerqyQuery rewrittenQuerqyQuery = executor.rewriteQuery(queryInput);
+        return convertQuery(rewrittenQuerqyQuery);
+    }
 
     public RewrittenQuery<T> rewriteQuery(final String queryInput) {
         final QueryRewritingExecutor executor = createExecutor();
@@ -52,5 +60,13 @@ public class QueryRewriting<T> {
                 .querqyConfig(querqyConfig)
                 .build();
     }
+
+    private QueryRewritingExecutor createExecutor(final Map<String, String[]> params) {
+        return QueryRewritingExecutor.builder()
+                .querqyConfig(querqyConfig)
+                .params(params)
+                .build();
+    }
+
 
 }
