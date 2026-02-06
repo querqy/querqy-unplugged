@@ -12,8 +12,14 @@ import querqy.converter.elasticsearch.javaclient.ESJavaClientConverterFactory;
 import querqy.domain.RewrittenQuery;
 import querqy.rewriter.builder.CommonRulesDefinition;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Map;
+
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import static querqy.QuerqyMatchers.bq;
+import static querqy.QuerqyMatchers.dmq;
+import static querqy.QuerqyMatchers.term;
 
 public class CommonRulesRewritingTest {
 
@@ -59,7 +65,7 @@ public class CommonRulesRewritingTest {
         final RewrittenQuery<Query> query = queryRewriting.rewriteQuery("iphone 4 inch ");
 
         // test decorations
-        assertThat(query.getDecorations())
+        org.assertj.core.api.Assertions.assertThat(query.getDecorations())
                 .hasSize(2)
                 .contains("REDIRECT https://example.com/apple")
                 .contains("TEASER <small_smartphones>")
@@ -70,7 +76,140 @@ public class CommonRulesRewritingTest {
         final Query convertedQuery = query.getConvertedQuery();
         assertTrue(convertedQuery._get() instanceof BoolQuery);
         final BoolQuery boolQuery = (BoolQuery) convertedQuery._get();
-        assertThat(boolQuery.filter()).isNotEmpty(); // we just test whether the filter was created
+        org.assertj.core.api.Assertions.assertThat(boolQuery.filter()).isNotEmpty(); // we just test whether the filter was created
+
+    }
+
+
+
+    @Test
+    public void testThatRuleFiltersAreApplied() {
+
+        final ConverterFactory<Query> converterFactory = ESJavaClientConverterFactory.of(
+                ESJavaClientConverterConfig.builder()
+                        .rawQueryInputType(ESJavaClientConverterConfig.RawQueryInputType.JSON)
+                        .build()
+        );
+
+        final QuerqyConfig querqyConfig = QuerqyConfig.builder()
+
+                .commonRules(
+                        CommonRulesDefinition.builder()
+                                .rewriterId("id1")
+                                .rules("""
+                                        A =>\s
+                                         SYNONYM: B
+                                         @{
+                                          "tenant": "t1"
+                                         }@
+                                        
+                                        A =>\s
+                                         SYNONYM: C
+                                         @{
+                                          "tenant": "t2"
+                                         }@
+                                        """
+                                )
+                                .build()
+                )
+                .build();
+
+        final QueryConfig queryConfig = QueryConfig.builder()
+                .field("name", 40.0f)
+                .minimumShouldMatch("100%")
+                .tie(0.0f)
+                .build();
+
+        final QueryRewriting<Query> queryRewriting = QueryRewriting.<Query>builder()
+                .querqyConfig(querqyConfig)
+                .queryConfig(queryConfig)
+                .converterFactory(converterFactory)
+                .build();
+
+
+        // test all synonyms are applied when there is no filter
+        final RewrittenQuery<Query> query = queryRewriting.rewriteQuery("A");
+
+        assertThat((querqy.model.Query) query.getRewrittenQuerqyQuery().getQuery().getUserQuery(),
+        bq(
+                dmq(
+                        term("A", false),
+                        term("B", true),
+                        term("C", true)
+                )
+        ));
+
+        // now add the filter for tenant t1
+        final Map<String, String[]> params = Map.of("id1.criteria.filter", new String[] {"$[?(@.tenant == 't1')]"});
+        final RewrittenQuery<Query> queryWithAppliedFilter = queryRewriting.rewriteQuery("A", params);
+        assertThat((querqy.model.Query) queryWithAppliedFilter.getRewrittenQuerqyQuery().getQuery().getUserQuery(),
+                bq(
+                        dmq(
+                                term("A", false),
+                                term("B", true)
+                        )
+                ));
+
+    }
+
+    @Test
+    public void testThatRuleOrderingAndLimitsAreApplied() {
+        final ConverterFactory<Query> converterFactory = ESJavaClientConverterFactory.of(
+                ESJavaClientConverterConfig.builder()
+                        .rawQueryInputType(ESJavaClientConverterConfig.RawQueryInputType.JSON)
+                        .build()
+        );
+
+        final QuerqyConfig querqyConfig = QuerqyConfig.builder()
+
+                .commonRules(
+                        CommonRulesDefinition.builder()
+                                .rewriterId("id1")
+                                .rules("""
+                                        A =>\s
+                                         SYNONYM: B
+                                         @{
+                                          "prio": 2
+                                         }@
+                                        
+                                        A =>\s
+                                         SYNONYM: C
+                                         @{
+                                          "prio": 1
+                                         }@
+                                         """
+                                )
+                                .build()
+                )
+                .build();
+
+        final QueryConfig queryConfig = QueryConfig.builder()
+                .field("name", 40.0f)
+                .minimumShouldMatch("100%")
+                .tie(0.0f)
+                .build();
+
+        final QueryRewriting<Query> queryRewriting = QueryRewriting.<Query>builder()
+                .querqyConfig(querqyConfig)
+                .queryConfig(queryConfig)
+                .converterFactory(converterFactory)
+                .build();
+
+        final Map<String, String[]> params = Map.of(
+                "id1.criteria.sort", new String[] {"prio asc"},
+                "id1.criteria.limit", new String[] {"1"},
+                "id1.criteria.limitByLevel", new String[] {"true"}
+
+        );
+        final RewrittenQuery<Query> queryWithAppliedOrder = queryRewriting.rewriteQuery("A", params);
+
+        assertThat((querqy.model.Query) queryWithAppliedOrder.getRewrittenQuerqyQuery().getQuery().getUserQuery(),
+                bq(
+                        dmq(
+                                term("A", false),
+                                term("C", true)
+                        )
+                ));
 
     }
 
