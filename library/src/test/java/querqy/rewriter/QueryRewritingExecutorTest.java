@@ -115,6 +115,33 @@ public class QueryRewritingExecutorTest {
     }
 
     @Test
+    public void testThat_regexReplacementIsApplied() {
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
+                .rewriterFactory(
+                        RewriterSupport.createRewriterFactory(
+                                "regex_replace",
+                                "id", "1",
+                                "rules", """
+                        (\\d+) ?x ?(\\d+) ?x ?(\\d+)=> ${1}x${2}x${3}
+                        """
+                        )
+                )
+                .build();
+
+        QuerqyParser querqyParser = rewritingConfig.getQuerqyParserFactory().createParser();
+        Query query = querqyParser.parse("cube 12 x 8x 14");
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
+                .querqyConfig(rewritingConfig)
+                .build()
+                .rewriteQuery(query);
+
+        final ExpandedQueryBuilder expanded = expanded(rewrittenQuery.getQuery());
+
+        assertThat(expanded.getUserQuery()).isEqualTo(bq("cube", "12x8x14")
+        );
+    }
+
+    @Test
     public void testThat_synonymsAreApplied_forGivenCommonRulesRewriter() {
         final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
                 .rewriterFactory(
