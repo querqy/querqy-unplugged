@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 
 public enum RewriterType {
     COMMON_RULES("common"),
-    REPLACE_RULES("replace");
+    REPLACE_RULES("replace"),
+    REGEX_REPLACE_RULES("regex_replace");
 
     private static final Map<String, RewriterType> TYPE_MAPPING = Arrays.stream(RewriterType.values())
             .collect(
