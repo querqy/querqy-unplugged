@@ -9,7 +9,8 @@ repositories {
 }
 
 ext {
-    luceneSolrVersion = '8.11.2'
+    luceneVersion = '9.8.0'
+    solrVersion = '9.5.0'
 }
 
 allprojects {
@@ -18,11 +19,11 @@ allprojects {
 }
 
 dependencies {
-    compileOnly "org.apache.lucene:lucene-core:${luceneSolrVersion}"
-    compileOnly "org.apache.solr:solr-core:${luceneSolrVersion}"
+    compileOnly "org.apache.lucene:lucene-core:${luceneVersion}"
+    compileOnly "org.apache.solr:solr-core:${solrVersion}"
 
     testImplementation "org.querqy:querqy-solr:5.9.lucene980.0"
-    testImplementation "org.apache.solr:solr-test-framework:${luceneSolrVersion}"
+    testImplementation "org.apache.solr:solr-test-framework:${solrVersion}"
     testImplementation "org.assertj:assertj-core:3.22.0"
     testImplementation "junit:junit:4.13.2"
     testImplementation project(":library")

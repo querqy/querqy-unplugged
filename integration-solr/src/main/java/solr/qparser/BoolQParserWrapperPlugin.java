@@ -13,7 +13,12 @@ public class BoolQParserWrapperPlugin extends QParserPlugin {
         final BoolQParserPlugin boolQParserPlugin = new BoolQParserPlugin();
         final SolrParams localSolrParams = localParams == null ? new ModifiableSolrParams() : localParams;
 
-        final QParser boolQParser = boolQParserPlugin.createParser(qstr, localSolrParams, params, req);
+        // Solr 9's BoolQParserPlugin calls getInt("mm") on localParams, which breaks for percentage
+        // values like "100%". Strip mm here; BoolQParserWrapper applies it via setMinShouldMatch.
+        final ModifiableSolrParams localParamsWithoutMm = new ModifiableSolrParams(localSolrParams);
+        localParamsWithoutMm.remove("mm");
+
+        final QParser boolQParser = boolQParserPlugin.createParser(qstr, localParamsWithoutMm, params, req);
 
         return new BoolQParserWrapper(boolQParser, qstr, localParams, params, req);
     }
