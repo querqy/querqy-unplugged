@@ -39,7 +39,8 @@ public class BoolQParserWrapper extends QParser {
     }
 
     private String parseMinShouldMatch() {
-        return DisMaxQParser.parseMinShouldMatch(super.req.getSchema(), getLocalParams());
+        return DisMaxQParser.parseMinShouldMatch(
+                super.req.getSchema(), SolrParams.wrapDefaults(getLocalParams(), params));
     }
 
     private Query potentiallyWrapByBoostQuery(final Query query) {
