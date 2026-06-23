@@ -12,6 +12,7 @@ import querqy.converter.opensearch.javaclient.builder.OSJavaClientConstantScoreQ
 import querqy.converter.opensearch.javaclient.builder.OSJavaClientDismaxQueryBuilder;
 import querqy.converter.opensearch.javaclient.builder.OSJavaClientMatchAllQueryBuilder;
 import querqy.converter.opensearch.javaclient.builder.OSJavaClientQueryStringQueryBuilder;
+import querqy.converter.opensearch.javaclient.builder.OSJavaClientPhraseQueryBuilder;
 import querqy.converter.opensearch.javaclient.builder.OSJavaClientRawQueryBuilder;
 import querqy.converter.opensearch.javaclient.builder.OSJavaClientTermQueryBuilder;
 import querqy.converter.generic.GenericConverterFactory;
@@ -28,6 +29,7 @@ public class OSJavaClientConverterFactory implements ConverterFactory<Query> {
     private final OSJavaClientMatchAllQueryBuilder matchAllQueryBuilder = OSJavaClientMatchAllQueryBuilder.create();
     private final OSJavaClientBoostQueryBuilder boostQueryBuilder = OSJavaClientBoostQueryBuilder.create();
     private final OSJavaClientQueryStringQueryBuilder queryStringQueryBuilder = OSJavaClientQueryStringQueryBuilder.create();
+    private final OSJavaClientPhraseQueryBuilder phraseQueryBuilder = OSJavaClientPhraseQueryBuilder.create();
 
     @Override
     public Converter<Query> createConverter(final QueryConfig queryConfig, final QueryExpansionConfig<Query> queryExpansionConfig) {
@@ -42,6 +44,7 @@ public class OSJavaClientConverterFactory implements ConverterFactory<Query> {
                 .rawQueryBuilder(rawQueryBuilder)
                 .boostQueryBuilder(boostQueryBuilder)
                 .queryStringQueryBuilder(queryStringQueryBuilder)
+                .phraseQueryBuilder(phraseQueryBuilder)
                 .build();
 
         return converterFactory.createConverter(queryConfig, queryExpansionConfig);
