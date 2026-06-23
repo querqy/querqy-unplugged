@@ -17,7 +17,7 @@ ext {
 
 allprojects {
     group = 'org.querqy'
-    version = '1.2.0'
+    version = '2.0.0'
 
     if (isSnapshot) {
         version += "-SNAPSHOT"
@@ -92,6 +92,12 @@ publishing {
                         name = 'Johannes Peter'
                         email = 'johannesdaniel.peter@gmx.de'
                     }
+                    developer {
+                        id = 'renekrie'
+                        name = 'René Kriegler'
+                        email = 'post@rene-kriegler.com'
+                        url = 'https://github.com/renekrie'
+                    }
                 }
                 scm {
                     url = 'git@github.com:querqy/querqy-unplugged.git'
@@ -112,14 +118,12 @@ publishing {
         }
     }
 }
-/*
 signing {
     def signingKey = findProperty("signingKey")
     def signingPassword = findProperty("signingPassword")
     useInMemoryPgpKeys(signingKey, signingPassword)
     sign publishing.publications.mavenJava
 }
-*/
 
 javadoc {
     if(JavaVersion.current().isJava9Compatible()) {
