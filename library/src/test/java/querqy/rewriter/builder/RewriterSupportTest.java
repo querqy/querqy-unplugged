@@ -3,8 +3,10 @@ package querqy.rewriter.builder;
 import org.junit.Test;
 import querqy.rewrite.RewriterFactory;
 import querqy.rewrite.commonrules.SimpleCommonRulesRewriterFactory;
+import querqy.rewrite.contrib.PhraseBoostRewriterFactory;
 import querqy.rewrite.contrib.ReplaceRewriterFactory;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,5 +85,40 @@ public class RewriterSupportTest {
         );
 
         assertThat(rewriterFactory).isInstanceOf(ReplaceRewriterFactory.class);
+    }
+
+    @Test
+    public void testThat_phraseBoostRewriterIsCreatedProperly_viaDefinitionBuilder() {
+        final PhraseBoostDefinition definition = PhraseBoostDefinition.builder()
+                .rewriterId("phrase-boost")
+                .bigram(PhraseConfig.builder()
+                        .field(FieldBoost.builder().field("title").build())
+                        .field(FieldBoost.builder().field("brand").boost(2.0f).build())
+                        .slop(0)
+                        .build())
+                .full(PhraseConfig.builder()
+                        .field(FieldBoost.builder().field("title").build())
+                        .slop(1)
+                        .build())
+                .tieBreaker(0.1f)
+                .build();
+
+        final RewriterFactory rewriterFactory = PhraseBoostFactoryBuilder.of(definition).build();
+
+        assertThat(rewriterFactory).isInstanceOf(PhraseBoostRewriterFactory.class);
+    }
+
+    @Test
+    public void testThat_phraseBoostRewriterIsCreatedProperly_withNoOptionalPhraseTypes() {
+        final PhraseBoostDefinition definition = PhraseBoostDefinition.builder()
+                .rewriterId("phrase-boost")
+                .bigram(PhraseConfig.builder()
+                        .field(FieldBoost.builder().field("title").build())
+                        .build())
+                .build();
+
+        final RewriterFactory rewriterFactory = PhraseBoostFactoryBuilder.of(definition).build();
+
+        assertThat(rewriterFactory).isInstanceOf(PhraseBoostRewriterFactory.class);
     }
 }
