@@ -14,6 +14,7 @@ import querqy.converter.solr.map.builder.SolrMapDismaxQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapMatchAllQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapQueryReferenceBuilder;
 import querqy.converter.solr.map.builder.SolrMapQueryStringQueryBuilder;
+import querqy.converter.solr.map.builder.SolrMapPhraseQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapRawQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapTermQueryBuilder;
 import querqy.converter.solr.map.builder.SolrMapWrappedQueryBuilder;
@@ -37,6 +38,7 @@ public class SolrMapConverterFactory implements ConverterFactory<Map<String, Obj
 
     private final SolrMapConstantScoreQueryBuilder constantScoreQueryBuilder = SolrMapConstantScoreQueryBuilder.of(DEFAULT_CONSTANT_SCORE_QUERY_TYPE_NAME);
     private final SolrMapTermQueryBuilder termQueryBuilder = SolrMapTermQueryBuilder.of(DEFAULT_TERM_QUERY_TYPE_CONFIG);
+    private final SolrMapPhraseQueryBuilder phraseQueryBuilder = SolrMapPhraseQueryBuilder.create();
 
     @Override
     public Converter<Map<String, Object>> createConverter(QueryConfig queryConfig, QueryExpansionConfig<Map<String, Object>> queryExpansionConfig) {
@@ -57,6 +59,7 @@ public class SolrMapConverterFactory implements ConverterFactory<Map<String, Obj
                 .boostQueryBuilder(boostQueryBuilder)
                 .queryStringQueryBuilder(queryStringQueryBuilder)
                 .wrappedQueryBuilder(wrappedQueryBuilder)
+                .phraseQueryBuilder(phraseQueryBuilder)
                 .build();
 
         return converterFactory.createConverter(queryConfig, queryExpansionConfig);
