@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import querqy.rewrite.RewriterFactory;
 import querqy.rewrite.commonrules.SimpleCommonRulesRewriterFactory;
+import querqy.rewrite.contrib.PhraseBoostRewriterFactory;
 import querqy.rewrite.contrib.ReplaceRewriterFactory;
 import querqy.rewrite.replace.RegexReplaceRewriterFactory;
 
@@ -22,6 +23,7 @@ public class RewriterFactoryBuilder {
             case COMMON_RULES -> createCommonRulesFactory();
             case REPLACE_RULES -> createReplaceRulesFactory();
             case REGEX_REPLACE_RULES -> createRegexReplaceRulesFactory();
+            case PHRASE_BOOST -> createPhraseBoostFactory();
         };
 
     }
@@ -41,6 +43,12 @@ public class RewriterFactoryBuilder {
     private RegexReplaceRewriterFactory createRegexReplaceRulesFactory() {
         final RegexReplaceRulesDefinition definition = mapper.convertValue(attributes, RegexReplaceRulesDefinition.class);
         return RegexReplaceRulesFactoryBuilder.of(definition)
+                .build();
+    }
+
+    private PhraseBoostRewriterFactory createPhraseBoostFactory() {
+        final PhraseBoostDefinition definition = mapper.convertValue(attributes, PhraseBoostDefinition.class);
+        return PhraseBoostFactoryBuilder.of(definition)
                 .build();
     }
 
