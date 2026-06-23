@@ -6,15 +6,18 @@ import querqy.QueryConfig;
 import querqy.converter.generic.builder.BooleanQueryBuilder;
 import querqy.converter.generic.builder.DismaxQueryBuilder;
 import querqy.converter.generic.builder.MatchAllQueryBuilder;
+import querqy.converter.generic.builder.PhraseQueryBuilder;
 import querqy.converter.generic.builder.RawQueryBuilder;
 import querqy.converter.generic.model.BooleanQueryDefinition;
 import querqy.converter.generic.model.DismaxQueryDefinition;
 import querqy.model.AbstractNodeVisitor;
 import querqy.model.BooleanClause;
 import querqy.model.BooleanQuery;
+import querqy.model.BoostedPhraseQuery;
 import querqy.model.DisjunctionMaxClause;
 import querqy.model.DisjunctionMaxQuery;
 import querqy.model.MatchAllQuery;
+import querqy.model.PhraseQuery;
 import querqy.model.QuerqyQuery;
 import querqy.model.Query;
 import querqy.model.RawQuery;
@@ -37,6 +40,7 @@ public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
 
     @NonNull private final MatchAllQueryBuilder<T> matchAllQueryBuilder;
     @NonNull private final RawQueryBuilder<T> rawQueryBuilder;
+    @NonNull private final PhraseQueryBuilder<T> phraseQueryBuilder;
 
     public T convert(final QuerqyQuery<?> querqyQuery) {
         return querqyQuery.accept(this);
@@ -116,6 +120,14 @@ public class GenericQuerqyQueryConverter<T> extends AbstractNodeVisitor<T> {
 
     private List<T> convertTerm(final Term term) {
         return genericTermConverter.convert(term);
+    }
+
+    @Override
+    public T visit(final PhraseQuery phraseQuery) {
+        final float boost = phraseQuery instanceof BoostedPhraseQuery
+                ? ((BoostedPhraseQuery) phraseQuery).getBoost()
+                : 1.0f;
+        return phraseQueryBuilder.build(phraseQuery.getField(), phraseQuery.getTerms(), phraseQuery.getSlop(), boost);
     }
 
     @Override

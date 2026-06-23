@@ -14,6 +14,8 @@ import querqy.rewriter.builder.CommonRulesDefinition;
 import querqy.rewriter.builder.CommonRulesFactoryBuilder;
 import querqy.rewriter.builder.NumberUnitRulesDefinition;
 import querqy.rewriter.builder.NumberUnitRulesFactorBuilder;
+import querqy.rewriter.builder.PhraseBoostDefinition;
+import querqy.rewriter.builder.PhraseBoostFactoryBuilder;
 import querqy.rewriter.builder.RegexReplaceRulesDefinition;
 import querqy.rewriter.builder.RegexReplaceRulesFactoryBuilder;
 import querqy.rewriter.builder.ReplaceRulesDefinition;
@@ -69,6 +71,11 @@ public class QuerqyConfig {
 
         public QuerqyConfig.QuerqyConfigBuilder numberUnitRules(final NumberUnitRulesDefinition numberUnitRulesDefinition) {
             final RewriterFactory rewriterFactory = NumberUnitRulesFactorBuilder.of(numberUnitRulesDefinition).build();
+            return this.rewriterFactory(rewriterFactory);
+        }
+
+        public QuerqyConfig.QuerqyConfigBuilder phraseBoost(final PhraseBoostDefinition phraseBoostDefinition) {
+            final RewriterFactory rewriterFactory = PhraseBoostFactoryBuilder.of(phraseBoostDefinition).build();
             return this.rewriterFactory(rewriterFactory);
         }
     }

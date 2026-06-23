@@ -12,6 +12,7 @@ import querqy.converter.generic.builder.BoostQueryBuilder;
 import querqy.converter.generic.builder.ConstantScoreQueryBuilder;
 import querqy.converter.generic.builder.DismaxQueryBuilder;
 import querqy.converter.generic.builder.MatchAllQueryBuilder;
+import querqy.converter.generic.builder.PhraseQueryBuilder;
 import querqy.converter.generic.builder.QueryStringQueryBuilder;
 import querqy.converter.generic.builder.RawQueryBuilder;
 import querqy.converter.generic.builder.TermQueryBuilder;
@@ -28,6 +29,7 @@ public class GenericConverterFactory<T> implements ConverterFactory<T> {
     @NonNull private final RawQueryBuilder<T> rawQueryBuilder;
     @NonNull private final BoostQueryBuilder<T> boostQueryBuilder;
     @NonNull private final QueryStringQueryBuilder<T> queryStringQueryBuilder;
+    @NonNull private final PhraseQueryBuilder<T> phraseQueryBuilder;
 
     @Builder.Default private final WrappedQueryBuilder<T> wrappedQueryBuilder = WrappedQueryBuilder.defaultBuilder();
 
@@ -70,6 +72,7 @@ public class GenericConverterFactory<T> implements ConverterFactory<T> {
                 .genericTermConverter(createGenericTermConverter(queryConfig))
                 .matchAllQueryBuilder(matchAllQueryBuilder)
                 .rawQueryBuilder(rawQueryBuilder)
+                .phraseQueryBuilder(phraseQueryBuilder)
                 .queryConfig(queryConfig)
                 .build();
     }
