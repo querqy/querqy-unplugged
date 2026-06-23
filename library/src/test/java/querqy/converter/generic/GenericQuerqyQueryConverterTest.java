@@ -11,6 +11,7 @@ import querqy.QueryConfig;
 import querqy.converter.generic.builder.BooleanQueryBuilder;
 import querqy.converter.generic.builder.DismaxQueryBuilder;
 import querqy.converter.generic.builder.MatchAllQueryBuilder;
+import querqy.converter.generic.builder.PhraseQueryBuilder;
 import querqy.converter.generic.builder.RawQueryBuilder;
 import querqy.converter.generic.model.BooleanQueryDefinition;
 import querqy.converter.generic.model.DismaxQueryDefinition;
@@ -39,6 +40,7 @@ public class GenericQuerqyQueryConverterTest {
 
     @Mock private MatchAllQueryBuilder<String> matchAllQueryBuilder;
     @Mock private RawQueryBuilder<String> rawQueryBuilder;
+    @Mock private PhraseQueryBuilder<String> phraseQueryBuilder;
 
     @Captor private ArgumentCaptor<BooleanQueryDefinition<String>> booleanDefinitionCaptor;
     @Captor private ArgumentCaptor<DismaxQueryDefinition<String>> dismaxDefinitionCaptor;
@@ -64,6 +66,7 @@ public class GenericQuerqyQueryConverterTest {
                 .genericTermConverter(genericTermConverter)
                 .matchAllQueryBuilder(matchAllQueryBuilder)
                 .rawQueryBuilder(rawQueryBuilder)
+                .phraseQueryBuilder(phraseQueryBuilder)
                 .build();
     }
 
