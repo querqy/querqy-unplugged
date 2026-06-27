@@ -54,11 +54,6 @@
     </updateHandler>
 
     <requestHandler name="/select" class="solr.SearchHandler" />
-    <requestHandler name="/querqy/rewriter" class="querqy.solr.QuerqyRewriterRequestHandler" />
-
-    <searchComponent name="query" class="querqy.solr.QuerqyQueryComponent"/>
-
-    <queryParser name="querqy" class="querqy.solr.QuerqyDismaxQParserPlugin" />
 
     <queryParser name="bool" class="solr.qparser.BoolQParserWrapperPlugin"/>
     <queryParser name="nestedDismax" class="solr.qparser.NestedDisMaxQParserPlugin"/>
