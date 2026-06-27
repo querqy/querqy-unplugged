@@ -1,8 +1,8 @@
 package querqy.rewriter.builder;
 
 import lombok.RequiredArgsConstructor;
-import querqy.rewrite.commonrules.SimpleCommonRulesRewriterFactory;
-import querqy.rewrite.commonrules.select.ExpressionCriteriaSelectionStrategyFactory;
+import querqy.rewriter.commonrules.SimpleCommonRulesRewriterFactory;
+import querqy.rewriter.commonrules.select.ExpressionCriteriaSelectionStrategyFactory;
 import querqy.rewrite.lookup.preprocessing.LookupPreprocessorType;
 
 import java.io.IOException;

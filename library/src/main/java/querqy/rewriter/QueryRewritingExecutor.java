@@ -14,8 +14,8 @@ import querqy.model.Query;
 import querqy.parser.QuerqyParser;
 import querqy.rewrite.RewriteChain;
 import querqy.rewrite.RewriteChainOutput;
-import querqy.rewrite.commonrules.QuerqyParserFactory;
-import querqy.rewrite.commonrules.model.DecorateInstruction;
+import querqy.rewriter.commonrules.QuerqyParserFactory;
+import querqy.rewriter.commonrules.model.DecorateInstruction;
 import querqy.rewrite.logging.RewriteChainLog;
 import querqy.rewriter.builder.ExpandedQueryParser;
 

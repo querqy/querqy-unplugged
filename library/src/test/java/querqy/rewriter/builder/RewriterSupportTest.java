@@ -2,9 +2,9 @@ package querqy.rewriter.builder;
 
 import org.junit.Test;
 import querqy.rewrite.RewriterFactory;
-import querqy.rewrite.commonrules.SimpleCommonRulesRewriterFactory;
-import querqy.rewrite.contrib.PhraseBoostRewriterFactory;
-import querqy.rewrite.contrib.ReplaceRewriterFactory;
+import querqy.rewriter.commonrules.SimpleCommonRulesRewriterFactory;
+import querqy.rewriter.PhraseBoostRewriterFactory;
+import querqy.rewriter.replace.ReplaceRewriterFactory;
 
 import java.util.List;
 import java.util.Map;

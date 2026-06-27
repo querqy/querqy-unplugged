@@ -8,7 +8,7 @@ import querqy.model.MatchAllQuery;
 import querqy.model.Query;
 import querqy.model.Term;
 import querqy.parser.QuerqyParser;
-import querqy.rewrite.commonrules.QuerqyParserFactory;
+import querqy.rewriter.commonrules.QuerqyParserFactory;
 
 import java.util.List;
 

@@ -2,10 +2,10 @@ package querqy.rewriter.builder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import querqy.rewrite.contrib.NumberUnitRewriterFactory;
-import querqy.rewrite.contrib.numberunit.model.FieldDefinition;
-import querqy.rewrite.contrib.numberunit.model.NumberUnitDefinition;
-import querqy.rewrite.contrib.numberunit.model.UnitDefinition;
+import querqy.rewriter.numberunit.NumberUnitRewriterFactory;
+import querqy.rewriter.numberunit.model.FieldDefinition;
+import querqy.rewriter.numberunit.model.NumberUnitDefinition;
+import querqy.rewriter.numberunit.model.UnitDefinition;
 
 import java.io.IOException;
 import java.math.BigDecimal;
