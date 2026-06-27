@@ -21,6 +21,8 @@ import querqy.rewriter.builder.RegexReplaceRulesFactoryBuilder;
 import querqy.rewriter.builder.ReplaceRulesDefinition;
 import querqy.rewriter.builder.ReplaceRulesFactoryBuilder;
 import querqy.rewriter.builder.RewriterSupport;
+import querqy.rewriter.builder.WordBreakDefinition;
+import querqy.rewriter.builder.WordBreakFactoryBuilder;
 
 import java.util.List;
 import java.util.Objects;
@@ -76,6 +78,11 @@ public class QuerqyConfig {
 
         public QuerqyConfig.QuerqyConfigBuilder phraseBoost(final PhraseBoostDefinition phraseBoostDefinition) {
             final RewriterFactory rewriterFactory = PhraseBoostFactoryBuilder.of(phraseBoostDefinition).build();
+            return this.rewriterFactory(rewriterFactory);
+        }
+
+        public QuerqyConfig.QuerqyConfigBuilder wordBreak(final WordBreakDefinition wordBreakDefinition) {
+            final RewriterFactory rewriterFactory = WordBreakFactoryBuilder.of(wordBreakDefinition).build();
             return this.rewriterFactory(rewriterFactory);
         }
     }
