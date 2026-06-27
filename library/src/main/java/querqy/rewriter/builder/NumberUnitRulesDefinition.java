@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
-import querqy.rewrite.contrib.numberunit.NumberUnitQueryCreator;
+import querqy.rewriter.numberunit.NumberUnitQueryCreator;
 
 @Builder
 @NoArgsConstructor(force = true)

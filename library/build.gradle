@@ -9,7 +9,7 @@ repositories {
 }
 
 ext {
-    querqyCoreVersion = '4.0.0'
+    querqyCoreVersion = '4.1.0'
     elasticsearchVersion = '7.17.8'
     opensearchVersion = '3.8.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")

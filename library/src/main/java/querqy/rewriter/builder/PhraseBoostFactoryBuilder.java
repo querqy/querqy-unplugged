@@ -1,9 +1,9 @@
 package querqy.rewriter.builder;
 
 import lombok.RequiredArgsConstructor;
-import querqy.rewrite.contrib.PhraseBoostRewriter.FieldAndBoost;
-import querqy.rewrite.contrib.PhraseBoostRewriter.PhraseTypeConfig;
-import querqy.rewrite.contrib.PhraseBoostRewriterFactory;
+import querqy.rewriter.PhraseBoostRewriter.FieldAndBoost;
+import querqy.rewriter.PhraseBoostRewriter.PhraseTypeConfig;
+import querqy.rewriter.PhraseBoostRewriterFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;

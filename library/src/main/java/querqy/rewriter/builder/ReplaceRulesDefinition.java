@@ -8,8 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
-import querqy.rewrite.commonrules.QuerqyParserFactory;
-import querqy.rewrite.commonrules.WhiteSpaceQuerqyParserFactory;
+import querqy.rewriter.commonrules.QuerqyParserFactory;
+import querqy.rewriter.commonrules.WhiteSpaceQuerqyParserFactory;
 
 @Builder
 @NoArgsConstructor

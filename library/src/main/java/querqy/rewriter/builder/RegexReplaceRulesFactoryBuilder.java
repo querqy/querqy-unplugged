@@ -1,7 +1,7 @@
 package querqy.rewriter.builder;
 
 import lombok.RequiredArgsConstructor;
-import querqy.rewrite.replace.RegexReplaceRewriterFactory;
+import querqy.rewriter.regexreplace.RegexReplaceRewriterFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
