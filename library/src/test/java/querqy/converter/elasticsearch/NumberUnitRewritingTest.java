@@ -21,8 +21,6 @@ import static org.junit.Assert.assertTrue;
 
 public class NumberUnitRewritingTest {
 
-    private static final int DEFAULT_SCALE_FOR_LINEAR_FUNCTIONS = 5;
-
     static final String NUMBER_UNIT_CONFIG = "{\n" +
             "   \"numberUnitDefinitions\": [\n" +
             "       {\n" +
@@ -71,7 +69,7 @@ public class NumberUnitRewritingTest {
                 .numberUnitRules(NumberUnitRulesDefinition.builder()
                         .rewriterId("id2")
                         .rules(NUMBER_UNIT_CONFIG)
-                        .numberUnitQueryCreator(new NumberUnitQueryCreatorElasticsearch(DEFAULT_SCALE_FOR_LINEAR_FUNCTIONS))
+                        .numberUnitQueryCreator(NumberUnitQueryCreatorElasticsearch::new)
                         .build())
                 .build();
 
