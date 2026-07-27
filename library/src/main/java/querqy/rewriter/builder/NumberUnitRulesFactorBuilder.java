@@ -13,7 +13,7 @@ public class NumberUnitRulesFactorBuilder {
     public NumberUnitRewriterFactory build() {
         try {
             return new NumberUnitRewriterFactory(
-                    "id2", definition.getRules(), definition.getNumberUnitQueryCreator());
+                    definition.getRewriterId(), definition.getRules(), definition.getNumberUnitQueryCreator());
         } catch (IOException e) {
             throw new RewriterFactoryBuilderException(e);
         }
