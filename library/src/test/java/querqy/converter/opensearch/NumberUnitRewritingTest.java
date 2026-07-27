@@ -67,7 +67,7 @@ public class NumberUnitRewritingTest {
                                 .build()
                 )
                 .numberUnitRules(NumberUnitRulesDefinition.builder()
-                        .rewriterId("id2")
+                        .rewriterId("number-unit-rewriter")
                         .rules(NUMBER_UNIT_CONFIG)
                         .numberUnitQueryCreator(NumberUnitQueryCreatorOpenSearch::new)
                         .build())
