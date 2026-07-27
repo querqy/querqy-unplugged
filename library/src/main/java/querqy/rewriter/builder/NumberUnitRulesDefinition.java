@@ -10,6 +10,8 @@ import lombok.NonNull;
 import lombok.ToString;
 import querqy.rewriter.numberunit.NumberUnitQueryCreator;
 
+import java.util.function.IntFunction;
+
 @Builder
 @NoArgsConstructor(force = true)
 @AllArgsConstructor
@@ -21,20 +23,6 @@ public class NumberUnitRulesDefinition {
     private String rewriterId;
 
     @NonNull private final String rules;
-    @NonNull private final NumberUnitQueryCreator numberUnitQueryCreator;
-
-    @Builder.Default private int defaultUnitMultiplier = 1;
-    @Builder.Default private int defaultFieldScale = 0;
-    @Builder.Default private float defaultBoostMaxScoreForExactMatch = 200;
-    @Builder.Default private float defaultBoostMinScoreAtUpperBoundary = 100;
-    @Builder.Default private float defaultBoostMinScoreAtLowerBoundary = 100;
-    @Builder.Default private float defaultBoostAdditionalScoreForExactMatch = 100;
-    @Builder.Default private float defaultBoostPercentageUpperBoundary = 20;
-    @Builder.Default private float defaultBoostPercentageLowerBoundary = 20;
-    @Builder.Default private float defaultBoostPercentageUpperBoundaryExactMatch = 0;
-    @Builder.Default private float defaultBoostPercentageLowerBoundaryExactMatch = 0;
-    @Builder.Default private float defaultFilterPercentageLowerBoundary = 20;
-    @Builder.Default private float defaultFilterPercentageUpperBoundary = 20;
-
+    @NonNull private final IntFunction<NumberUnitQueryCreator> numberUnitQueryCreator;
 
 }
