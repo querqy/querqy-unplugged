@@ -2,6 +2,7 @@ package querqy.rewriter.builder;
 
 import org.junit.Test;
 import querqy.QuerqyConfig;
+import querqy.rewriter.wordbreak.OptionalModifierPosition;
 import querqy.rewriter.wordbreak.TsvDfCoocTermCorpus;
 import querqy.rewriter.wordbreak.TsvDfTermCorpus;
 import querqy.rewriter.wordbreak.WordBreakCompoundRewriterFactory;
@@ -68,6 +69,58 @@ public class WordBreakFactoryBuilderTest {
 
         assertThat(WordBreakFactoryBuilder.of(definition).build())
                 .isInstanceOf(WordBreakCompoundRewriterFactory.class);
+    }
+
+    @Test
+    public void testThat_optionalModifierConfigIsAppliedToRewriterFactory() throws IOException {
+        final TsvDfTermCorpus corpus = TsvDfTermCorpus.builder()
+                .reader(new StringReader("apple\t100\n"))
+                .build();
+
+        final WordBreakDefinition definition = WordBreakDefinition.builder()
+                .rewriterId("word-break")
+                .termCorpus(corpus)
+                .optionalModifierPosition("first")
+                .optionalModifierBoost(2f)
+                .build();
+
+        final WordBreakCompoundRewriterFactory factory = WordBreakFactoryBuilder.of(definition).build();
+
+        assertThat(factory.getOptionalModifierConfig().position()).isEqualTo(OptionalModifierPosition.FIRST);
+        assertThat(factory.getOptionalModifierConfig().boost()).isEqualTo(2f);
+    }
+
+    @Test
+    public void testThat_optionalModifierConfigDefaultsToDisabled() throws IOException {
+        final TsvDfTermCorpus corpus = TsvDfTermCorpus.builder()
+                .reader(new StringReader("apple\t100\n"))
+                .build();
+
+        final WordBreakDefinition definition = WordBreakDefinition.builder()
+                .rewriterId("word-break")
+                .termCorpus(corpus)
+                .build();
+
+        final WordBreakCompoundRewriterFactory factory = WordBreakFactoryBuilder.of(definition).build();
+
+        assertThat(factory.getOptionalModifierConfig().position()).isEqualTo(OptionalModifierPosition.NONE);
+        assertThat(factory.getOptionalModifierConfig().boost()).isEqualTo(1f);
+    }
+
+    @Test
+    public void testThat_wordBreakRewriterCreationFails_whenOptionalModifierBoostSetWithoutPosition() throws IOException {
+        final TsvDfTermCorpus corpus = TsvDfTermCorpus.builder()
+                .reader(new StringReader("apple\t100\n"))
+                .build();
+
+        final WordBreakDefinition definition = WordBreakDefinition.builder()
+                .rewriterId("word-break")
+                .termCorpus(corpus)
+                .optionalModifierBoost(2f)
+                .build();
+
+        assertThatThrownBy(() -> WordBreakFactoryBuilder.of(definition).build())
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

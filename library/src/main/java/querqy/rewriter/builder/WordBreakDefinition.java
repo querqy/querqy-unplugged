@@ -32,5 +32,7 @@ public class WordBreakDefinition {
     @Builder.Default private List<String> protectedWords = List.of();
     @Builder.Default private String decompoundMorphology = "default";
     @Builder.Default private String compoundMorphology = "default";
+    @Builder.Default private String optionalModifierPosition = "NONE";
+    @Builder.Default private float optionalModifierBoost = 1f;
 
 }
