@@ -21,7 +21,9 @@ public class WordBreakFactoryBuilder {
                 definition.isVerifyDecompoundCollation(),
                 definition.getProtectedWords(),
                 definition.getDecompoundMorphology(),
-                definition.getCompoundMorphology()
+                definition.getCompoundMorphology(),
+                definition.getOptionalModifierPosition(),
+                definition.getOptionalModifierBoost()
         );
     }
 
