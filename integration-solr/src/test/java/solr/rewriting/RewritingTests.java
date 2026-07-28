@@ -15,6 +15,7 @@ import querqy.converter.ConverterFactory;
 import querqy.converter.solr.map.SolrMapConverterFactory;
 import querqy.model.Query;
 import querqy.parser.QuerqyParser;
+import querqy.rewriter.builder.ExpandedQueryParser;
 import solr.SolrTestRequest;
 import solr.SolrTestResult;
 
@@ -55,9 +56,12 @@ public class RewritingTests extends SolrTestCaseJ4 {
 
     @Test
     public void testThat_allDocsAreReturned_forGivenMatchAllQuery() throws Exception {
+        final QuerqyConfig querqyConfig = QuerqyConfig.builder()
+                .matchAllQueryInput(ExpandedQueryParser.MATCH_ALL_FIELD_VALUE_INPUT)
+                .build();
         final QueryRewriting<Map<String, Object>> queryRewritingHandler = QueryRewriting.<Map<String, Object>>builder()
                 .queryConfig(queryConfig)
-                .querqyConfig(emptyQuerqyConfig())
+                .querqyConfig(querqyConfig)
                 .converterFactory(converterFactory)
                 .build();
 

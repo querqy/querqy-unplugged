@@ -26,6 +26,7 @@ import querqy.rewriter.builder.WordBreakFactoryBuilder;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @RequiredArgsConstructor(staticName = "of", access = AccessLevel.PRIVATE)
 @Getter
@@ -38,16 +39,20 @@ public class QuerqyConfig {
 
     private final RewriteLoggingConfig rewriteLoggingConfig;
 
+    private final Set<String> matchAllQueryInputs;
+
     @Builder
     public static QuerqyConfig build(
             final QuerqyParserFactory querqyParserFactory,
             @Singular final List<RewriterFactory> rewriterFactories,
-            final RewriteLoggingConfig rewriteLoggingConfig
+            final RewriteLoggingConfig rewriteLoggingConfig,
+            @Singular final Set<String> matchAllQueryInputs
     ) {
         return QuerqyConfig.of(
                 Objects.requireNonNullElseGet(querqyParserFactory, WhiteSpaceQuerqyParserFactory::new),
                 new RewriteChain(rewriterFactories),
-                Objects.requireNonNullElseGet(rewriteLoggingConfig, RewriteLoggingConfig::off)
+                Objects.requireNonNullElseGet(rewriteLoggingConfig, RewriteLoggingConfig::off),
+                matchAllQueryInputs
         );
     }
 

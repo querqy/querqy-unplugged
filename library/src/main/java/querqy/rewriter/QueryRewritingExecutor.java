@@ -31,7 +31,7 @@ public class QueryRewritingExecutor {
     @Builder.Default private final Map<String, String[]> params = Collections.emptyMap();
 
     public RewrittenQuerqyQuery rewriteQuery(final String queryInput) {
-        final ExpandedQueryParser expandedQueryParser = ExpandedQueryParser.create();
+        final ExpandedQueryParser expandedQueryParser = ExpandedQueryParser.of(querqyConfig.getMatchAllQueryInputs());
 
         final ExpandedQuery parsedQuery = expandedQueryParser.parseQuery(querqyConfig.getQuerqyParserFactory(), queryInput);
         return rewriteQuery(parsedQuery);
