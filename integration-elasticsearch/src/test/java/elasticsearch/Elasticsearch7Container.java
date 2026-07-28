@@ -17,8 +17,6 @@ public class Elasticsearch7Container extends ElasticsearchContainer {
     private Elasticsearch7Container() {
         super(DockerImageName.parse(ELASTIC_SEARCH_DOCKER)
                 .asCompatibleSubstituteFor("docker.elastic.co/elasticsearch/elasticsearch"));
-        this.addFixedExposedPort(9200, 9200);
-        this.addFixedExposedPort(9300, 9300);
         this.addEnv(CLUSTER_NAME, ELASTIC_SEARCH);
     }
 
