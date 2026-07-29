@@ -14,6 +14,7 @@ import querqy.converter.opensearch.javaclient.OSJavaClientConverterConfig;
 import querqy.converter.opensearch.javaclient.OSJavaClientConverterFactory;
 import querqy.parser.FieldAwareWhiteSpaceQuerqyParser;
 import querqy.rewriter.builder.CommonRulesDefinition;
+import querqy.rewriter.builder.ExpandedQueryParser;
 import querqy.rewriter.builder.ReplaceRulesDefinition;
 
 import java.util.List;
@@ -60,7 +61,10 @@ public class ExpandedQueryTest extends AbstractOpenSearchTest {
 
     @Test
     public void testThat_allDocumentsAreReturned_forGivenMatchAllQuery() {
-        final QueryRewriting<Query> queryRewriting = queryRewriting();
+        final QuerqyConfig querqyConfig = QuerqyConfig.builder()
+                .matchAllQueryInput(ExpandedQueryParser.MATCH_ALL_WILDCARD_INPUT)
+                .build();
+        final QueryRewriting<Query> queryRewriting = queryRewriting(querqyConfig, queryConfig);
         final Query query = queryRewriting.rewriteQuery("*").getConvertedQuery();
 
         final List<Product> products = search(query);

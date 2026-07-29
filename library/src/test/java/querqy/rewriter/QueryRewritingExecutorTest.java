@@ -23,8 +23,34 @@ import static querqy.model.convert.builder.TermBuilder.term;
 public class QueryRewritingExecutorTest {
 
     @Test
-    public void testThat_matchAllQueryIsReturned_forFieldValueMatchAllInputString() {
+    public void testThat_fieldValueMatchAllInputStringIsParsedLiterally_byDefault() {
         final QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
+
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
+                .querqyConfig(rewritingConfig)
+                .build()
+                .rewriteQuery("*:*");
+
+        assertThat(rewrittenQuery.getQuery().getUserQuery()).isNotInstanceOf(MatchAllQuery.class);
+    }
+
+    @Test
+    public void testThat_wildcardInputStringIsParsedLiterally_byDefault() {
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
+
+        final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
+                .querqyConfig(rewritingConfig)
+                .build()
+                .rewriteQuery("*");
+
+        assertThat(rewrittenQuery.getQuery().getUserQuery()).isNotInstanceOf(MatchAllQuery.class);
+    }
+
+    @Test
+    public void testThat_matchAllQueryIsReturned_forFieldValueMatchAllInputString_whenOptedIn() {
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
+                .matchAllQueryInput(ExpandedQueryParser.MATCH_ALL_FIELD_VALUE_INPUT)
+                .build();
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
                 .querqyConfig(rewritingConfig)
@@ -35,8 +61,10 @@ public class QueryRewritingExecutorTest {
     }
 
     @Test
-    public void testThat_matchAllQueryIsReturned_forWildcardInputString() {
-        final QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
+    public void testThat_matchAllQueryIsReturned_forWildcardInputString_whenOptedIn() {
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
+                .matchAllQueryInput(ExpandedQueryParser.MATCH_ALL_WILDCARD_INPUT)
+                .build();
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
                 .querqyConfig(rewritingConfig)
@@ -47,12 +75,14 @@ public class QueryRewritingExecutorTest {
     }
 
     @Test
-    public void testThat_matchAllQueryIsReturned_forFieldValueMatchAllQuerqyquery() {
-        final QuerqyConfig rewritingConfig = QuerqyConfig.builder().build();
+    public void testThat_matchAllQueryIsReturned_forFieldValueMatchAllQuerqyquery_whenOptedIn() {
+        final QuerqyConfig rewritingConfig = QuerqyConfig.builder()
+                .matchAllQueryInput(ExpandedQueryParser.MATCH_ALL_FIELD_VALUE_INPUT)
+                .build();
         String inputQuery = "*:*";
 
-        ExpandedQuery expandedQuery =
-                ExpandedQueryParser.create().parseQuery(rewritingConfig.getQuerqyParserFactory(), inputQuery);
+        ExpandedQuery expandedQuery = ExpandedQueryParser.of(rewritingConfig.getMatchAllQueryInputs())
+                .parseQuery(rewritingConfig.getQuerqyParserFactory(), inputQuery);
 
         final RewrittenQuerqyQuery rewrittenQuery = QueryRewritingExecutor.builder()
                 .querqyConfig(rewritingConfig)

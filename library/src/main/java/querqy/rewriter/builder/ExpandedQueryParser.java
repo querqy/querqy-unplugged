@@ -1,42 +1,33 @@
 package querqy.rewriter.builder;
 
-import lombok.NoArgsConstructor;
-import querqy.model.Clause;
-import querqy.model.DisjunctionMaxQuery;
 import querqy.model.ExpandedQuery;
 import querqy.model.MatchAllQuery;
 import querqy.model.Query;
-import querqy.model.Term;
 import querqy.parser.QuerqyParser;
 import querqy.rewriter.commonrules.QuerqyParserFactory;
 
-import java.util.List;
+import java.util.Set;
 
-@NoArgsConstructor(staticName = "create")
 public class ExpandedQueryParser {
     public static final String MATCH_ALL_FIELD_VALUE_INPUT = "*:*";
     public static final String MATCH_ALL_WILDCARD_INPUT = "*";
 
-    public ExpandedQuery parseQuery(final List<String> normalizedQueryTokenList) {
-        if (normalizedQueryTokenList.size() == 1
-                && (MATCH_ALL_WILDCARD_INPUT.equals(normalizedQueryTokenList.get(0))
-                    || MATCH_ALL_FIELD_VALUE_INPUT.equals(normalizedQueryTokenList.get(0)))) {
-            return new ExpandedQuery(new MatchAllQuery());
-        }
+    private final Set<String> matchAllQueryInputs;
 
-        final Query query = new Query();
+    private ExpandedQueryParser(final Set<String> matchAllQueryInputs) {
+        this.matchAllQueryInputs = matchAllQueryInputs;
+    }
 
-        for (final String normalizedToken : normalizedQueryTokenList) {
-            final DisjunctionMaxQuery dmq = new DisjunctionMaxQuery(query, Clause.Occur.SHOULD, false);
-            dmq.addClause(new Term(dmq, normalizedToken));
-            query.addClause(dmq);
-        }
+    public static ExpandedQueryParser create() {
+        return new ExpandedQueryParser(Set.of());
+    }
 
-        return new ExpandedQuery(query);
+    public static ExpandedQueryParser of(final Set<String> matchAllQueryInputs) {
+        return new ExpandedQueryParser(matchAllQueryInputs);
     }
 
     public ExpandedQuery parseQuery(final QuerqyParserFactory parserFactory, final String queryInput) {
-        if (MATCH_ALL_WILDCARD_INPUT.equals(queryInput) || MATCH_ALL_FIELD_VALUE_INPUT.equals(queryInput)) {
+        if (matchAllQueryInputs.contains(queryInput)) {
             return new ExpandedQuery(new MatchAllQuery());
 
         } else {
